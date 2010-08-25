@@ -1,0 +1,18 @@
+========== Almavis ==========
+This project aims to create a graphical interface for Lab 4 in the course
+TDDC67 (Funktionell programmering och Lisp) at Linköping University.
+
+It is built as an extension on top of an already existing backend calendar
+system used by students to learn the fundamentals of abstraction.
+
+The interface is written in Common Lisp using the CLIM2 specification. It
+currently runs on McClim but will be changed to run on Allegro later on.
+
+In the future, when the graphical interface works for the university, I
+might redo the backend in a more normal fashion and repurpose it again
+to fit McClim, so that it might be used as an example app for that
+project.
+
+Author: Oliver Uvman
+
+=============================
