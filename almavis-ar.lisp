@@ -1,4 +1,3 @@
-(declaim (optimize debug))
 (in-package #:almavis)
 
 (defclass år-view (view) ())
@@ -38,7 +37,7 @@
 (defun rita-år (frame pane)
   (let*
     ((årsalmor-att-visa
-       (platser->clim-år (slot-value frame 'platser)))
+       (datahämtare->clim-data (slot-value frame 'datahämtare)))
      (årsalma (reduce #'clim-år-union årsalmor-att-visa)))
     (terpri)
     (format t "Svart: Dagen finns ej.~%Vit: Dagen obokad.~%")
@@ -69,7 +68,9 @@
   (clim-månad (type clim-månad) stream (view år-view) &key)
   (with-drawing-options ;;rita block så att hela månadsområdet kan klickas
     (stream :ink +grey+)
-    (draw-rectangle* stream 0 0 (+ 73 (* 8 px-dagbredd)) (+ 30 (* 4 px-daghöjd))))
+    (draw-rectangle* stream 0 0
+		     (+ 73 (* 8 px-dagbredd))
+		     (+ 30 (* 4 px-daghöjd))))
   (princ ;;Skriv ut månadsnamn och bokad tid
     (format nil "~A: ~A timmar"
 	    (slot-value clim-månad 'namn)
@@ -175,7 +176,7 @@
 (define-application-frame
   årtest
   () ;Superclasses
-  ((platser :initarg platser :accessor platser)) ;Slots
+  ((datahämtare :initarg :datahämtare :accessor datahämtare)) ;Slots
   (:panes
     (kontrollytan
       (vertically (:max-height +fill+ :height +fill+)
@@ -210,8 +211,7 @@
 (defun testa-år (&rest årsalmanacksnamn)
   "Startar den grafiska interfacen för att visualisera almanackor"
   (defvar app (clim:make-application-frame 'årtest))
-  (setf (slot-value app 'platser)
-	(ny-platser-från-lista
-	  (mapcar #'(lambda (almanamn) (ny-plats almanamn))
-		  årsalmanacksnamn)))
+  (setf (slot-value app 'datahämtare)
+	(make-instance 'datahämtare
+		       :datakällor årsalmanacksnamn))
   (clim:run-frame-top-level app))

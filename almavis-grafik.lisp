@@ -70,13 +70,16 @@
 ;; (bygg-tabell (i 1 100 10 stream) (prin1 i)) för att få rad- och cell-
 ;; strukturer för en 10x10 tabell med siffrorna 1-100 i, första raden med
 ;; siffrorna 1-10
+;; TODO: Skriver ut fler saker än stopp säger att den borde
 (defmacro bygg-tabell
   ((var start stopp per-rad ström) &body body)
   (let ((i (gensym "inner-loop-var"))) 
     `(loop
      for ,i from ,start to ,stopp by ,per-rad do
      (formatting-row (,ström)
-		     (loop for ,var from ,i to (+ ,i (1- ,per-rad)) do
+		     (loop for ,var from ,i to (max ,stopp
+						    (+ ,i (1- ,per-rad)))
+			   do
 			   (formatting-cell (,ström)
 					    ,@body)))))) 
 

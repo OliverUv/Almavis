@@ -212,17 +212,21 @@
     (boka överlapp-test-a 11 februari "07:00" "22:30" "busy busy")
     (boka överlapp-test-a 12 februari "08:00" "22:30" "busy busy")
     (boka överlapp-test-a 13 februari "09:00" "22:30" "busy busy")
+    
+    ;;Vi vill överlappa på alla möjliga vis. Till höger visas test-b-tiden
+    ;;ska resultera i 10 möten som visar överlapp
+    (boka överlapp-test-a 15 februari "00:00" "00:50" "oj oj busy") ;01:00 02:00
+    (boka överlapp-test-a 15 februari "02:50" "03:00" "oj oj busy") ;03:00 04:00
+    (boka överlapp-test-a 15 februari "04:50" "05:30" "oj oj busy") ;05:00 06:00
+    (boka överlapp-test-a 16 februari "06:50" "08:00" "oj oj busy") ;07:00 08:00
+    (boka överlapp-test-a 16 februari "08:40" "10:20" "oj oj busy") ;09:00 10:00
+    (boka överlapp-test-a 16 februari "11:00" "12:20" "oj oj busy") ;11:00 12:00
+    (boka överlapp-test-a 17 februari "13:00" "14:00" "oj oj busy") ;13:00 14:00
 
-    (boka överlapp-test-a 12 februari "00:00" "00:50" "oj oj busy")
-    (boka överlapp-test-a 12 februari "03:00" "04:00" "oj oj busy")
-    (boka överlapp-test-a 12 februari "05:00" "06:00" "oj oj busy")
-    (boka överlapp-test-a 12 februari "07:00" "08:00" "oj oj busy")
-    (boka överlapp-test-a 12 februari "09:00" "10:00" "oj oj busy")
-    (boka överlapp-test-a 12 februari "11:00" "12:00" "oj oj busy")
-    (boka överlapp-test-a 12 februari "13:00" "14:00" "oj oj busy")
-    (boka överlapp-test-a 12 februari "15:00" "16:00" "oj oj busy")
-    (boka överlapp-test-a 12 februari "17:00" "18:00" "oj oj busy")
-    (boka överlapp-test-a 12 februari "19:00" "20:00" "oj oj busy")
+    (boka överlapp-test-a 18 februari "10:00" "11:00" "oj oj busy")
+    (boka överlapp-test-a 18 februari "12:00" "13:00" "oj oj busy")
+    (boka överlapp-test-a 18 februari "14:00" "15:00" "oj oj busy")
+    (boka överlapp-test-a 18 februari "18:00" "19:00" "oj oj busy")
 
     (boka överlapp-test-a 10 februari "10:00" "22:30" "busy busy")))
 
@@ -230,33 +234,32 @@
 (almavis::ny-testdata
   'alma->clos
   '(överlapp-test-b
-    (boka överlapp-test-b 1 mars "07:00" "08:00" "busy busy")
-    (boka överlapp-test-b 1 mars "09:00" "11:00" "busy busy")
-    (boka överlapp-test-b 1 mars "13:00" "14:00" "busy busy")
-    (boka överlapp-test-b 2 mars "13:00" "14:00" "busy busy")
-    (boka överlapp-test-b 1 februari "01:00" "22:30" "busy busy")
-    (boka överlapp-test-b 2 februari "01:00" "22:30" "busy busy")
-    (boka överlapp-test-b 3 februari "04:00" "22:30" "busy busy")
-    (boka överlapp-test-b 4 februari "04:00" "21:30" "busy busy")
-    (boka överlapp-test-b 5 februari "04:00" "21:30" "busy busy")
-    (boka överlapp-test-b 6 februari "07:00" "21:30" "busy busy")
-    (boka överlapp-test-b 7 februari "07:00" "23:30" "busy busy")
-    (boka överlapp-test-b 8 februari "07:00" "23:30" "busy busy")
-    (boka överlapp-test-b 9 februari "10:00" "23:30" "busy busy")
-    (boka överlapp-test-b 11 februari "03:00" "05:30" "oj oj busy")
+    (boka överlapp-test-b 1 mars "07:00" "08:00" "B")
+    (boka överlapp-test-b 1 mars "09:00" "11:00" "B")
+    (boka överlapp-test-b 1 mars "13:00" "14:00" "B")
+    (boka överlapp-test-b 2 mars "13:00" "14:00" "B")
+    (boka överlapp-test-b 1 februari "01:00" "22:30" "B")
+    (boka överlapp-test-b 2 februari "01:00" "22:30" "B")
+    (boka överlapp-test-b 3 februari "04:00" "22:30" "B")
+    (boka överlapp-test-b 4 februari "04:00" "21:30" "B")
+    (boka överlapp-test-b 5 februari "04:00" "21:30" "B")
+    (boka överlapp-test-b 6 februari "07:00" "21:30" "B")
+    (boka överlapp-test-b 7 februari "07:00" "23:30" "B")
+    (boka överlapp-test-b 8 februari "07:00" "23:30" "B")
+    (boka överlapp-test-b 9 februari "10:00" "23:30" "B")
+    (boka överlapp-test-b 11 februari "03:00" "05:30" "B")
     ;;Testa olika överlapp
-    (boka överlapp-test-b 12 februari "01:00" "02:00" "oj oj busy")
-    (boka överlapp-test-b 12 februari "03:00" "04:00" "oj oj busy")
-    (boka överlapp-test-b 12 februari "05:00" "06:00" "oj oj busy")
-    (boka överlapp-test-b 12 februari "07:00" "08:00" "oj oj busy")
-    (boka överlapp-test-b 12 februari "09:00" "10:00" "oj oj busy")
-    (boka överlapp-test-b 12 februari "11:00" "12:00" "oj oj busy")
-    (boka överlapp-test-b 12 februari "13:00" "14:00" "oj oj busy")
-    (boka överlapp-test-b 12 februari "15:00" "16:00" "oj oj busy")
-    (boka överlapp-test-b 12 februari "17:00" "18:00" "oj oj busy")
-    (boka överlapp-test-b 12 februari "19:00" "20:00" "oj oj busy")
+    (boka överlapp-test-b 15 februari "01:00" "02:00" "B")
+    (boka överlapp-test-b 15 februari "03:00" "04:00" "B")
+    (boka överlapp-test-b 15 februari "05:00" "06:00" "B")
+    (boka överlapp-test-b 16 februari "07:00" "08:00" "B")
+    (boka överlapp-test-b 16 februari "09:00" "10:00" "B")
+    (boka överlapp-test-b 16 februari "11:00" "12:00" "B")
+    (boka överlapp-test-b 17 februari "13:00" "14:00" "B")
 
-    (boka överlapp-test-b 10 februari "10:00" "22:30" "busy busy")))
+    (boka överlapp-test-b 18 februari "10:00" "23:00" "B")
+
+    (boka överlapp-test-b 10 februari "10:00" "22:30" "B")))
 
 (almavis::ny-testdata
   'alma->clos

@@ -146,6 +146,16 @@
       #'möten
       (slot-value clim-månad 'dagar)))) 
 
+(defmethod möteslängd ((clim-möte clim-möte))
+  "Ger ett mötes längd i minuter, kräver att alma kan tp"
+  (assert (alma-kan-längd-av-tp)) 
+  (let* ((alma-möte (slot-value clim-möte 'alma-möte))
+             (tp (tidsperioddel alma-möte))
+             (tidsrymd (funcall (alma-kan-längd-av-tp) tp))
+             (timmar (heltal (timdel tidsrymd)))
+             (minuter (heltal (minutdel tidsrymd))))
+            (+ minuter (* 60 timmar))))
+ 
 (defmethod clim-år-union ((a clim-år) (b clim-år))
   "Slår ihop två clim-år till ett, resultatet får namn och alma-år
   från det första argumenet. Endast månadslistan sammansätts från
@@ -191,13 +201,20 @@
 ;; en alma-årsalmanacka och alma-månadsalmanacka, respektive, med hjälp
 ;; av almanackans primitiver.
 
-(defun hämta-årsalmanackor ()
+(defun hämta-årsalmanackor (&optional alma-namn-lista)
   "Returnerar en lista med clim-år"
-  (mapcar
-   #'(lambda (alma-tupel)
-             (konvertera-år (car alma-tupel) (cdr alma-tupel)))
-             ;car är namnet på almanackan, cdr är alma-årsalmanackan
-   *almanacka*))
+  (let ((konverterade-år
+	  (mapcar
+	    #'(lambda (alma-tupel)
+		(cond ((and alma-namn-lista
+			    (not (member (car alma-tupel)
+					 alma-namn-lista
+					 :test #'equalp))) 
+		       nil)
+		      (t (konvertera-år (car alma-tupel) (cdr alma-tupel)))))
+	    ;car är namnet på almanackan, cdr är alma-årsalmanackan
+	    *almanacka*))) 
+    (remove-if #'null konverterade-år)))
 
 (defun hämta-dagar (alma-månad dagar-i-månad)
   "Returnerar en lista med dagalmanackorna i en månad"
@@ -323,122 +340,59 @@
    :mötesinfo mötestext))
 
 
-;;;;;; Plats och Platser  ;;;;;;;
+;;;;;; Datahämtare ;;;;;;;
 ;; Används av almavis olika vyer för att veta vad för olika objekt de
-;; ska visa. Är ett sätt att specifiera år, månader och datum på och
-;; har tillhörande funktioner för att hämta den data som visas.
+;; ska visa. En datahämtare består av en plats och flera datakällor.
+;; Platsen specifierar vilken månad och eventuellt datum som ska visas.
+;; Datakällorna talar om från vilka årsalmanackor vi vill visa informationen.
+;; Datakällorna är en lista med almanacksnamn.
 
-;; Just nu implementerad i almanackans objektsystem för skojs skull.
+(defclass plats ()
+  ((månad :initarg :månad
+	  :initform (error "Plats måste ha månad")
+	  :accessor plats-månad)
+   (dag :initarg :dag
+	:initform nil
+	:accessor plats-dag))) 
 
-;;; Platser :: (plats+)
-;;; Plats :: (årsalmanamn [månadsnamn [dag-i-månad]])
+(defclass datahämtare ()
+  ((plats ;:type plats
+	  :initarg :plats
+	  :initform nil
+	  :accessor plats)
+   (datakällor :initarg :datakällor
+	       :initform (error "Datakällor för datahämtare måste initieras.")
+	       :accessor datakällor))) 
 
-(defconstant platser-typ 'platser)
-(defun platser? (objekt) (eq platser-typ (typ objekt))) 
+(defmethod datahämtare->clim-data
+  ((datahämtare datahämtare) &key (månad nil))
+  (with-slots (plats datakällor) datahämtare 
+    (cond
+      ((null plats) (plocka-ut datakällor)) 
+      ((or månad (null (plats-dag plats)))
+       (plocka-ut datakällor
+		  :månadsnamn (plats-månad plats)))
+      (t (plocka-ut datakällor
+		    :månadsnamn (plats-månad plats)
+		    :dag-i-månad (plats-dag plats))))))
 
-(defun första-platsen (platser)
-  (typkontroll platser #'platser?)
-  (car (packa-upp platser)))
-
-(defun resten-platser (platser)
-  (typkontroll platser #'platser?)
-  (cdr (packa-upp platser))) 
-
-(defun tom-platser (platser)
-  (typkontroll platser #'platser?)
-  (endp (packa-upp platser)))
-
-(defun lägg-in-plats (plats platser)
-  (typkontroll platser #'platser?) 
-  (typkontroll plats #'plats?) 
-  (packa-ihop platser-typ (cons plats (packa-upp platser)))) 
-
-
-(defconstant plats-typ 'plats) 
-(defun plats? (objekt) (eq plats-typ (typ objekt))) 
-
-(defun ny-platser (&rest platser)
-  (mapc #'(lambda (plats) (typkontroll plats #'plats?)) platser) 
-  (packa-ihop platser-typ platser)) 
-
-(defun ny-platser-från-lista (lista-med-platser)
-  (mapc #'(lambda (plats) (typkontroll plats #'plats?)) lista-med-platser) 
-  (packa-ihop platser-typ lista-med-platser)) 
-
-(defun plats-lista (platser) ;;Om programmet behöver mapcara eller sånt 
-  (typkontroll platser #'platser?)
-  (packa-upp platser))
-
-(defun ny-plats (alma-namn &optional månadsnamn dag-i-månad)
-  (packa-ihop
-    plats-typ
-    (cond (dag-i-månad (list alma-namn månadsnamn dag-i-månad))
-	  (månadsnamn (list alma-namn månadsnamn))
-	  (alma-namn (list alma-namn))))) 
-
-(defun plats-år (plats)
-  "Returnerar platsens almanamn"
-  (typkontroll plats #'plats?) 
-  (nth 0 (packa-upp plats))) 
-
-(defun plats-månad (plats)
-  "Returnerar platsens månadsnamn eller null"
-  (typkontroll plats #'plats?) 
-  (nth 1 (packa-upp plats))) 
-
-(defun plats-dag (plats)
-  "Returnerar platsens dag-i-månad eller null"
-  (typkontroll plats #'plats?) 
-  (nth 2 (packa-upp plats))) 
-
-(defun plats-är-år? (plats) 
-  (typkontroll plats #'plats?) 
-  (= 1 (length (packa-upp plats)))) 
-
-(defun plats-är-månad? (plats) 
-  (typkontroll plats #'plats?) 
-  (= 2 (length (packa-upp plats)))) 
-
-(defun plats-är-dag? (plats) 
-  (typkontroll plats #'plats?) 
-  (= 3 (length (packa-upp plats)))) 
-
-(defun plats->clim-data (plats &optional (årsalmanackor (hämta-årsalmanackor)))
-  (typkontroll plats #'plats?)
-  (plocka-ut (plats-år plats)
-	     :månadsnamn (plats-månad plats)
-	     :dag-i-månad (plats-dag plats)
-	     :årsalmor årsalmanackor)) 
-
-(defun platser->clim-möten (platser &key (filter #'(lambda (x) nil)))
-  (typkontroll platser #'platser?)
+(defmethod datahämtare->clim-möten
+  ((datahämtare datahämtare))
   (remove-duplicates
     (reduce #'append
-      (mapcar #'möten
-	      (platser->clim-data platser :filter filter))))) 
+	    (mapcar #'möten
+		    (datahämtare->clim-data datahämtare))))) 
 
-(defun platser->clim-data (platser &key (filter #'(lambda (x) nil)))
-  "Tar ett platser-objekt och returnerar en lista med de clim-data
-  objekt som finns utpekade av platserna."
-  (typkontroll platser #'platser?)
-  (remove-duplicates
-    (let ((årsalma (hämta-årsalmanackor)))
-      (mapcar
-	#'(lambda (plats) (plats->clim-data plats årsalma))
-	(remove-if-not filter (plats-lista platser)))))) 
+(defmethod datahämtare->clim-månad ((datahämtare datahämtare))
+  "Med denna funktion kan man hämta månadsobjekt även om datahämtarens plats
+  är en dag."
+  (datahämtare->clim-data datahämtare :månad t)) 
 
-(defun platser->clim-år (platser)
-  (typkontroll platser #'platser?)
-  (platser->clim-data platser :filter #'plats-är-år?)) 
-
-(defun platser->clim-månad (platser)
-  (typkontroll platser #'platser?)
-  (platser->clim-data platser :filter #'plats-är-månad?)) 
-
-(defun platser->clim-dag (platser)
-  (typkontroll platser #'platser?)
-  (platser->clim-data platser :filter #'plats-är-dag?)) 
-
+(defmethod plats-antal-dagar ((plats plats))
+  (if (null (plats-månad plats)) 0 
+    (cdr (assoc (plats-månad plats)
+		*månadsdata*
+		:test #'equalp)))) 
 
 ;;;;;; Allmänna funktioner för traversering av objekt mm ;;;;;;;
 
@@ -526,21 +480,22 @@
 
 ;;;Smidig funktion för att plocka ut års, månads eller dagsalmanackor i clim-format ur varandra. Dessa kan tas från en lista med clim-årsalmor, eller från de alma-almanackor som finns definierade.
 (defun plocka-ut
-  (alma-namn &key månadsnamn dag-i-månad (årsalmor (hämta-årsalmanackor)))
-  (let*
-    ((clim-år (find-if #'(lambda (årsalma)
-				 (equalp alma-namn
-					 (slot-value årsalma 'namn)))
-		       årsalmor))
-     (clim-månad
-       (when (and clim-år månadsnamn)
-	 (find-if #'(lambda (månad) (equalp månadsnamn
-					    (slot-value månad 'namn)))
-		  (slot-value clim-år 'månader))))
-     (clim-dag
-       (when (and clim-månad dag-i-månad)
-	 (nth (1- dag-i-månad) (slot-value clim-månad 'dagar)))))
-    (or clim-dag clim-månad clim-år)))
+  (datakällor ;;lista med almanacksnamn
+    &key månadsnamn dag-i-månad
+    (årsalmor (hämta-årsalmanackor datakällor)))
+  (mapcar
+    #'(lambda (clim-år)
+	(let*
+	  ((clim-månad
+	     (when månadsnamn
+	       (find-if #'(lambda (månad) (equalp månadsnamn
+						  (slot-value månad 'namn)))
+			(slot-value clim-år 'månader))))
+	   (clim-dag
+	     (when (and clim-månad dag-i-månad)
+	       (nth (1- dag-i-månad) (slot-value clim-månad 'dagar)))))
+	  (or clim-dag clim-månad clim-år)))
+    årsalmor))
 
 
 (defun plocka-ut-månad (clim-år månadsnr)
@@ -582,21 +537,14 @@
        (if (null möten)
            0
            (räkna-ihop-möteslängder möten))))
- 
+
 (defun räkna-ihop-möteslängder (clim-möteslista)
   "Ger den totala längden av mötestiderna i clim-möteslista, i minuter"
   (reduce
    #'+
    clim-möteslista
    :key
-   #'(lambda
-      (clim-möte)
-      (let* ((alma-möte (slot-value clim-möte 'alma-möte))
-             (tp (tidsperioddel alma-möte))
-             (tidsrymd (funcall (alma-kan-längd-av-tp) tp))
-             (timmar (heltal (timdel tidsrymd)))
-             (minuter (heltal (minutdel tidsrymd))))
-            (+ minuter (* 60 timmar))))))
+   #'möteslängd))
 
 (defmethod möten-överlappar ((a clim-möte) (b clim-möte))
   (överlappar?
@@ -604,6 +552,7 @@
    (tidsperioddel (slot-value b 'alma-möte))))
 
 (defmethod möten-överlapp ((a clim-möte) (b clim-möte))
+  (assert (alma-kan-överlapp)) 
   (let ((tidsperiod-a
 	  (tidsperioddel (slot-value a 'alma-möte)))
 	(tidsperiod-b
