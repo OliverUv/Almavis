@@ -1,12 +1,12 @@
 ;;;;;; Unit tests
 (in-package #:almavis)
 
-;; Vi lagrar unit-testen och deras data i dessa variabler. De bÃ¶r Ã¤ndast
-;; Ã¤ndras genom anrop till nytt-unit-test och ny-test-data.
+;; Vi lagrar unit-testen och deras data i dessa variabler. De bör ändast
+;; ändras genom anrop till nytt-unit-test och ny-test-data.
 (defvar unit-tests nil)
 (defvar test-data nil)
 
-;; Efter att du definierat dina testfunktioner och din testdata kallar du pÃ¥
+;; Efter att du definierat dina testfunktioner och din testdata kallar du på
 ;; dessa funktioner.
 (defun nytt-unit-test (testsymbol testfun)
   (setq unit-tests
@@ -22,7 +22,7 @@
   (let
    ((lyckade 0)
     (misslyckade 0)
-    (okÃ¶rbara 0))
+    (okörbara 0))
    (mapc
     #'(lambda
        (unit-test-data)
@@ -32,8 +32,8 @@
          (testfun (cdr (assoc testnamn unit-tests)))
          (resultat nil))
         (cond ((null testfun)
-               (setf okÃ¶rbara (1+ okÃ¶rbara))
-               (format t "! ~A kunde ej kÃ¶ras, debugga unit-testet" testnamn))
+               (setf okörbara (1+ okörbara))
+               (format t "! ~A kunde ej köras, debugga unit-testet" testnamn))
               ((null (setf resultat (apply testfun testdata)))
                (setf lyckade (1+ lyckade))
                (format t "~A: ~A~%" testnamn "lyckat"))
@@ -42,15 +42,15 @@
                (format t "~A: MISSLYCKAT: ~%~A~%" testnamn resultat)))))
     test-data)
    (format t "  ----------------  ~%~%")
-   (if (and (= 0 misslyckade) (= 0 okÃ¶rbara))
+   (if (and (= 0 misslyckade) (= 0 okörbara))
        (format t "Alla tester lyckade~%~%")
-       (format t "Lyckade: ~A~%Misslyckade: ~A~%OkÃ¶rbara: ~A~%~%"
-               lyckade misslyckade okÃ¶rbara))))
+       (format t "Lyckade: ~A~%Misslyckade: ~A~%Okörbara: ~A~%~%"
+               lyckade misslyckade okörbara))))
 
 
-;; HjÃ¤lpfunktion fÃ¶r unit-tester. De flesta behÃ¶ver ta en lista med
-;; resultat, dÃ¤r lyckade resultat Ã¤r nil och misslyckade en textstrÃ¤ng.
-;; Ã„r allt i listan nil returneras nil, annars byggs en textstrÃ¤ng upp
+;; Hjälpfunktion för unit-tester. De flesta behöver ta en lista med
+;; resultat, där lyckade resultat är nil och misslyckade en textsträng.
+;; Är allt i listan nil returneras nil, annars byggs en textsträng upp
 ;; som visar de testfall som misslyckades.
 (defun samla-resultat (resultatlista)
   (let ((res (remove-if #'null resultatlista))
@@ -61,10 +61,10 @@
                   resstring
                   (format nil "~A~A,~%" resstring fel))))))
 
-;; Detta unit-test kan anvÃ¤ndas om inga bieffekter eller annat
-;; behÃ¶ver testas. Registrera helt enkelt en test-data fÃ¶r testet
-;; standard-test, med formen (funktion argument vÃ¤ntat-resultat),
-;; sÃ¥ kÃ¶rs och kontrolleras testet automatiskt.
+;; Detta unit-test kan användas om inga bieffekter eller annat
+;; behöver testas. Registrera helt enkelt en test-data för testet
+;; standard-test, med formen (funktion argument väntat-resultat),
+;; så körs och kontrolleras testet automatiskt.
 (defun standard-test (test-data)
   (if (equal (apply (car test-data) (cadr test-data))
              (caddr test-data))
@@ -76,65 +76,65 @@
   #'standard-test)
 
 ;;;;;; alma->clos
-;;;; Testar om data importeras frÃ¥n almanackans dataobjekt till CLOS-objekt
-;;;; korrekt. Datan Ã¤r utformad (almanacksnamn bokningskommando*). Mycket
-;;;; paket-magi som mÃ¥ste tas hÃ¤nsyn till. PÃ¥ ida ska #:stdalma bytas ut mot
+;;;; Testar om data importeras från almanackans dataobjekt till CLOS-objekt
+;;;; korrekt. Datan är utformad (almanacksnamn bokningskommando*). Mycket
+;;;; paket-magi som måste tas hänsyn till. På ida ska #:stdalma bytas ut mot
 ;;;; :common-lisp-user.
 
 (defun alma->clos (test-data)
-  (common-lisp-user::boka-alma test-data) ;;bokar alma-mÃ¶ten
-  (let ((Ã¥rsalmor (hÃ¤mta-Ã¥rsalmanackor))) ;;hÃ¤mtar clos-representationer
-       (samla-resultat ;;kollar vad som gick rÃ¤tt
+  (common-lisp-user::boka-alma test-data) ;;bokar alma-möten
+  (let ((årsalmor (hämta-årsalmanackor))) ;;hämtar clos-representationer
+       (samla-resultat ;;kollar vad som gick rätt
         (mapcar
          #'(lambda ;;testar varje bokning
             (bokning)
-            (if (bokning-korrekt bokning Ã¥rsalmor)
-                nil       ;;Ã¤r bokningen korrekt returnerar vi nil
-                bokning)) ;;annars bokningen, sÃ¥ vi ser vad som gick fel
+            (if (bokning-korrekt bokning årsalmor)
+                nil       ;;är bokningen korrekt returnerar vi nil
+                bokning)) ;;annars bokningen, så vi ser vad som gick fel
          (cdr test-data)))))
 
-;; Kontrollerar att det finns bokningsinformation i nÃ¥gon av Ã¥rsalmanackorna
-;; som Ã¶verrensstÃ¤mmer med bokningen.
-(defun bokning-korrekt (bokning Ã¥rsalmor)
+;; Kontrollerar att det finns bokningsinformation i någon av årsalmanackorna
+;; som överrensstämmer med bokningen.
+(defun bokning-korrekt (bokning årsalmor)
   (let
    ((almanamn (nth 1 bokning))
     (datum (nth 2 bokning))
-    (mÃ¥nad (nth 3 bokning))
+    (månad (nth 3 bokning))
     (start-kl (klockslag-till-heltal (omvandla-klockslag (nth 4 bokning))))
     (slut-kl (klockslag-till-heltal (omvandla-klockslag (nth 5 bokning))))
     (info (nth 6 bokning)))
-   (remove-if-not ;;Djup sÃ¶kning :D
+   (remove-if-not ;;Djup sökning :D
     #'(lambda 
-       (Ã¥rsalma)
+       (årsalma)
        (clos-objekt-check
-        Ã¥rsalma
+        årsalma
         'namn almanamn
-        'mÃ¥nader
+        'månader
         #'(lambda
-           (mÃ¥nadsalma)
+           (månadsalma)
            (clos-objekt-check
-            mÃ¥nadsalma
-            'namn mÃ¥nad
+            månadsalma
+            'namn månad
             'dagar
             #'(lambda
                (dagalma)
                (clos-objekt-check
                 dagalma
-                'dag-i-mÃ¥nad datum
-                'mÃ¶ten
+                'dag-i-månad datum
+                'möten
                 #'(lambda
-                   (mÃ¶te)
-                   (and (slot-har-vÃ¤rde mÃ¶te 'start-kl start-kl)
-                        (slot-har-vÃ¤rde mÃ¶te 'slut-kl slut-kl)
-                        (slot-har-vÃ¤rde mÃ¶te 'mÃ¶tesinfo info)
-                        (slot-har-vÃ¤rde mÃ¶te 'almanacksnamn almanamn)))))))))
-    Ã¥rsalmor)))
+                   (möte)
+                   (and (slot-har-värde möte 'start-kl start-kl)
+                        (slot-har-värde möte 'slut-kl slut-kl)
+                        (slot-har-värde möte 'mötesinfo info)
+                        (slot-har-värde möte 'almanacksnamn almanamn)))))))))
+    årsalmor)))
 
 (in-package common-lisp-user)
 (defun boka-alma (alma)
   (skapa (car alma))
-  (dolist (mÃ¶te (cdr alma))
-          (apply (car mÃ¶te) (cdr mÃ¶te))))
+  (dolist (möte (cdr alma))
+          (apply (car möte) (cdr möte))))
 
 (almavis::nytt-unit-test
   'alma->clos
@@ -143,123 +143,123 @@
 (almavis::ny-testdata
   'alma->clos
   '(kalle
-    (boka kalle 12 september "08:00" "08.30" "MorgonmÃ¶te")
-    (boka kalle 12 september "11:00" "11:30" "StyrelsemÃ¶te")
+    (boka kalle 12 september "08:00" "08.30" "Morgonmöte")
+    (boka kalle 12 september "11:00" "11:30" "Styrelsemöte")
     (boka kalle 12 september "12:15" "12.45" "Lunch")
     (boka kalle 12 september "13:30" "14:15" "Rapportarbete")
-    (boka kalle 12 september "15:15" "15:45" "TrÃ¤ffa Jocke")
+    (boka kalle 12 september "15:15" "15:45" "Träffa Jocke")
     (boka kalle 12 september "16:15" "16:45" "Telefonjour")
     (boka kalle 12 september "18:00" "19:00" "Handla mat")
-    (boka kalle 12 september "19:30" "20:30" "StyrketrÃ¤ning")))
+    (boka kalle 12 september "19:30" "20:30" "Styrketräning")))
 
 (almavis::ny-testdata
   'alma->clos
   '(lisa
-    (boka lisa 7 september "07:00" "07:30" "MorgonmÃ¶te")
-    (boka lisa 8 september "07:00" "07:30" "MorgonmÃ¶te")
-    (boka lisa 8 september "09:00" "09:30" "TrÃ¤ffa Johanna")
-    (boka lisa 9 september "07:00" "07:30" "MorgonmÃ¶te")
-    (boka lisa 9 september "09:00" "09:30" "TrÃ¤ffa Johanna")
+    (boka lisa 7 september "07:00" "07:30" "Morgonmöte")
+    (boka lisa 8 september "07:00" "07:30" "Morgonmöte")
+    (boka lisa 8 september "09:00" "09:30" "Träffa Johanna")
+    (boka lisa 9 september "07:00" "07:30" "Morgonmöte")
+    (boka lisa 9 september "09:00" "09:30" "Träffa Johanna")
     (boka lisa 9 september "11:15" "12:00" "Handla biljetter")
-    (boka lisa 10 september "07:00" "07:30" "MorgonmÃ¶te")
-    (boka lisa 10 september "09:00" "09:30" "TrÃ¤ffa Johanna")
+    (boka lisa 10 september "07:00" "07:30" "Morgonmöte")
+    (boka lisa 10 september "09:00" "09:30" "Träffa Johanna")
     (boka lisa 10 september "10:15" "11:00" "Handla biljetter")
-    (boka lisa 11 september "07:00" "07:30" "MorgonmÃ¶te")
-    (boka lisa 11 september "09:00" "09:30" "TrÃ¤ffa Johanna")
+    (boka lisa 11 september "07:00" "07:30" "Morgonmöte")
+    (boka lisa 11 september "09:00" "09:30" "Träffa Johanna")
     (boka lisa 11 september "10:15" "11:00" "Handla biljetter")
     (boka lisa 11 september "12:15" "12:45" "Lunch")
-    (boka lisa 13 september "07:00" "07:30" "MorgonmÃ¶te")
-    (boka lisa 13 september "09:00" "09:30" "TrÃ¤ffa Johanna")
+    (boka lisa 13 september "07:00" "07:30" "Morgonmöte")
+    (boka lisa 13 september "09:00" "09:30" "Träffa Johanna")
     (boka lisa 13 september "10:15" "11:00" "Handla biljetter")
     (boka lisa 13 september "12:15" "12:45" "Lunch")
-    (boka lisa 13 september "14:15" "14:45" "MÃ¶te med designgruppen")
-    (boka lisa 14 september "07:00" "07:30" "MorgonmÃ¶te")
-    (boka lisa 14 september "09:00" "09:30" "TrÃ¤ffa Johanna")
+    (boka lisa 13 september "14:15" "14:45" "Möte med designgruppen")
+    (boka lisa 14 september "07:00" "07:30" "Morgonmöte")
+    (boka lisa 14 september "09:00" "09:30" "Träffa Johanna")
     (boka lisa 14 september "10:15" "11:00" "Handla biljetter")
     (boka lisa 14 september "12:15" "12:45" "Lunch")
-    (boka lisa 14 september "14:15" "14:45" "MÃ¶te med designgruppen")
+    (boka lisa 14 september "14:15" "14:45" "Möte med designgruppen")
     (boka lisa 14 september "15:15" "15:45" "Videokonferens")
-    (boka lisa 15 september "07:00" "07:30" "MorgonmÃ¶te")
-    (boka lisa 15 september "09:00" "09:30" "TrÃ¤ffa Johanna")
+    (boka lisa 15 september "07:00" "07:30" "Morgonmöte")
+    (boka lisa 15 september "09:00" "09:30" "Träffa Johanna")
     (boka lisa 15 september "10:15" "11:00" "Handla biljetter")
     (boka lisa 15 september "12:15" "12:45" "Lunch")
-    (boka lisa 15 september "14:15" "14:45" "MÃ¶te med designgruppen")
+    (boka lisa 15 september "14:15" "14:45" "Möte med designgruppen")
     (boka lisa 15 september "15:15" "15:45" "Videokonferens")
     (boka lisa 15 september "17:30" "18:30" "Aerobics")
-    (boka lisa 12 september "07:00" "07:30" "MorgonmÃ¶te")
-    (boka lisa 12 september "09:00" "09:30" "TrÃ¤ffa Johanna")
+    (boka lisa 12 september "07:00" "07:30" "Morgonmöte")
+    (boka lisa 12 september "09:00" "09:30" "Träffa Johanna")
     (boka lisa 12 september "10:15" "11:00" "Handla biljetter")
     (boka lisa 12 september "12:15" "12:45" "Lunch")
-    (boka lisa 12 september "14:15" "14:45" "MÃ¶te med designgruppen")
+    (boka lisa 12 september "14:15" "14:45" "Möte med designgruppen")
     (boka lisa 12 september "15:15" "15:45" "Videokonferens")
     (boka lisa 12 september "17:30" "18:30" "Aerobics")
-    (boka lisa 12 september "20:00" "21:00" "Kolla pÃ¥ TV")))
+    (boka lisa 12 september "20:00" "21:00" "Kolla på TV")))
 
 (almavis::ny-testdata
   'alma->clos
-  '(Ã¶verlapp-test-a
-    (boka Ã¶verlapp-test-a 1 mars "06:00" "15:00" "busy busy")
-    (boka Ã¶verlapp-test-a 2 mars "11:00" "15:00" "busy busy")
-    (boka Ã¶verlapp-test-a 1 februari "01:00" "22:30" "busy busy")
-    (boka Ã¶verlapp-test-a 2 februari "02:00" "22:30" "busy busy")
-    (boka Ã¶verlapp-test-a 3 februari "03:00" "22:30" "busy busy")
-    (boka Ã¶verlapp-test-a 4 februari "04:00" "22:30" "busy busy")
-    (boka Ã¶verlapp-test-a 5 februari "05:00" "22:30" "busy busy")
-    (boka Ã¶verlapp-test-a 6 februari "06:00" "22:30" "busy busy")
-    (boka Ã¶verlapp-test-a 7 februari "07:00" "22:30" "busy busy")
-    (boka Ã¶verlapp-test-a 8 februari "08:00" "22:30" "busy busy")
-    (boka Ã¶verlapp-test-a 9 februari "09:00" "22:30" "busy busy")
-    (boka Ã¶verlapp-test-a 11 februari "07:00" "22:30" "busy busy")
-    (boka Ã¶verlapp-test-a 12 februari "08:00" "22:30" "busy busy")
-    (boka Ã¶verlapp-test-a 13 februari "09:00" "22:30" "busy busy")
+  '(överlapp-test-a
+    (boka överlapp-test-a 1 mars "06:00" "15:00" "busy busy")
+    (boka överlapp-test-a 2 mars "11:00" "15:00" "busy busy")
+    (boka överlapp-test-a 1 februari "01:00" "22:30" "busy busy")
+    (boka överlapp-test-a 2 februari "02:00" "22:30" "busy busy")
+    (boka överlapp-test-a 3 februari "03:00" "22:30" "busy busy")
+    (boka överlapp-test-a 4 februari "04:00" "22:30" "busy busy")
+    (boka överlapp-test-a 5 februari "05:00" "22:30" "busy busy")
+    (boka överlapp-test-a 6 februari "06:00" "22:30" "busy busy")
+    (boka överlapp-test-a 7 februari "07:00" "22:30" "busy busy")
+    (boka överlapp-test-a 8 februari "08:00" "22:30" "busy busy")
+    (boka överlapp-test-a 9 februari "09:00" "22:30" "busy busy")
+    (boka överlapp-test-a 11 februari "07:00" "22:30" "busy busy")
+    (boka överlapp-test-a 12 februari "08:00" "22:30" "busy busy")
+    (boka överlapp-test-a 13 februari "09:00" "22:30" "busy busy")
     
-    ;;Vi vill Ã¶verlappa pÃ¥ alla mÃ¶jliga vis. Till hÃ¶ger visas test-b-tiden
-    ;;ska resultera i 10 mÃ¶ten som visar Ã¶verlapp
-    (boka Ã¶verlapp-test-a 15 februari "00:00" "00:50" "oj oj busy") ;01:00 02:00
-    (boka Ã¶verlapp-test-a 15 februari "02:50" "03:00" "oj oj busy") ;03:00 04:00
-    (boka Ã¶verlapp-test-a 15 februari "04:50" "05:30" "oj oj busy") ;05:00 06:00
-    (boka Ã¶verlapp-test-a 16 februari "06:50" "08:00" "oj oj busy") ;07:00 08:00
-    (boka Ã¶verlapp-test-a 16 februari "08:40" "10:20" "oj oj busy") ;09:00 10:00
-    (boka Ã¶verlapp-test-a 16 februari "11:00" "12:20" "oj oj busy") ;11:00 12:00
-    (boka Ã¶verlapp-test-a 17 februari "13:00" "14:00" "oj oj busy") ;13:00 14:00
+    ;;Vi vill överlappa på alla möjliga vis. Till höger visas test-b-tiden
+    ;;ska resultera i 10 möten som visar överlapp
+    (boka överlapp-test-a 15 februari "00:00" "00:50" "oj oj busy") ;01:00 02:00
+    (boka överlapp-test-a 15 februari "02:50" "03:00" "oj oj busy") ;03:00 04:00
+    (boka överlapp-test-a 15 februari "04:50" "05:30" "oj oj busy") ;05:00 06:00
+    (boka överlapp-test-a 16 februari "06:50" "08:00" "oj oj busy") ;07:00 08:00
+    (boka överlapp-test-a 16 februari "08:40" "10:20" "oj oj busy") ;09:00 10:00
+    (boka överlapp-test-a 16 februari "11:00" "12:20" "oj oj busy") ;11:00 12:00
+    (boka överlapp-test-a 17 februari "13:00" "14:00" "oj oj busy") ;13:00 14:00
 
-    (boka Ã¶verlapp-test-a 18 februari "10:00" "11:00" "oj oj busy")
-    (boka Ã¶verlapp-test-a 18 februari "12:00" "13:00" "oj oj busy")
-    (boka Ã¶verlapp-test-a 18 februari "14:00" "15:00" "oj oj busy")
-    (boka Ã¶verlapp-test-a 18 februari "18:00" "19:00" "oj oj busy")
+    (boka överlapp-test-a 18 februari "10:00" "11:00" "oj oj busy")
+    (boka överlapp-test-a 18 februari "12:00" "13:00" "oj oj busy")
+    (boka överlapp-test-a 18 februari "14:00" "15:00" "oj oj busy")
+    (boka överlapp-test-a 18 februari "18:00" "19:00" "oj oj busy")
 
-    (boka Ã¶verlapp-test-a 10 februari "10:00" "22:30" "busy busy")))
+    (boka överlapp-test-a 10 februari "10:00" "22:30" "busy busy")))
 
 
 (almavis::ny-testdata
   'alma->clos
-  '(Ã¶verlapp-test-b
-    (boka Ã¶verlapp-test-b 1 mars "07:00" "08:00" "B")
-    (boka Ã¶verlapp-test-b 1 mars "09:00" "11:00" "B")
-    (boka Ã¶verlapp-test-b 1 mars "13:00" "14:00" "B")
-    (boka Ã¶verlapp-test-b 2 mars "13:00" "14:00" "B")
-    (boka Ã¶verlapp-test-b 1 februari "01:00" "22:30" "B")
-    (boka Ã¶verlapp-test-b 2 februari "01:00" "22:30" "B")
-    (boka Ã¶verlapp-test-b 3 februari "04:00" "22:30" "B")
-    (boka Ã¶verlapp-test-b 4 februari "04:00" "21:30" "B")
-    (boka Ã¶verlapp-test-b 5 februari "04:00" "21:30" "B")
-    (boka Ã¶verlapp-test-b 6 februari "07:00" "21:30" "B")
-    (boka Ã¶verlapp-test-b 7 februari "07:00" "23:30" "B")
-    (boka Ã¶verlapp-test-b 8 februari "07:00" "23:30" "B")
-    (boka Ã¶verlapp-test-b 9 februari "10:00" "23:30" "B")
-    (boka Ã¶verlapp-test-b 11 februari "03:00" "05:30" "B")
-    ;;Testa olika Ã¶verlapp
-    (boka Ã¶verlapp-test-b 15 februari "01:00" "02:00" "B")
-    (boka Ã¶verlapp-test-b 15 februari "03:00" "04:00" "B")
-    (boka Ã¶verlapp-test-b 15 februari "05:00" "06:00" "B")
-    (boka Ã¶verlapp-test-b 16 februari "07:00" "08:00" "B")
-    (boka Ã¶verlapp-test-b 16 februari "09:00" "10:00" "B")
-    (boka Ã¶verlapp-test-b 16 februari "11:00" "12:00" "B")
-    (boka Ã¶verlapp-test-b 17 februari "13:00" "14:00" "B")
+  '(överlapp-test-b
+    (boka överlapp-test-b 1 mars "07:00" "08:00" "B")
+    (boka överlapp-test-b 1 mars "09:00" "11:00" "B")
+    (boka överlapp-test-b 1 mars "13:00" "14:00" "B")
+    (boka överlapp-test-b 2 mars "13:00" "14:00" "B")
+    (boka överlapp-test-b 1 februari "01:00" "22:30" "B")
+    (boka överlapp-test-b 2 februari "01:00" "22:30" "B")
+    (boka överlapp-test-b 3 februari "04:00" "22:30" "B")
+    (boka överlapp-test-b 4 februari "04:00" "21:30" "B")
+    (boka överlapp-test-b 5 februari "04:00" "21:30" "B")
+    (boka överlapp-test-b 6 februari "07:00" "21:30" "B")
+    (boka överlapp-test-b 7 februari "07:00" "23:30" "B")
+    (boka överlapp-test-b 8 februari "07:00" "23:30" "B")
+    (boka överlapp-test-b 9 februari "10:00" "23:30" "B")
+    (boka överlapp-test-b 11 februari "03:00" "05:30" "B")
+    ;;Testa olika överlapp
+    (boka överlapp-test-b 15 februari "01:00" "02:00" "B")
+    (boka överlapp-test-b 15 februari "03:00" "04:00" "B")
+    (boka överlapp-test-b 15 februari "05:00" "06:00" "B")
+    (boka överlapp-test-b 16 februari "07:00" "08:00" "B")
+    (boka överlapp-test-b 16 februari "09:00" "10:00" "B")
+    (boka överlapp-test-b 16 februari "11:00" "12:00" "B")
+    (boka överlapp-test-b 17 februari "13:00" "14:00" "B")
 
-    (boka Ã¶verlapp-test-b 18 februari "10:00" "23:00" "B")
+    (boka överlapp-test-b 18 februari "10:00" "23:00" "B")
 
-    (boka Ã¶verlapp-test-b 10 februari "10:00" "22:30" "B")))
+    (boka överlapp-test-b 10 februari "10:00" "22:30" "B")))
 
 (almavis::ny-testdata
   'alma->clos
@@ -287,21 +287,21 @@
     (boka oliver 9 september "10:00" "22:30" "busy busy")
     (boka oliver 10 september "01:00" "22:30" "Mycket grejs")
     (boka oliver 11 september "01:30" "02:00" "lite grejs")
-    (boka oliver 12 september "07:00" "07:30" "MorgonmÃ¶te")
-    (boka oliver 12 september "09:00" "09:30" "TrÃ¤ffa Johanna")
+    (boka oliver 12 september "07:00" "07:30" "Morgonmöte")
+    (boka oliver 12 september "09:00" "09:30" "Träffa Johanna")
     (boka oliver 12 september "10:15" "11:00" "Handla biljetter")
     (boka oliver 12 september "12:15" "12:45" "Lunch")
-    (boka oliver 12 september "14:15" "14:45" "MÃ¶te med designgruppen")
+    (boka oliver 12 september "14:15" "14:45" "Möte med designgruppen")
     (boka oliver 12 september "15:15" "15:45" "Videokonferens")
     (boka oliver 12 september "17:30" "18:30" "Aerobics")
-    (boka oliver 12 september "20:00" "21:00" "Kolla pÃ¥ TV")))
+    (boka oliver 12 september "20:00" "21:00" "Kolla på TV")))
 
 
-;;;; Tester fÃ¶r kvadratisk i almavis.lisp
+;;;; Tester för kvadratisk i almavis.lisp
 (in-package :almavis)
 
-#|(defun kvadratisk  ;;anropas sÃ¥hÃ¤r
-  (binÃ¤r-funktion
+#|(defun kvadratisk  ;;anropas såhär
+  (binär-funktion
    intern-uppsamlare
    intern-grundfall
    extern-uppsamlare

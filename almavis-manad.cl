@@ -1,186 +1,181 @@
 (in-package #:almavis) 
 
-(defclass mÃ¥nad-view (view) ())
-(defparameter +mÃ¥nads-vy+ (make-instance 'mÃ¥nad-view))
+(defclass månad-view (view) ())
+(defparameter +månads-vy+ (make-instance 'månad-view))
 
-(defparameter px-mÃ¶tesbredd 220) 
-(defparameter px-mÃ¶teshÃ¶jd 16) 
-(defparameter px-mÃ¶testext-padding 2) 
+(defparameter px-mötesbredd 220) 
+(defparameter px-möteshöjd 16) 
+(defparameter px-mötestext-padding 2) 
 (defparameter px-kant 5) 
-(defparameter px-mellan-mÃ¶ten 5) 
-(defparameter mÃ¶ten-per-dag 6) 
+(defparameter px-mellan-möten 5) 
+(defparameter möten-per-dag 6) 
 (defparameter dagar-per-rad 4) 
 
-(defun px-dagbredd () (+ (* 2 px-kant) px-mÃ¶tesbredd)) 
-(defun px-daghÃ¶jd ()
+(defun px-dagbredd () (+ (* 2 px-kant) px-mötesbredd)) 
+(defun px-daghöjd ()
   (+ (* 2 px-kant)
-     (* mÃ¶ten-per-dag px-mÃ¶teshÃ¶jd)
-     (* (1- mÃ¶ten-per-dag) px-mellan-mÃ¶ten))) 
+     (* möten-per-dag px-möteshöjd)
+     (* (1- möten-per-dag) px-mellan-möten))) 
 
-(defparameter dag-bg-fÃ¤rg +white+) 
-(defparameter dag-bg-fÃ¤rg-full (make-rgb-color 1 0.7 0.2)) 
-(defparameter bokad-fÃ¤rg (make-rgb-color 1 0.5 0)) 
-(defparameter Ã¶verlapp-fÃ¤rg (make-rgb-color 0.7 0 0)) 
-
-(defun rita-mÃ¥nad (frame pane)
-  "Ritar ut en mÃ¥nad."
+(defun rita-månad (frame pane)
+  "Ritar ut en månad."
   (let*
-    ((datahÃ¤mtare (slot-value frame 'datahÃ¤mtare))
-     (plats (slot-value datahÃ¤mtare 'plats)) 
-     (mÃ¶ten-att-visa (datahÃ¤mtare->clim-mÃ¶ten datahÃ¤mtare)))
+    ((datahämtare (slot-value frame 'datahämtare))
+     (plats (slot-value datahämtare 'plats)) 
+     (möten-att-visa (datahämtare->clim-möten datahämtare)))
     (terpri)
-    (format t "~A~%" (plats-mÃ¥nad plats))
-    (if (alma-kan-lÃ¤ngd-av-tp)
+    (format t "~A~%" (plats-månad plats))
+    (if (alma-kan-längd-av-tp)
       (multiple-value-bind (timmar minuter)
-	(truncate (rÃ¤kna-ihop-mÃ¶teslÃ¤ngder mÃ¶ten-att-visa) 60)
+	(truncate (räkna-ihop-möteslängder möten-att-visa) 60)
 	(format t "Totalt bokat: ~d timmar, ~d minuter." timmar minuter)
 	(terpri)))
     (formatting-table
       (pane :x-spacing '(1 :character) :y-spacing '(1 :line))
       (bygg-tabell
 	(i 1 (plats-antal-dagar plats) dagar-per-rad pane)
-	(rita-mÃ¥nads-dag pane i mÃ¶ten-att-visa plats)))))
+	(rita-månads-dag pane i möten-att-visa plats)))))
 
-(defun rita-mÃ¥nads-dag (strÃ¶m dagnr mÃ¥nadens-mÃ¶ten plats)
-  "Ritar ut en dag. Ritar en ruta per dag, som gÃ¥r att klicka fÃ¶r att komma
-  till dagsvyn. I rutan ritas ett antal mÃ¶ten ut.
-  Klick pÃ¥ mÃ¶ten tar en till dagen dÃ¥ mÃ¶tet Ã¤r planerat.
-  Finns fler mÃ¶ten Ã¤n de som visas sÃ¥ fÃ¤rgas bakgrunden annorlunda."
-  (let* ((mÃ¶ten (remove-if #'(lambda (mÃ¶te)
-				     (/= dagnr (slot-value mÃ¶te 'dag-i-mÃ¥nad)))
-			   mÃ¥nadens-mÃ¶ten)))
-    (cond ((endp mÃ¶ten)
-	   (present plats 'plats :view +mÃ¥nads-vy+)
+(defun rita-månads-dag (ström dagnr månadens-möten plats)
+  "Ritar ut en dag. Ritar en ruta per dag, som går att klicka för att komma
+  till dagsvyn. I rutan ritas ett antal möten ut.
+  Klick på möten tar en till dagen då mötet är planerat.
+  Finns fler möten än de som visas så färgas bakgrunden annorlunda."
+  (let* ((möten (remove-if #'(lambda (möte)
+				     (/= dagnr (slot-value möte 'dag-i-månad)))
+			   månadens-möten)))
+    (cond ((endp möten)
+	   (present plats 'plats :view +månads-vy+)
 	   (princ " ")) 
-	  ((> (length mÃ¶ten) mÃ¶ten-per-dag)
+	  ((> (length möten) möten-per-dag)
 	   (present plats
-		    `((plats) :fÃ¤rg ,dag-bg-fÃ¤rg-full)
-		    :view +mÃ¥nads-vy+))
-	  (t (present plats 'plats :view +mÃ¥nads-vy+)))
+		    `((plats) :färg ,dag-bg-färg-full)
+		    :view +månads-vy+))
+	  (t (present plats 'plats :view +månads-vy+)))
     (loop ;; <3 loop
-      for i from 0 below mÃ¶ten-per-dag
-      for mÃ¶te in mÃ¶ten
+      for i from 0 below möten-per-dag
+      for möte in möten
       with x = px-kant
-      for y = (+ px-kant (* (+ px-mÃ¶teshÃ¶jd px-mellan-mÃ¶ten) i)) 
+      for y = (+ px-kant (* (+ px-möteshöjd px-mellan-möten) i)) 
       do
-      (setf (stream-cursor-position strÃ¶m) (values (+ px-mÃ¶testext-padding x)
-						   (+ px-mÃ¶testext-padding y)))
+      (setf (stream-cursor-position ström) (values (+ px-mötestext-padding x)
+						   (+ px-mötestext-padding y)))
       (with-local-coordinates
-	(strÃ¶m x y)
-	(present mÃ¶te
-		 `((clim-mÃ¶te) :andra-mÃ¶ten ,(remove mÃ¶te mÃ¶ten)) 
-		 :view +mÃ¥nads-vy+)))))
+	(ström x y)
+	(present möte
+		 `((clim-möte) :andra-möten ,(remove möte möten)) 
+		 :view +månads-vy+)))))
 
-(define-presentation-type plats () :options ((fÃ¤rg +white+))) 
+(define-presentation-type plats () :options ((färg dag-bg-färg-normal))) 
 
 (define-presentation-method
   present
-  (plats (type plats) stream (view mÃ¥nad-view) &key)
+  (plats (type plats) stream (view månad-view) &key)
   (with-drawing-options
-    (stream :ink fÃ¤rg)
-    (draw-rectangle* stream 0 0 (px-dagbredd) (px-daghÃ¶jd)))) 
+    (stream :ink färg)
+    (draw-rectangle* stream 0 0 (px-dagbredd) (px-daghöjd)))) 
 
-(define-presentation-type clim-mÃ¶te () :options ((andra-mÃ¶ten nil))) 
+(define-presentation-type clim-möte () :options ((andra-möten nil))) 
 
 (define-presentation-method
   present
-  (clim-mÃ¶te (type clim-mÃ¶te) stream (view mÃ¥nad-view) &key)
-  (let ((Ã¶verlappande-mÃ¶ten
-	  (remove-if-not #'(lambda (annat-mÃ¶te)
-			     (mÃ¶ten-Ã¶verlappar annat-mÃ¶te clim-mÃ¶te))
-			 andra-mÃ¶ten))) 
-    (cond ((null Ã¶verlappande-mÃ¶ten) ;;Rita bara mÃ¶tesbakgrund
+  (clim-möte (type clim-möte) stream (view månad-view) &key)
+  (let ((överlappande-möten
+	  (remove-if-not #'(lambda (annat-möte)
+			     (möten-överlappar annat-möte clim-möte))
+			 andra-möten))) 
+    (cond ((null överlappande-möten) ;;Rita bara mötesbakgrund
 	   (with-drawing-options
-	     (stream :ink bokad-fÃ¤rg)
-	     (draw-rectangle* stream 0 0 px-mÃ¶tesbredd px-mÃ¶teshÃ¶jd)))
-	  ((alma-kan-Ã¶verlapp) ;;Rita mÃ¶tesbakgrund med specifika Ã¶verlapp
+	     (stream :ink bokad-färg)
+	     (draw-rectangle* stream 0 0 px-mötesbredd px-möteshöjd)))
+	  ((alma-kan-överlapp) ;;Rita mötesbakgrund med specifika överlapp
 	   (with-drawing-options
-	     (stream :ink bokad-fÃ¤rg)
-	     (draw-rectangle* stream 0 0 px-mÃ¶tesbredd px-mÃ¶teshÃ¶jd))
+	     (stream :ink bokad-färg)
+	     (draw-rectangle* stream 0 0 px-mötesbredd px-möteshöjd))
 	   (loop
-	     for mÃ¶te in Ã¶verlappande-mÃ¶ten
+	     for möte in överlappande-möten
 	     do
-	     (let* ((Ã¶verlapp (mÃ¶ten-Ã¶verlapp clim-mÃ¶te mÃ¶te))
-		    (starttid (alma-tp-starttid Ã¶verlapp))
-		    (sluttid (alma-tp-sluttid Ã¶verlapp))
-		    (px-start (tid-till-position starttid px-mÃ¶tesbredd))
-		    (px-slut (tid-till-position sluttid px-mÃ¶tesbredd))) 
+	     (let* ((överlapp (möten-överlapp clim-möte möte))
+		    (starttid (alma-tp-starttid överlapp))
+		    (sluttid (alma-tp-sluttid överlapp))
+		    (px-start (tid-till-position starttid px-mötesbredd))
+		    (px-slut (tid-till-position sluttid px-mötesbredd))) 
 	       (with-drawing-options
-		 (stream :ink Ã¶verlapp-fÃ¤rg)
-		 (draw-rectangle* stream px-start 0 px-slut px-mÃ¶teshÃ¶jd))))) 
-	  (t (with-drawing-options ;;Rita helt Ã¶verlappad mÃ¶tesbakgrund
-	       (stream :ink Ã¶verlapp-fÃ¤rg)
-	       (draw-rectangle* stream 0 0 px-mÃ¶tesbredd px-mÃ¶teshÃ¶jd)))))
-  (princ (bygg-mÃ¶tesstrÃ¤ng stream clim-mÃ¶te px-mÃ¶tesbredd))) 
+		 (stream :ink överlapp-färg)
+		 (draw-rectangle* stream px-start 0 px-slut px-möteshöjd))))) 
+	  (t (with-drawing-options ;;Rita helt överlappad mötesbakgrund
+	       (stream :ink överlapp-färg)
+	       (draw-rectangle* stream 0 0 px-mötesbredd px-möteshöjd)))))
+  (princ (bygg-mötessträng stream clim-möte px-mötesbredd))) 
 
-#|(defun rita-mÃ¶tes-ruta (clim-mÃ¶te strÃ¶m)
-  (cond ((null clim-mÃ¶te) null)
+#|(defun rita-mötes-ruta (clim-möte ström)
+  (cond ((null clim-möte) null)
 	(()))) |#
 
-(defun bygg-mÃ¶tesstrÃ¤ng (strÃ¶m clim-mÃ¶te max-lÃ¤ngd)
-  "Returnerar en mÃ¶tesstrÃ¤ng som inte tar upp fler pixlar (pÃ¥ X-axeln) Ã¤n max-lÃ¤ngd."
+(defun bygg-mötessträng (ström clim-möte max-längd)
+  "Returnerar en mötessträng som inte tar upp fler pixlar (på X-axeln) än max-längd."
   (let*
-    ((x-orig (stream-cursor-position strÃ¶m))
-     (start (slot-value clim-mÃ¶te 'start-kl))
-     (slut (slot-value clim-mÃ¶te 'slut-kl))
-     (mÃ¶teslÃ¤ngd (if (alma-kan-lÃ¤ngd-av-tp) (mÃ¶teslÃ¤ngd-strÃ¤ng clim-mÃ¶te) ""))
-     (mÃ¶tesinfo (slot-value clim-mÃ¶te 'mÃ¶tesinfo)) 
-     (orig-strÃ¤ng (format nil "~A-~A~A ~A"
+    ((x-orig (stream-cursor-position ström))
+     (start (slot-value clim-möte 'start-kl))
+     (slut (slot-value clim-möte 'slut-kl))
+     (möteslängd (if (alma-kan-längd-av-tp) (möteslängd-sträng clim-möte) ""))
+     (mötesinfo (slot-value clim-möte 'mötesinfo)) 
+     (orig-sträng (format nil "~A-~A~A ~A"
 			  start
 			  slut
-			  mÃ¶teslÃ¤ngd
-			  mÃ¶tesinfo)))
+			  möteslängd
+			  mötesinfo)))
     (loop
-      for strÃ¤ng = orig-strÃ¤ng then (subseq strÃ¤ng 0 (- (length strÃ¤ng) 1))
-      until (<= (stream-string-width strÃ¶m strÃ¤ng) max-lÃ¤ngd)
-      finally (return strÃ¤ng)))) 
+      for sträng = orig-sträng then (subseq sträng 0 (- (length sträng) 1))
+      until (<= (stream-string-width ström sträng) max-längd)
+      finally (return sträng)))) 
 
-(defun mÃ¶teslÃ¤ngd-strÃ¤ng (clim-mÃ¶te)
-  (if (alma-kan-lÃ¤ngd-av-tp)
+(defun möteslängd-sträng (clim-möte)
+  (if (alma-kan-längd-av-tp)
     (multiple-value-bind (timmar minuter)
-      (truncate (mÃ¶teslÃ¤ngd clim-mÃ¶te) 60) 
+      (truncate (möteslängd clim-möte) 60) 
       (format nil "[~dh ~dm]" timmar minuter)) 
     ""))
 
-(defun testa-mÃ¥nad (almanacksnamn mÃ¥nad)
-  "Startar den grafiska interfacen fÃ¶r att visualisera mÃ¥nader.
-   En mÃ¥nadsidentifierare Ã¤r en lista med almanacksnamnet och
-   mÃ¥nadsnamnet. T.ex. (daniel februari)"
-  (defvar app (clim:make-application-frame 'mÃ¥nadstest))
-  (setf (slot-value app 'datahÃ¤mtare)
-	(make-instance 'datahÃ¤mtare
-		       :datakÃ¤llor almanacksnamn
-		       :plats (make-instance 'plats :mÃ¥nad mÃ¥nad)))
+(defun testa-månad (almanacksnamn månad)
+  "Startar den grafiska interfacen för att visualisera månader.
+   En månadsidentifierare är en lista med almanacksnamnet och
+   månadsnamnet. T.ex. (daniel februari)"
+  (defvar app (clim:make-application-frame 'månadstest))
+  (setf (slot-value app 'datahämtare)
+	(make-instance 'datahämtare
+		       :datakällor almanacksnamn
+		       :plats (make-instance 'plats :månad månad)))
   (clim:run-frame-top-level app))
 
 (define-application-frame
-  mÃ¥nadstest 
+  månadstest 
   () ;Superclasses
-  ((datahÃ¤mtare :initarg :datahÃ¤mtare :accessor datahÃ¤mtare)) ;Slots
+  ((datahämtare :initarg :datahämtare :accessor datahämtare)) ;Slots
   (:panes
     (kontrollytan
       (vertically (:max-height +fill+ :height +fill+)
-		  (make-pane 'push-button :label "StÃ¤ng"
+		  (make-pane 'push-button :label "Stäng"
 			     :max-width +fill+ :max-height +fill+
 			     :width 30 :height +fill+
-			     :activate-callback #'stÃ¤ng-knapp-tryckt)))
-    (mÃ¥nad :application
+			     :activate-callback #'stäng-knapp-tryckt)))
+    (månad :application
 	:max-height +fill+ :height +fill+
-	:background +gray+
+	:background app-bg-färg
 	;:scroll-bars t
-	:display-function #'rita-mÃ¥nad))
+	:display-function #'rita-månad))
   (:layouts
     (default
       (horizontally (:max-height +fill+ :height 1000
 				 :max-width +fill+ :width 1200)
-		    (+fill+ (scrolling () mÃ¥nad))))))
+		    (+fill+ (scrolling () månad))))))
 
-(define-mÃ¥nadstest-command com-gÃ¥-till-dag
+(define-månadstest-command com-gå-till-dag
 			   ((plats 'plats)) 
-			   (gÃ¥-till-dagsvy plats))
+			   (gå-till-dagsvy plats))
 (define-presentation-to-command-translator
-  gÃ¥-till-dag
-  (plats com-gÃ¥-till-dag-frÃ¥n-dag mÃ¥nadstest
+  gå-till-dag
+  (plats com-gå-till-dag-från-dag månadstest
 	      :gesture :select
-	      :documentation "GÃ¥ till dagsvyn.")
+	      :documentation "Gå till dagsvyn.")
   (object) (list object))

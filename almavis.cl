@@ -1,53 +1,53 @@
 ;;;;;; almavis ;;;;;;
-;;;; I den hÃ¤r filen definierar jag Ã¶vergripande funktioner som behÃ¶vs fÃ¶r
-;;;; att kÃ¶ra almavis. Detta bestÃ¥r av funktionen visa-grafiskt, sÃ¥vÃ¤l som
-;;;; en massa bindningar frÃ¥n almanackans datatyper till CLOS-objekt och
-;;;; funktioner fÃ¶r att gÃ¶ra konverteringen.
+;;;; I den här filen definierar jag övergripande funktioner som behövs för
+;;;; att köra almavis. Detta består av funktionen visa-grafiskt, såväl som
+;;;; en massa bindningar från almanackans datatyper till CLOS-objekt och
+;;;; funktioner för att göra konverteringen.
 
-;;;; En konvention jag anvÃ¤nder Ã¤r att skriva alma-objekt om det Ã¤r ett objekt
-;;;; med almanackslabbens typsystem, och clim-objekt om det Ã¤r ett CLOS-objekt.
+;;;; En konvention jag använder är att skriva alma-objekt om det är ett objekt
+;;;; med almanackslabbens typsystem, och clim-objekt om det är ett CLOS-objekt.
 
 ;;;;;; Ladda Clim ;;;;;;
 (require :climxm)
 
 (defpackage #:almavis (:use :common-lisp-user :clim-user :clim-lisp :clim))
 
-(defun visa-grafiskt (Ã¥rsalmanacka &optional mÃ¥nad dag)
-  (almavis::visa-grafiskt Ã¥rsalmanacka))
+(defun visa-grafiskt (årsalmanacka &optional månad dag)
+  (almavis::visa-grafiskt årsalmanacka))
 
-;; Testfunktioner fÃ¶r snabba change/compile/run cycles
+;; Testfunktioner för snabba change/compile/run cycles
 (defun tt () (funcall (find-symbol "RUN-TESTS" 'almavis)))
 
 (defun yy ()
   (tt)
-  (funcall (find-symbol "TESTA-Ã…R" 'almavis)
-           (find-symbol "OLIVER" 'stdalma)
-           (find-symbol "Ã–VERLAPP-TEST-A" 'stdalma)
-           (find-symbol "Ã–VERLAPP-TEST-B" 'stdalma)))
+  (funcall (find-symbol "TESTA-ÅR" 'almavis)
+           (find-symbol "OLIVER" 'common-lisp-user)
+           (find-symbol "ÖVERLAPP-TEST-A" 'common-lisp-user)
+           (find-symbol "ÖVERLAPP-TEST-B" 'common-lisp-user)))
 
 (defun mm ()
   (tt)
-  (funcall (find-symbol "TESTA-MÃ…NAD" 'almavis)
-	   (list (find-symbol "LISA" 'stdalma))
-	   (find-symbol "SEPTEMBER" 'stdalma)))
+  (funcall (find-symbol "TESTA-MÅNAD" 'almavis)
+	   (list (find-symbol "LISA" 'common-lisp-user))
+	   (find-symbol "SEPTEMBER" 'common-lisp-user)))
 
-(defun mmÃ¶ ()
+(defun mmö ()
   (tt)
-  (funcall (find-symbol "TESTA-MÃ…NAD" 'almavis)
-           (list (find-symbol "Ã–VERLAPP-TEST-A" 'stdalma)
-		 (find-symbol "Ã–VERLAPP-TEST-B" 'stdalma))
-	   (find-symbol "FEBRUARI" 'stdalma)))
+  (funcall (find-symbol "TESTA-MÅNAD" 'almavis)
+           (list (find-symbol "ÖVERLAPP-TEST-A" 'common-lisp-user)
+		 (find-symbol "ÖVERLAPP-TEST-B" 'common-lisp-user))
+	   (find-symbol "FEBRUARI" 'common-lisp-user)))
 
 (in-package #:almavis)
 ;;;;;; Kommunikation med almanackan ;;;;;;
-;;;; Funktioner fÃ¶r att testa vilken funktionalitet
+;;;; Funktioner för att testa vilken funktionalitet
 ;;;; studenten har implementerat hittills
 
 (defun alma-har-funktionalitet-p (funktionalitet-str)
-  (find-symbol funktionalitet-str 'stdalma))
+  (find-symbol funktionalitet-str 'common-lisp-user))
 
-(defun alma-kan-lÃ¤ngd-av-tp ()
-  (alma-har-funktionalitet-p "LÃ„NGD-AV-TIDSPERIOD"))
+(defun alma-kan-längd-av-tp ()
+  (alma-har-funktionalitet-p "LÄNGD-AV-TIDSPERIOD"))
 
 (defun alma-kan-tidsperioder ()
   (alma-har-funktionalitet-p "SKAPA-TIDSPERIODER"))
@@ -60,11 +60,11 @@
    (alma-har-funktionalitet-p "START-KLOCKSLAG")
    (alma-har-funktionalitet-p "SLUT-KLOCKSLAG")))
 
-(defun alma-kan-avboka-mÃ¶te ()
-  (alma-har-funktionalitet-p "AVBOKA-MÃ–TE"))
+(defun alma-kan-avboka-möte ()
+  (alma-har-funktionalitet-p "AVBOKA-MÖTE"))
 
-(defun alma-kan-jÃ¤mfÃ¶r ()
-  (and (alma-har-funktionalitet-p "JÃ„MFÃ–R")
+(defun alma-kan-jämför ()
+  (and (alma-har-funktionalitet-p "JÄMFÖR")
        (alma-har-funktionalitet-p "GEMENSAMMA-TIDER")))
 
 (defun alma-kan-ledigt ()
@@ -73,37 +73,37 @@
    (alma-har-funktionalitet-p "LEDIGT")
    (alma-har-funktionalitet-p "SAMMA-LEDIGA-PERIODER")))
 
-(defun alma-kan-Ã¶verlapp ()
-  (alma-har-funktionalitet-p "Ã–VERLAPP"))
+(defun alma-kan-överlapp ()
+  (alma-har-funktionalitet-p "ÖVERLAPP"))
 
 ;;;;;; Funktionsbindningar ;;;;;;
-;;;; Vi vill anvÃ¤nda en hel del funktioner ifrÃ¥n almanackan.
-;;;; Eftersom den inte Ã¤r definierad i samma paket sÃ¥ behÃ¶ver vi
-;;;; fÃ¶r varje funktion ocksÃ¥ specifiera vilket paket funktionen
-;;;; ligger i. Det blir fÃ¶r mycket kod och fÃ¶r lÃ¥nga kodrader om
-;;;; vi ska blanda i det i vÃ¥r kod, sÃ¥ hÃ¤r importerar vi den
-;;;; funktionaliteten. Detta gÃ¶r att vi sjÃ¤lva inte fÃ¥r definiera
+;;;; Vi vill använda en hel del funktioner ifrån almanackan.
+;;;; Eftersom den inte är definierad i samma paket så behöver vi
+;;;; för varje funktion också specifiera vilket paket funktionen
+;;;; ligger i. Det blir för mycket kod och för långa kodrader om
+;;;; vi ska blanda i det i vår kod, så här importerar vi den
+;;;; funktionaliteten. Detta gör att vi själva inte får definiera
 ;;;; funktioner eller globala variabler med samma namn.
 
-;;;; I programmeringsmiljÃ¶n jag anvÃ¤nder gÃ¶rs detta i almavis
+;;;; I programmeringsmiljön jag använder görs detta i almavis
 ;;;; paketdefinition, men den kommer troligtvis inte vara med
-;;;; nÃ¤r vi integrerar pÃ¥ IDA - dÃ¥ behÃ¶vs dessa istÃ¤llet.
+;;;; när vi integrerar på IDA - då behövs dessa istället.
 
 (import 'common-lisp-user::dagalmanacka)
 (import 'common-lisp-user::dagalmanacka?)
-(import 'common-lisp-user::fÃ¶rsta-mÃ¶testid)
+(import 'common-lisp-user::första-mötestid)
 (import 'common-lisp-user::heltal)
 (import 'common-lisp-user::minutdel)
-(import 'common-lisp-user::mÃ¥nadsalmanacka)
-(import 'common-lisp-user::mÃ¥nadsalmanacka?)
-(import 'common-lisp-user::mÃ¶tesdel)
-(import 'common-lisp-user::mÃ¶testext)
+(import 'common-lisp-user::månadsalmanacka)
+(import 'common-lisp-user::månadsalmanacka?)
+(import 'common-lisp-user::mötesdel)
+(import 'common-lisp-user::mötestext)
 (import 'common-lisp-user::omvandla-klockslag)
 (import 'common-lisp-user::packa-ihop)
 (import 'common-lisp-user::packa-upp)
 (import 'common-lisp-user::resten-dagalmanacka)
 (import 'common-lisp-user::skapa-dag)
-(import 'common-lisp-user::skapa-mÃ¥nad)
+(import 'common-lisp-user::skapa-månad)
 (import 'common-lisp-user::slut-klockslag)
 (import 'common-lisp-user::start-klockslag)
 (import 'common-lisp-user::tidsperioddel)
@@ -111,30 +111,30 @@
 (import 'common-lisp-user::tom-dagalmanacka?)
 (import 'common-lisp-user::typ)
 (import 'common-lisp-user::typkontroll)
-(import 'common-lisp-user::Ã¥rsalmanacka?)
-(import 'common-lisp-user::Ã¶verlappar?)
+(import 'common-lisp-user::årsalmanacka?)
+(import 'common-lisp-user::överlappar?)
 (import 'common-lisp-user::*almanacka*)
-(import 'common-lisp-user::*mÃ¥nadsdata*)
+(import 'common-lisp-user::*månadsdata*)
 
 (import 'common-lisp-user::*almanacka*)
-(import 'common-lisp-user::*mÃ¥nadsdata*)
+(import 'common-lisp-user::*månadsdata*)
 
 ;;;;;; Datatyper ;;;;;;
-;;;; HÃ¤r definierar vi de CLOS-objekt som vi sedan med Clim vill kunna
-;;;; visualisera. Anledningen till att vi vill ha CLOS-objekten alls Ã¤r
-;;;; fÃ¶r att Clim Ã¤r byggt med antagandet att man vill presentera just
-;;;; CLOS-objekt. Detta gÃ¶r man genom att definiera presenters. Mer av
-;;;; det syns dÃ¤r jag implementerar almavis-vyerna.
+;;;; Här definierar vi de CLOS-objekt som vi sedan med Clim vill kunna
+;;;; visualisera. Anledningen till att vi vill ha CLOS-objekten alls är
+;;;; för att Clim är byggt med antagandet att man vill presentera just
+;;;; CLOS-objekt. Detta gör man genom att definiera presenters. Mer av
+;;;; det syns där jag implementerar almavis-vyerna.
 
-(defclass clim-Ã¥r
+(defclass clim-år
   ()
-  ((alma-Ã¥r :accessor alma-Ã¥r :initarg :alma-Ã¥r) ;originaldata
-   (mÃ¥nader :accessor mÃ¥nader :initarg :mÃ¥nader) ;lista med clim-mÃ¥nad
+  ((alma-år :accessor alma-år :initarg :alma-år) ;originaldata
+   (månader :accessor månader :initarg :månader) ;lista med clim-månad
    (namn :accessor namn :initarg :namn))) ;t.ex. "pelles almanacka"
 
-(defclass clim-mÃ¥nad
+(defclass clim-månad
   ()
-  ((alma-mÃ¥nad :accessor alma-mÃ¥nad :initarg :alma-mÃ¥nad) ;originaldata
+  ((alma-månad :accessor alma-månad :initarg :alma-månad) ;originaldata
    (dagar :accessor dagar :initarg :dagar) ;lista med clim-dag, SORTERAD
    (namn :accessor namn :initarg :namn) ;t.ex. "januari"
    (almanacksnamn :accessor almanacksnamn :initarg :almanacksnamn)
@@ -144,64 +144,64 @@
 (defclass clim-dag 
   ()
   ((alma-dag :accessor alma-dag :initarg :alma-dag) ;originaldata
-   (mÃ¶ten :accessor mÃ¶ten :initarg :mÃ¶ten :reader mÃ¶ten) ;lista med clim-mÃ¶te
+   (möten :accessor möten :initarg :möten :reader möten) ;lista med clim-möte
    (almanacksnamn :accessor almanacksnamn :initarg :almanacksnamn)
    ;t.ex. "pelles almanacka"
-   (mÃ¥nadsnamn :accessor mÃ¥nadsnamn :initarg :mÃ¥nadsnamn)
-   (dag-i-mÃ¥nad :accessor dag-i-mÃ¥nad :initarg :dag-i-mÃ¥nad))) ;t.ex. 1
+   (månadsnamn :accessor månadsnamn :initarg :månadsnamn)
+   (dag-i-månad :accessor dag-i-månad :initarg :dag-i-månad))) ;t.ex. 1
 
-(defclass clim-mÃ¶te 
+(defclass clim-möte 
   ()
-  ((alma-mÃ¶te :accessor alma-mÃ¶te :initarg :alma-mÃ¶te) ;originaldata
+  ((alma-möte :accessor alma-möte :initarg :alma-möte) ;originaldata
    (start-kl :accessor start-kl :initarg :start-kl)
    (slut-kl :accessor slut-kl :initarg :slut-kl)
    ;integer mellan 0000 och 2359
    (almanacksnamn :accessor almanacksnamn :initarg :almanacksnamn)         
    ;t.ex. "pelles almanacka"
-   (mÃ¥nadsnamn :accessor mÃ¥nadsnamn :initarg :mÃ¥nadsnamn)
-   (dag-i-mÃ¥nad :accessor dag-i-mÃ¥nad :initarg :dag-i-mÃ¥nad)
-   (mÃ¶tesinfo :accessor mÃ¶tesinfo :initarg :mÃ¶tesinfo)))
+   (månadsnamn :accessor månadsnamn :initarg :månadsnamn)
+   (dag-i-månad :accessor dag-i-månad :initarg :dag-i-månad)
+   (mötesinfo :accessor mötesinfo :initarg :mötesinfo)))
 
-(defmethod mÃ¶ten ((clim-Ã¥r clim-Ã¥r))
+(defmethod möten ((clim-år clim-år))
   (reduce
     #'append
     (mapcar
-      #'mÃ¶ten
-      (slot-value clim-Ã¥r 'mÃ¥nader)))) 
+      #'möten
+      (slot-value clim-år 'månader)))) 
 
-(defmethod mÃ¶ten ((clim-mÃ¥nad clim-mÃ¥nad))
+(defmethod möten ((clim-månad clim-månad))
   (reduce
     #'append
     (mapcar
-      #'mÃ¶ten
-      (slot-value clim-mÃ¥nad 'dagar)))) 
+      #'möten
+      (slot-value clim-månad 'dagar)))) 
 
-(defmethod mÃ¶teslÃ¤ngd ((clim-mÃ¶te clim-mÃ¶te))
-  "Ger ett mÃ¶tes lÃ¤ngd i minuter, krÃ¤ver att alma kan tp"
-  (assert (alma-kan-lÃ¤ngd-av-tp)) 
-  (let* ((alma-mÃ¶te (slot-value clim-mÃ¶te 'alma-mÃ¶te))
-             (tp (tidsperioddel alma-mÃ¶te))
-             (tidsrymd (funcall (alma-kan-lÃ¤ngd-av-tp) tp))
+(defmethod möteslängd ((clim-möte clim-möte))
+  "Ger ett mötes längd i minuter, kräver att alma kan tp"
+  (assert (alma-kan-längd-av-tp)) 
+  (let* ((alma-möte (slot-value clim-möte 'alma-möte))
+             (tp (tidsperioddel alma-möte))
+             (tidsrymd (funcall (alma-kan-längd-av-tp) tp))
              (timmar (heltal (timdel tidsrymd)))
              (minuter (heltal (minutdel tidsrymd))))
             (+ minuter (* 60 timmar))))
  
-(defmethod clim-Ã¥r-union ((a clim-Ã¥r) (b clim-Ã¥r))
-  "SlÃ¥r ihop tvÃ¥ clim-Ã¥r till ett, resultatet fÃ¥r namn och alma-Ã¥r
-  frÃ¥n det fÃ¶rsta argumenet. Endast mÃ¥nadslistan sammansÃ¤tts frÃ¥n
-  bÃ¥da Ã¥ren."
+(defmethod clim-år-union ((a clim-år) (b clim-år))
+  "Slår ihop två clim-år till ett, resultatet får namn och alma-år
+  från det första argumenet. Endast månadslistan sammansätts från
+  båda åren."
   (make-instance
-   'clim-Ã¥r
-   :alma-Ã¥r (slot-value a 'alma-Ã¥r)
-   :mÃ¥nader (mapcar #'clim-mÃ¥nad-union
-                    (slot-value a 'mÃ¥nader)
-                    (slot-value b 'mÃ¥nader))
+   'clim-år
+   :alma-år (slot-value a 'alma-år)
+   :månader (mapcar #'clim-månad-union
+                    (slot-value a 'månader)
+                    (slot-value b 'månader))
    :namn (slot-value a 'namn)))
 
-(defmethod clim-mÃ¥nad-union ((a clim-mÃ¥nad) (b clim-mÃ¥nad))
+(defmethod clim-månad-union ((a clim-månad) (b clim-månad))
   (make-instance
-   'clim-mÃ¥nad
-   :alma-mÃ¥nad (slot-value a 'alma-mÃ¥nad)
+   'clim-månad
+   :alma-månad (slot-value a 'alma-månad)
    :dagar (mapcar #'clim-dag-union
                   (slot-value a 'dagar)
                   (slot-value b 'dagar))
@@ -213,27 +213,27 @@
   (make-instance
    'clim-dag
    :alma-dag (slot-value a 'alma-dag)
-   :mÃ¶ten (append (slot-value a 'mÃ¶ten) (slot-value b 'mÃ¶ten))
+   :möten (append (slot-value a 'möten) (slot-value b 'möten))
    :almanacksnamn (slot-value a 'almanacksnamn)
-   :mÃ¥nadsnamn (slot-value a 'mÃ¥nadsnamn)
-   :dag-i-mÃ¥nad (slot-value a 'dag-i-mÃ¥nad)))
+   :månadsnamn (slot-value a 'månadsnamn)
+   :dag-i-månad (slot-value a 'dag-i-månad)))
 
 
 ;;;;;; Konvertering ;;;;;;
-;; HÃ¤r har vi massor av kod fÃ¶r konvertering av almanackans datatyper
-;; till CLOS-klasser. Funktionen hÃ¤mta-Ã¥rsalmanackor kommer att anropas av 
-;; programmet, som sedan rekursivt gÃ¥r igenom alla Ã¥rsalmanackors mÃ¥nads-,
-;; och dags-almanackor - hÃ¤mtar ut alla mÃ¶ten och stoppar dem i motsvarande
+;; Här har vi massor av kod för konvertering av almanackans datatyper
+;; till CLOS-klasser. Funktionen hämta-årsalmanackor kommer att anropas av 
+;; programmet, som sedan rekursivt går igenom alla årsalmanackors månads-,
+;; och dags-almanackor - hämtar ut alla möten och stoppar dem i motsvarande
 ;; dataobjektshierarki av CLOS-objekt.
 
-;; Notera att hÃ¤mta-Ã¥rsalmanackor konverterar till CLOS-objekt, medan
-;; hÃ¤mta-mÃ¥nader och hÃ¤mta-dagar endast plockar ut relevanta objekt ur
-;; en alma-Ã¥rsalmanacka och alma-mÃ¥nadsalmanacka, respektive, med hjÃ¤lp
+;; Notera att hämta-årsalmanackor konverterar till CLOS-objekt, medan
+;; hämta-månader och hämta-dagar endast plockar ut relevanta objekt ur
+;; en alma-årsalmanacka och alma-månadsalmanacka, respektive, med hjälp
 ;; av almanackans primitiver.
 
-(defun hÃ¤mta-Ã¥rsalmanackor (&optional alma-namn-lista)
-  "Returnerar en lista med clim-Ã¥r"
-  (let ((konverterade-Ã¥r
+(defun hämta-årsalmanackor (&optional alma-namn-lista)
+  "Returnerar en lista med clim-år"
+  (let ((konverterade-år
 	  (mapcar
 	    #'(lambda (alma-tupel)
 		(cond ((and alma-namn-lista
@@ -241,217 +241,217 @@
 					 alma-namn-lista
 					 :test #'equalp))) 
 		       nil)
-		      (t (konvertera-Ã¥r (car alma-tupel) (cdr alma-tupel)))))
-	    ;car Ã¤r namnet pÃ¥ almanackan, cdr Ã¤r alma-Ã¥rsalmanackan
+		      (t (konvertera-år (car alma-tupel) (cdr alma-tupel)))))
+	    ;car är namnet på almanackan, cdr är alma-årsalmanackan
 	    *almanacka*))) 
-    (remove-if #'null konverterade-Ã¥r)))
+    (remove-if #'null konverterade-år)))
 
-(defun hÃ¤mta-dagar (alma-mÃ¥nad dagar-i-mÃ¥nad)
-  "Returnerar en lista med dagalmanackorna i en mÃ¥nad"
-  (typkontroll alma-mÃ¥nad #'mÃ¥nadsalmanacka?)
+(defun hämta-dagar (alma-månad dagar-i-månad)
+  "Returnerar en lista med dagalmanackorna i en månad"
+  (typkontroll alma-månad #'månadsalmanacka?)
   (let ((alma-dagalma-lista '()))
        (dotimes
-        (i dagar-i-mÃ¥nad alma-dagalma-lista)
+        (i dagar-i-månad alma-dagalma-lista)
         (setq alma-dagalma-lista
-              (cons (dagalmanacka (skapa-dag (- dagar-i-mÃ¥nad i)) alma-mÃ¥nad)
+              (cons (dagalmanacka (skapa-dag (- dagar-i-månad i)) alma-månad)
                     alma-dagalma-lista)))))
 
-(defun hÃ¤mta-mÃ¶ten (alma-dag)
-  "Returnerar en lista med mÃ¶testiderna i en dagalmanacka"
+(defun hämta-möten (alma-dag)
+  "Returnerar en lista med mötestiderna i en dagalmanacka"
   (typkontroll alma-dag #'dagalmanacka?)
   (if (tom-dagalmanacka? alma-dag) '()
-      (cons (fÃ¶rsta-mÃ¶testid alma-dag)
-            (hÃ¤mta-mÃ¶ten (resten-dagalmanacka alma-dag)))))
+      (cons (första-mötestid alma-dag)
+            (hämta-möten (resten-dagalmanacka alma-dag)))))
 
 (defun klockslag-till-heltal (alma-klockslag)
   (+
    (* 100 (heltal (timdel alma-klockslag)))
    (heltal (minutdel alma-klockslag))))
 
-;;;; Funktioner fÃ¶r att konvertera
+;;;; Funktioner för att konvertera
 
-;;Ã…r
-(defun konvertera-Ã¥r (alma-namn alma-Ã¥r)
-  (skapa-clim-Ã¥r
-   alma-Ã¥r
+;;År
+(defun konvertera-år (alma-namn alma-år)
+  (skapa-clim-år
+   alma-år
    alma-namn
-   (konvertera-mÃ¥nader alma-namn alma-Ã¥r)))
+   (konvertera-månader alma-namn alma-år)))
 
-(defun skapa-clim-Ã¥r (alma-Ã¥r alma-namn clim-mÃ¥nader)
+(defun skapa-clim-år (alma-år alma-namn clim-månader)
   (make-instance
-   'clim-Ã¥r
-   :alma-Ã¥r alma-Ã¥r
-   :mÃ¥nader clim-mÃ¥nader
+   'clim-år
+   :alma-år alma-år
+   :månader clim-månader
    :namn alma-namn))
 
-;;MÃ¥nader - notera plural
-(defun konvertera-mÃ¥nader (alma-namn alma-Ã¥r)
-  (typkontroll alma-Ã¥r #'Ã¥rsalmanacka?)
+;;Månader - notera plural
+(defun konvertera-månader (alma-namn alma-år)
+  (typkontroll alma-år #'årsalmanacka?)
   (mapcar
-   #'(lambda (mÃ¥nadstupel)
-             (let* ((mÃ¥nadsnamn (car mÃ¥nadstupel))
-                  (dagar-i-mÃ¥nad (cdr mÃ¥nadstupel))
-                  (alma-mÃ¥nad
-                   (mÃ¥nadsalmanacka (skapa-mÃ¥nad mÃ¥nadsnamn) alma-Ã¥r)))
-             (skapa-clim-mÃ¥nad
-              alma-mÃ¥nad
+   #'(lambda (månadstupel)
+             (let* ((månadsnamn (car månadstupel))
+                  (dagar-i-månad (cdr månadstupel))
+                  (alma-månad
+                   (månadsalmanacka (skapa-månad månadsnamn) alma-år)))
+             (skapa-clim-månad
+              alma-månad
               alma-namn
-              mÃ¥nadsnamn
-              dagar-i-mÃ¥nad
+              månadsnamn
+              dagar-i-månad
               (konvertera-dagar alma-namn
-				mÃ¥nadsnamn
-				alma-mÃ¥nad
-				dagar-i-mÃ¥nad))))
-   *mÃ¥nadsdata*))
+				månadsnamn
+				alma-månad
+				dagar-i-månad))))
+   *månadsdata*))
 
-(defun skapa-clim-mÃ¥nad
-  (alma-mÃ¥nad alma-namn mÃ¥nadsnamn dagar-i-mÃ¥nad clim-dagar)
+(defun skapa-clim-månad
+  (alma-månad alma-namn månadsnamn dagar-i-månad clim-dagar)
   (make-instance
-   'clim-mÃ¥nad
-   :alma-mÃ¥nad alma-mÃ¥nad
+   'clim-månad
+   :alma-månad alma-månad
    :almanacksnamn alma-namn
-   :antal-dagar dagar-i-mÃ¥nad
-   :namn mÃ¥nadsnamn
+   :antal-dagar dagar-i-månad
+   :namn månadsnamn
    :dagar clim-dagar))
 
 ;;Dagar
-(defun konvertera-dagar (alma-namn mÃ¥nadsnamn alma-mÃ¥nad dagar-i-mÃ¥nad)
-  (typkontroll alma-mÃ¥nad #'mÃ¥nadsalmanacka?)
-  (let ((dag-lista (hÃ¤mta-dagar alma-mÃ¥nad dagar-i-mÃ¥nad))
+(defun konvertera-dagar (alma-namn månadsnamn alma-månad dagar-i-månad)
+  (typkontroll alma-månad #'månadsalmanacka?)
+  (let ((dag-lista (hämta-dagar alma-månad dagar-i-månad))
         (dag-nr 1))
        (mapcar #'(lambda (alma-dag)
                          (prog1
                           (skapa-clim-dag
                            alma-dag
                            alma-namn
-			   mÃ¥nadsnamn
+			   månadsnamn
                            dag-nr
-                           (konvertera-mÃ¶ten
-			     alma-namn mÃ¥nadsnamn dag-nr alma-dag))
+                           (konvertera-möten
+			     alma-namn månadsnamn dag-nr alma-dag))
                           (setq dag-nr (1+ dag-nr))))
                dag-lista)))
 
-(defun skapa-clim-dag (alma-dag alma-namn mÃ¥nadsnamn dagnummer clim-mÃ¶ten)
+(defun skapa-clim-dag (alma-dag alma-namn månadsnamn dagnummer clim-möten)
   (make-instance
    'clim-dag
    :alma-dag alma-dag
    :almanacksnamn alma-namn
-   :mÃ¥nadsnamn mÃ¥nadsnamn
-   :dag-i-mÃ¥nad dagnummer
-   :mÃ¶ten clim-mÃ¶ten))
+   :månadsnamn månadsnamn
+   :dag-i-månad dagnummer
+   :möten clim-möten))
 
-;;MÃ¶ten
-(defun konvertera-mÃ¶ten (alma-namn mÃ¥nadsnamn dag-i-mÃ¥nad alma-dag)
-  (let ((mÃ¶ten (hÃ¤mta-mÃ¶ten alma-dag)))
+;;Möten
+(defun konvertera-möten (alma-namn månadsnamn dag-i-månad alma-dag)
+  (let ((möten (hämta-möten alma-dag)))
        (mapcar
         #'(lambda
-           (mÃ¶te)
-           (skapa-clim-mÃ¶te
-            mÃ¶te
+           (möte)
+           (skapa-clim-möte
+            möte
             alma-namn
-	    mÃ¥nadsnamn
-	    dag-i-mÃ¥nad
-            (alma-tp-starttid (tidsperioddel mÃ¶te))
-            (alma-tp-sluttid (tidsperioddel mÃ¶te))
-            (mÃ¶testext (mÃ¶tesdel mÃ¶te))))
-        mÃ¶ten)))
+	    månadsnamn
+	    dag-i-månad
+            (alma-tp-starttid (tidsperioddel möte))
+            (alma-tp-sluttid (tidsperioddel möte))
+            (mötestext (mötesdel möte))))
+        möten)))
 
-(defun skapa-clim-mÃ¶te
-  (alma-mÃ¶te alma-namn mÃ¥nadsnamn dag-i-mÃ¥nad 
-	     start-klockslag slut-klockslag mÃ¶testext)
+(defun skapa-clim-möte
+  (alma-möte alma-namn månadsnamn dag-i-månad 
+	     start-klockslag slut-klockslag mötestext)
   (make-instance
-   'clim-mÃ¶te
-   :alma-mÃ¶te alma-mÃ¶te
+   'clim-möte
+   :alma-möte alma-möte
    :almanacksnamn alma-namn
-   :mÃ¥nadsnamn mÃ¥nadsnamn
-   :dag-i-mÃ¥nad dag-i-mÃ¥nad
+   :månadsnamn månadsnamn
+   :dag-i-månad dag-i-månad
    :start-kl start-klockslag
    :slut-kl slut-klockslag
-   :mÃ¶tesinfo mÃ¶testext))
+   :mötesinfo mötestext))
 
 
-;;;;;; DatahÃ¤mtare ;;;;;;;
-;; AnvÃ¤nds av almavis olika vyer fÃ¶r att veta vad fÃ¶r olika objekt de
-;; ska visa. En datahÃ¤mtare bestÃ¥r av en plats och flera datakÃ¤llor.
-;; Platsen specifierar vilken mÃ¥nad och eventuellt datum som ska visas.
-;; DatakÃ¤llorna talar om frÃ¥n vilka Ã¥rsalmanackor vi vill visa informationen.
-;; DatakÃ¤llorna Ã¤r en lista med almanacksnamn.
+;;;;;; Datahämtare ;;;;;;;
+;; Används av almavis olika vyer för att veta vad för olika objekt de
+;; ska visa. En datahämtare består av en plats och flera datakällor.
+;; Platsen specifierar vilken månad och eventuellt datum som ska visas.
+;; Datakällorna talar om från vilka årsalmanackor vi vill visa informationen.
+;; Datakällorna är en lista med almanacksnamn.
 
 (defclass plats ()
-  ((mÃ¥nad :initarg :mÃ¥nad
-	  :initform (error "Plats mÃ¥ste ha mÃ¥nad")
-	  :accessor plats-mÃ¥nad)
+  ((månad :initarg :månad
+	  :initform (error "Plats måste ha månad")
+	  :accessor plats-månad)
    (dag :initarg :dag
 	:initform nil
 	:accessor plats-dag))) 
 
-(defclass datahÃ¤mtare ()
+(defclass datahämtare ()
   ((plats ;:type plats
 	  :initarg :plats
 	  :initform nil
 	  :accessor plats)
-   (datakÃ¤llor :initarg :datakÃ¤llor
-	       :initform (error "DatakÃ¤llor fÃ¶r datahÃ¤mtare mÃ¥ste initieras.")
-	       :accessor datakÃ¤llor))) 
+   (datakällor :initarg :datakällor
+	       :initform (error "Datakällor för datahämtare måste initieras.")
+	       :accessor datakällor))) 
 
-(defmethod datahÃ¤mtare->clim-data
-  ((datahÃ¤mtare datahÃ¤mtare) &key (mÃ¥nad nil))
-  (with-slots (plats datakÃ¤llor) datahÃ¤mtare 
+(defmethod datahämtare->clim-data
+  ((datahämtare datahämtare) &key (månad nil))
+  (with-slots (plats datakällor) datahämtare 
     (cond
-      ((null plats) (plocka-ut datakÃ¤llor)) 
-      ((or mÃ¥nad (null (plats-dag plats)))
-       (plocka-ut datakÃ¤llor
-		  :mÃ¥nadsnamn (plats-mÃ¥nad plats)))
-      (t (plocka-ut datakÃ¤llor
-		    :mÃ¥nadsnamn (plats-mÃ¥nad plats)
-		    :dag-i-mÃ¥nad (plats-dag plats))))))
+      ((null plats) (plocka-ut datakällor)) 
+      ((or månad (null (plats-dag plats)))
+       (plocka-ut datakällor
+		  :månadsnamn (plats-månad plats)))
+      (t (plocka-ut datakällor
+		    :månadsnamn (plats-månad plats)
+		    :dag-i-månad (plats-dag plats))))))
 
-(defmethod datahÃ¤mtare->clim-mÃ¶ten
-  ((datahÃ¤mtare datahÃ¤mtare))
+(defmethod datahämtare->clim-möten
+  ((datahämtare datahämtare))
   (remove-duplicates
     (reduce #'append
-	    (mapcar #'mÃ¶ten
-		    (datahÃ¤mtare->clim-data datahÃ¤mtare))))) 
+	    (mapcar #'möten
+		    (datahämtare->clim-data datahämtare))))) 
 
-(defmethod datahÃ¤mtare->clim-mÃ¥nad ((datahÃ¤mtare datahÃ¤mtare))
-  "Med denna funktion kan man hÃ¤mta mÃ¥nadsobjekt Ã¤ven om datahÃ¤mtarens plats
-  Ã¤r en dag."
-  (datahÃ¤mtare->clim-data datahÃ¤mtare :mÃ¥nad t)) 
+(defmethod datahämtare->clim-månad ((datahämtare datahämtare))
+  "Med denna funktion kan man hämta månadsobjekt även om datahämtarens plats
+  är en dag."
+  (datahämtare->clim-data datahämtare :månad t)) 
 
 (defmethod plats-antal-dagar ((plats plats))
-  (if (null (plats-mÃ¥nad plats)) 0 
-    (cdr (assoc (plats-mÃ¥nad plats)
-		*mÃ¥nadsdata*
+  (if (null (plats-månad plats)) 0 
+    (cdr (assoc (plats-månad plats)
+		*månadsdata*
 		:test #'equalp)))) 
 
-;;;;;; AllmÃ¤nna funktioner fÃ¶r traversering av objekt mm ;;;;;;;
+;;;;;; Allmänna funktioner för traversering av objekt mm ;;;;;;;
 
-;; UtfÃ¶r en funktion pÃ¥ varje tupel i en lista, t.ex. funktion f
-;; pÃ¥ '(a b c) sÃ¥ utfÃ¶rs (f a b) (f a c) (f b c). Dessa samlas
-;; ihop med tvÃ¥ funktioner, en "extern" och en "intern". I exemplet
-;; ovan utfÃ¶rdes f fÃ¶rst pÃ¥ huvudet A med svansen (B C), sedan pÃ¥
+;; Utför en funktion på varje tupel i en lista, t.ex. funktion f
+;; på '(a b c) så utförs (f a b) (f a c) (f b c). Dessa samlas
+;; ihop med två funktioner, en "extern" och en "intern". I exemplet
+;; ovan utfördes f först på huvudet A med svansen (B C), sedan på
 ;; huvudet B med svansen (C). Den interna samlingsfunktionen samlar
-;; ihop resultaten av varje huvuds exekvering pÃ¥ sin svans, medan den
+;; ihop resultaten av varje huvuds exekvering på sin svans, medan den
 ;; externa uppsamlaren samlar ihop resultaten av de resultaten.
-(defun kvadratisk (binÃ¤r-funktion
+(defun kvadratisk (binär-funktion
 		    intern-uppsamlare
 		    intern-grundfall
 		    extern-uppsamlare
 		    extern-grundfall
 		    lista)
   (labels
-    ((svansbehandlare (binÃ¤r-funktion
+    ((svansbehandlare (binär-funktion
 			intern-uppsamlare
 			intern-grundfall
 			huvud
 			svans)
 		      (if (endp svans) intern-grundfall
 			(funcall intern-uppsamlare
-				 (funcall binÃ¤r-funktion
+				 (funcall binär-funktion
 					  huvud
 					  (car svans))
 				 (svansbehandlare
-				   binÃ¤r-funktion
+				   binär-funktion
 				   intern-uppsamlare
 				   intern-grundfall
 				   huvud
@@ -459,135 +459,135 @@
     (if (>= 1 (length lista))
       extern-grundfall
       (funcall extern-uppsamlare (svansbehandlare
-				   binÃ¤r-funktion
+				   binär-funktion
 				   intern-uppsamlare
 				   intern-grundfall
 				   (car lista)
 				   (cdr lista))
-	       (kvadratisk binÃ¤r-funktion
+	       (kvadratisk binär-funktion
 			   intern-uppsamlare
 			   intern-grundfall
 			   extern-uppsamlare
 			   extern-grundfall
 			   (cdr lista))))))
 
-(defun kvadratiskc (binÃ¤r-funktion lista)
+(defun kvadratiskc (binär-funktion lista)
   (labels ((do-nothing (a b) nil))
           (kvadratisk
-           binÃ¤r-funktion
+           binär-funktion
            #'do-nothing
            nil
            #'do-nothing
            nil
            lista)))
 
-;; Returnerar resultatet av att kÃ¶ra fun pÃ¥ ett clos-objekts slot
-(defun funcall-pÃ¥-slot (objekt slot fun)
+;; Returnerar resultatet av att köra fun på ett clos-objekts slot
+(defun funcall-på-slot (objekt slot fun)
   (funcall fun (slot-value objekt slot)))
 
-(defun slot-har-vÃ¤rde (objekt slot value)
+(defun slot-har-värde (objekt slot value)
   (if (equalp (slot-value objekt slot) value)
       value
       nil))
 
-;;Kollar att ett clos-objekt har en slot med ett vÃ¤rde, och kan Ã¤ven
-;;gÃ¶ra en djupare kontroll, dÃ¤r den ser till att en slot har minst ett
-;;vÃ¤rde som satisfierar en funktion. Den antar alltsÃ¥ att djup-slot
-;;innehÃ¥ller en lista av saker, och utfÃ¶r funktionen pÃ¥ varje sak i
+;;Kollar att ett clos-objekt har en slot med ett värde, och kan även
+;;göra en djupare kontroll, där den ser till att en slot har minst ett
+;;värde som satisfierar en funktion. Den antar alltså att djup-slot
+;;innehåller en lista av saker, och utför funktionen på varje sak i
 ;;listan.
-;; Om nÃ¥got av objekten i listan satisfierar funktionen (som
-;;alltsÃ¥ returnerar nÃ¥got annat Ã¤n null) returneras de satisfierande
-;;objekten i en lista. Detta Ã¤r mest till fÃ¶r att rekursivt leta efter
+;; Om något av objekten i listan satisfierar funktionen (som
+;;alltså returnerar något annat än null) returneras de satisfierande
+;;objekten i en lista. Detta är mest till för att rekursivt leta efter
 ;;clos-objekt som ligger i andra clos-objekt.
 (defun clos-objekt-check
-  (objekt slot vÃ¤rde &optional (djup-slot nil ssup) (djup-fun nil fsup))
-  (let ((rÃ¤tt-vÃ¤rde (slot-har-vÃ¤rde objekt slot vÃ¤rde)))
-       (if (or (not ssup) (not fsup)) ;;om ingen djupsÃ¶k
-           rÃ¤tt-vÃ¤rde ;;returnera om det Ã¤r rÃ¤tt vÃ¤rde
-           (and rÃ¤tt-vÃ¤rde ;;annars kolla fÃ¶rst om rÃ¤tt vÃ¤rde
-                (remove-if-not djup-fun ;;returnera sen resultat av djupsÃ¶k
+  (objekt slot värde &optional (djup-slot nil ssup) (djup-fun nil fsup))
+  (let ((rätt-värde (slot-har-värde objekt slot värde)))
+       (if (or (not ssup) (not fsup)) ;;om ingen djupsök
+           rätt-värde ;;returnera om det är rätt värde
+           (and rätt-värde ;;annars kolla först om rätt värde
+                (remove-if-not djup-fun ;;returnera sen resultat av djupsök
                                (slot-value objekt djup-slot))))))
 
-;;;Smidig funktion fÃ¶r att plocka ut Ã¥rs, mÃ¥nads eller dagsalmanackor i clim-format ur varandra. Dessa kan tas frÃ¥n en lista med clim-Ã¥rsalmor, eller frÃ¥n de alma-almanackor som finns definierade.
+;;;Smidig funktion för att plocka ut års, månads eller dagsalmanackor i clim-format ur varandra. Dessa kan tas från en lista med clim-årsalmor, eller från de alma-almanackor som finns definierade.
 (defun plocka-ut
-  (datakÃ¤llor ;;lista med almanacksnamn
-    &key mÃ¥nadsnamn dag-i-mÃ¥nad
-    (Ã¥rsalmor (hÃ¤mta-Ã¥rsalmanackor datakÃ¤llor)))
+  (datakällor ;;lista med almanacksnamn
+    &key månadsnamn dag-i-månad
+    (årsalmor (hämta-årsalmanackor datakällor)))
   (mapcar
-    #'(lambda (clim-Ã¥r)
+    #'(lambda (clim-år)
 	(let*
-	  ((clim-mÃ¥nad
-	     (when mÃ¥nadsnamn
-	       (find-if #'(lambda (mÃ¥nad) (equalp mÃ¥nadsnamn
-						  (slot-value mÃ¥nad 'namn)))
-			(slot-value clim-Ã¥r 'mÃ¥nader))))
+	  ((clim-månad
+	     (when månadsnamn
+	       (find-if #'(lambda (månad) (equalp månadsnamn
+						  (slot-value månad 'namn)))
+			(slot-value clim-år 'månader))))
 	   (clim-dag
-	     (when (and clim-mÃ¥nad dag-i-mÃ¥nad)
-	       (nth (1- dag-i-mÃ¥nad) (slot-value clim-mÃ¥nad 'dagar)))))
-	  (or clim-dag clim-mÃ¥nad clim-Ã¥r)))
-    Ã¥rsalmor))
+	     (when (and clim-månad dag-i-månad)
+	       (nth (1- dag-i-månad) (slot-value clim-månad 'dagar)))))
+	  (or clim-dag clim-månad clim-år)))
+    årsalmor))
 
 
-(defun plocka-ut-mÃ¥nad (clim-Ã¥r mÃ¥nadsnr)
-  "Plockar ut en clos-mÃ¥nad ur en clos-Ã¥r, mÃ¥nadsnr frÃ¥n 0 till 11"
-  (unless (null clim-Ã¥r)
-          (nth mÃ¥nadsnr (slot-value clim-Ã¥r 'mÃ¥nader))))
+(defun plocka-ut-månad (clim-år månadsnr)
+  "Plockar ut en clos-månad ur en clos-år, månadsnr från 0 till 11"
+  (unless (null clim-år)
+          (nth månadsnr (slot-value clim-år 'månader))))
 
-(defun plocka-ut-dag (clim-mÃ¥nad dagnr)
-  (unless (null clim-mÃ¥nad)
-          (nth dagnr (slot-value clim-mÃ¥nad 'dagar))))
+(defun plocka-ut-dag (clim-månad dagnr)
+  (unless (null clim-månad)
+          (nth dagnr (slot-value clim-månad 'dagar))))
 
-(defun hitta-Ã¥rsalma (Ã¥rsnamn Ã¥rsalmor)
+(defun hitta-årsalma (årsnamn årsalmor)
   (find-if
    #'(lambda
-      (Ã¥rsalma)
-      (slot-har-vÃ¤rde Ã¥rsalma 'namn Ã¥rsnamn))
-   Ã¥rsalmor))
+      (årsalma)
+      (slot-har-värde årsalma 'namn årsnamn))
+   årsalmor))
 
 
 
-;;;;;; AlmanacksberÃ¤kningar ;;;;;;
-;;;; Funktioner fÃ¶r att berÃ¤kna och bolla med alma-funktioner sÃ¥
-;;;; att vi fÃ¥r ut vÃ¤rden vi vill anvÃ¤nda nÃ¤r vi skapar grafik.
+;;;;;; Almanacksberäkningar ;;;;;;
+;;;; Funktioner för att beräkna och bolla med alma-funktioner så
+;;;; att vi får ut värden vi vill använda när vi skapar grafik.
 
-(defmethod total-mÃ¶teslÃ¤ngd ((clim-Ã¥r clim-Ã¥r))
+(defmethod total-möteslängd ((clim-år clim-år))
   (reduce
    #'+
-   (slot-value clim-Ã¥r 'mÃ¥nader)
-   :key #'total-mÃ¶teslÃ¤ngd))
+   (slot-value clim-år 'månader)
+   :key #'total-möteslängd))
 
-(defmethod total-mÃ¶teslÃ¤ngd ((clim-mÃ¥nad clim-mÃ¥nad))
+(defmethod total-möteslängd ((clim-månad clim-månad))
   (reduce
    #'+
-   (slot-value clim-mÃ¥nad 'dagar)
-   :key #'total-mÃ¶teslÃ¤ngd))
+   (slot-value clim-månad 'dagar)
+   :key #'total-möteslängd))
 
-(defmethod total-mÃ¶teslÃ¤ngd ((clim-dag clim-dag))
-  (let ((mÃ¶ten (slot-value clim-dag 'mÃ¶ten)))
-       (if (null mÃ¶ten)
+(defmethod total-möteslängd ((clim-dag clim-dag))
+  (let ((möten (slot-value clim-dag 'möten)))
+       (if (null möten)
            0
-           (rÃ¤kna-ihop-mÃ¶teslÃ¤ngder mÃ¶ten))))
+           (räkna-ihop-möteslängder möten))))
 
-(defun rÃ¤kna-ihop-mÃ¶teslÃ¤ngder (clim-mÃ¶teslista)
-  "Ger den totala lÃ¤ngden av mÃ¶testiderna i clim-mÃ¶teslista, i minuter"
+(defun räkna-ihop-möteslängder (clim-möteslista)
+  "Ger den totala längden av mötestiderna i clim-möteslista, i minuter"
   (reduce
    #'+
-   clim-mÃ¶teslista
+   clim-möteslista
    :key
-   #'mÃ¶teslÃ¤ngd))
+   #'möteslängd))
 
-(defmethod mÃ¶ten-Ã¶verlappar ((a clim-mÃ¶te) (b clim-mÃ¶te))
-  (Ã¶verlappar?
-   (tidsperioddel (slot-value a 'alma-mÃ¶te))
-   (tidsperioddel (slot-value b 'alma-mÃ¶te))))
+(defmethod möten-överlappar ((a clim-möte) (b clim-möte))
+  (överlappar?
+   (tidsperioddel (slot-value a 'alma-möte))
+   (tidsperioddel (slot-value b 'alma-möte))))
 
-(defmethod mÃ¶ten-Ã¶verlapp ((a clim-mÃ¶te) (b clim-mÃ¶te))
-  (assert (alma-kan-Ã¶verlapp)) 
+(defmethod möten-överlapp ((a clim-möte) (b clim-möte))
+  (assert (alma-kan-överlapp)) 
   (let ((tidsperiod-a
-	  (tidsperioddel (slot-value a 'alma-mÃ¶te)))
+	  (tidsperioddel (slot-value a 'alma-möte)))
 	(tidsperiod-b
-	  (tidsperioddel (slot-value b 'alma-mÃ¶te))))
-    (funcall (alma-kan-Ã¶verlapp) tidsperiod-a tidsperiod-b)))
+	  (tidsperioddel (slot-value b 'alma-möte))))
+    (funcall (alma-kan-överlapp) tidsperiod-a tidsperiod-b)))
 
 (defun alma-tp-starttid (tidsperiod)
   (klockslag-till-heltal (start-klockslag tidsperiod)))
@@ -596,8 +596,8 @@
   (klockslag-till-heltal (slut-klockslag tidsperiod)))
 
 (defun tid-till-position (tidpunkt max-position)
-  "Mappar en tidpunkt till ett nummer, sÃ¥ att nummret Ã¤r lika nÃ¤ra
-  max-position som tiden Ã¤r slutet pÃ¥ dagen. T.ex. 12:00 100 -> 50"
+  "Mappar en tidpunkt till ett nummer, så att nummret är lika nära
+  max-position som tiden är slutet på dagen. T.ex. 12:00 100 -> 50"
   (labels 
    ((antal-minuter
      (tidpunkt)
@@ -606,7 +606,7 @@
    (* max-position (/ (antal-minuter tidpunkt) (* 24 60)))))
 
 
-;DÃ¶da alla McClim-program som kÃ¶rs
+;Döda alla McClim-program som körs
 ;(progn (loop for port in climi::*all-ports* do (clim:destroy-port port)) (setq climi::*all-ports* nil))
 
 (load "almavis-grafik.cl")
