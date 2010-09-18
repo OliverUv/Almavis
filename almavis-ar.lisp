@@ -40,17 +40,17 @@
     (format t "Rött: Överlappande mötestider.")
     (terpri)
     (terpri)
-    (terpri)
-    (multiple-value-bind (timmar minuter)
-      (truncate (total-möteslängd årsalma) 60)
-      (format t "Totalt bokat: ~d timmar, ~d minuter." timmar minuter))
-    (terpri)
-    (terpri)
-
+    (skriv-ut-datakällor (slot-value frame 'datahämtare)) 
+    (when (alma-kan-längd-av-tp)
+      (multiple-value-bind (timmar minuter)
+	(truncate (total-möteslängd årsalma) 60)
+	(format t "Totalt bokat: ~d timmar, ~d minuter." timmar minuter))
+      (terpri)
+      (terpri))
     (formatting-table
       (pane :x-spacing '(2 :character) :y-spacing '(1 :line))
       (bygg-tabell
-	(i 0 11 4 pane)
+	(i 0 11 månader-per-rad pane)
 	(present (plocka-ut-månad årsalma i)
 		 'clim-månad
 		 :view +ars-vy+)))))
@@ -59,9 +59,11 @@
   present
   (clim-månad (type clim-månad) stream (view år-view) &key)
   (princ ;;Skriv ut månadsnamn och bokad tid
-    (format nil "~A: ~A timmar"
+    (format nil "~A: ~A h"
 	    (slot-value clim-månad 'namn)
-	    (truncate (total-möteslängd clim-månad) 60))) 
+	    (if (alma-kan-längd-av-tp)
+	      (truncate (total-möteslängd clim-månad) 60)
+	      "?"))) 
   (terpri) ;;nyrad efter månadsnamnet
   (with-local-coordinates
     (stream)
@@ -70,16 +72,14 @@
       (draw-rectangle* stream 0 0
 		       (+ (* 2 px-månads-padding) 
 			  (* (1- dagar-per-rad) px-mellan-dag) 
-			  (* dagar-per-rad px-dagbredd))
+			  (* dagar-per-rad (+ 2 px-dagbredd))) ;;plus två för kanten
 		       (+ (* 2 px-månads-padding)
 			  (* (1- rader-per-månad) px-mellan-rad) 
-			  (* rader-per-månad px-daghöjd))))
-    (with-local-coordinates
-      (stream px-månads-padding px-månads-padding)
-      (formatting-table ;;En tabell med dagarna i
-	(stream :x-spacing `(,px-mellan-dag :pixel) :y-spacing `(,px-mellan-rad :pixel))
-	(bygg-tabell (i 0 31 8 stream)
-		     (rita-dagruta stream (plocka-ut-dag clim-månad i)))))))
+			  (* rader-per-månad (+ 2 px-daghöjd))))) ;;plus två för kanten
+    (formatting-table ;;En tabell med dagarna i
+      (stream :x-spacing `(,px-mellan-dag :pixel) :y-spacing `(,px-mellan-rad :pixel))
+      (bygg-tabell (i 0 31 8 stream)
+		   (rita-dagruta stream (plocka-ut-dag clim-månad i))))))
 
 (defun rita-dagruta (stream clim-dag)
   (cond ((null clim-dag) nil)
@@ -187,7 +187,9 @@
 
 (define-årtest-command com-gå-till-månad
 		       ((clim-månad 'clim-månad))
-		       (gå-till-månadsvy clim-månad))
+		       ;(menu-choose 'din 'klick 'registrerades ':D) 
+		       (REACTTEST))
+		       ;(gå-till-månadsvy (skapa-plats clim-månad)))
 
 (define-presentation-to-command-translator
   gå-till-månad
@@ -195,7 +197,9 @@
 	      :gesture :select
 	      :documentation "Gå till månadsvyn.")
   (object)
-  (list object))
+  (progn
+    (REACTTEST) 
+    (list object)))
 
 (defun testa-år (&rest årsalmanacksnamn)
   "Startar den grafiska interfacen för att visualisera almanackor"

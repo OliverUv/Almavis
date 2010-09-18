@@ -16,6 +16,7 @@
      (möten-att-visa (datahämtare->clim-möten datahämtare)))
     (terpri)
     (format t "~A~%" (plats-månad plats))
+    (skriv-ut-datakällor (slot-value frame 'datahämtare)) 
     (if (alma-kan-längd-av-tp)
       (multiple-value-bind (timmar minuter)
 	(truncate (räkna-ihop-möteslängder möten-att-visa) 60)
@@ -153,10 +154,12 @@
 
 (define-månadstest-command com-gå-till-dag
 			   ((plats 'plats)) 
-			   (gå-till-dagsvy plats))
+			   (REACTTEST))
+			   ;(gå-till-dagsvy plats))
+
 (define-presentation-to-command-translator
   gå-till-dag
-  (plats com-gå-till-dag-från-dag månadstest
+  (plats com-gå-till-dag månadstest
 	      :gesture :select
 	      :documentation "Gå till dagsvyn.")
   (object) (list object))

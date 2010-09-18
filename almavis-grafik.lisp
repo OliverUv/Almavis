@@ -48,6 +48,7 @@
 
 ; Årsvyns dimensioner
 (in-package #:almavis-år) 
+(defparameter månader-per-rad 4) ;;dvs månadsrutor per rad
 (defparameter dagar-per-rad 8) ;;dvs per rad i månadsrutorna
 (defparameter rader-per-månad (ceiling 31 dagar-per-rad))
 (defparameter px-daghöjd 25) ;;varje dagruta är såhär hög
