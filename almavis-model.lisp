@@ -368,6 +368,20 @@
 	       :initform (error "Datakällor för datahämtare måste initieras.")
 	       :accessor datakällor))) 
 
+(defmethod toggle-datakälla ((datahämtare datahämtare) datakälla)
+  (let* ((dh datahämtare)
+	 (datakällor (slot-value dh 'datakällor)))
+    (setf (slot-value dh 'datakällor)
+	  (if (member datakälla datakällor :test #'equalp)
+	    (remove datakälla datakällor :test #'equalp)
+	    (cons datakälla datakällor)))
+    dh)) 
+
+(defmethod byt-plats ((datahämtare datahämtare) plats)
+  (let ((dh datahämtare))
+    (setf (slot-value dh 'plats) plats)
+    dh)) 
+
 (defmethod skriv-ut-datakällor ((datahämtare datahämtare))
   (format t "Datakällor: ~A~%" (slot-value datahämtare 'datakällor))) 
 

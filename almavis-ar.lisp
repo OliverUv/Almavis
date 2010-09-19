@@ -185,7 +185,7 @@
 	:display-function #'rita-år))
   (:layouts (default år)))
 
-(define-årtest-command com-gå-till-månad
+(define-årtest-command (com-gå-till-månad :name "månad" :menu "månad")
 		       ((clim-månad 'clim-månad))
 		       ;(menu-choose 'din 'klick 'registrerades ':D) 
 		       (REACTTEST))

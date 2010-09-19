@@ -61,66 +61,6 @@
 ; Allmänna grafiska funktioner
 (in-package #:almavis) 
 
-(defun stäng-knapp-tryckt (button)
-  (accepting-values
-   (*query-io* :own-window t) (frame-exit *application-frame*)))
-
-;;Definierar applikationsfönstret
-#|(define-application-frame almavis
-  () ;Superclasses
-  () ;Slots
-  (:panes
-   (dag :application)
-   (månad :application)
-   (år :application)
-   (kontrollytan
-    (vertically ()
-                (make-pane 'push-button :label "Stäng"
-                           :activate-callback #'stäng-knapp-tryckt)))
-   (startup :application :background +red+)
-   (layout-pane ;;Hack för att McClim inte klarar att byta layouter
-    (horizontally ()
-                  (1/5 kontrollytan)
-                  (+fill+ startup))))
-  (:layouts
-   (default (horizontally ()
-                  (1/5 kontrollytan)
-                  (+fill+ startup)))))|#
-
-#|(define-application-frame almavis
-  () ;Superclasses
-  () ;Slots
-  (:panes
-   (kontrollytan
-    (vertically ()
-                (make-pane 'push-button :label "Stäng"
-                           :activate-callback #'stäng-knapp-tryckt)))
-   (some-pane :application :background +gray+)) ;;År/Mån/Dag-vy här
-  (:layouts
-   (default
-       (horizontally (:height 700 :width 1000)
-                     (1/5 (outlining (:thickness 4) kontrollytan))
-                     (+fill+ (spacing (:thickness 4) some-pane))))))|#
-
-#|(define-application-frame almavis () () ;;går att resiza iaf
-  (:panes
-   (one :application
-        :backgroun +blue+))
-  (:layouts
-   (default
-    (horizontally () (+fill+ one)))))|#
-
-
-;;För att starta almavis
-(defun visa-grafiskt (årsalmanacka &optional månad dag)
-  "Startar den grafiska interfacen för att visualisera almanackor"
-  (clim:run-frame-top-level (clim:make-application-frame 'almavis)))
-
-(defun gå-till-dagsvy (plats)
-  'a)  ;TODO
-
-(defun gå-till-månadsvy (clim-månad)
-  (format t "Har inte implementerats riktigt ännu. Månaden: ~A~%" clim-månad))
 
 ;;;;;; Allmänna funktioner för vyerna ;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
