@@ -46,10 +46,24 @@
 (load "almavis-grafik.cl")
 (load "almavis-ar.cl")
 (load "almavis-manad.cl")
+(load "almavis-dag.cl")
 (load "unit-tests.cl")
 
 (defun visa-grafiskt (almanacksnamn &optional månad dag)
-  (almavis::visa-grafiskt almanacksnamn månad dag))
+  (if (almavis::alma-kan-klockslag) 
+    (mp:process-run-function "almavis" #'almavis::visa-grafiskt almanacksnamn månad dag)
+    (format t "Du måste implementera start-klockslag och slut-klockslag först.")))
+
+;;;; Med denna hook gör vi så att bokningar gjorda med boka syns på
+;;;; interfacen direkt. TODO: Få detta att fungera, just nu binds
+;;;; ingenting om av någon anledning.
+#|(let ((bokfun (fdefinition 'boka)))
+  (setf (fdefinition 'boka)
+	(lambda (&rest args)
+	  (prog1
+	    (apply bokfun args)
+	    (REACTTEST) 
+	    (almavis::rita-om)))))|#
 
 ;; Testfunktioner för snabba change/compile/run cycles
 (defun tt () (funcall (find-symbol "RUN-TESTS" 'almavis)))
@@ -84,10 +98,8 @@
   almavis
   () ;Superclasses
   ((datahämtare :initarg :datahämtare :accessor datahämtare)) ;Slots
-  (:pointer-documentation t) 
   (:panes
     (command-menu :command-menu)
-    (interactor :interactor)
     (år :application
 	:background app-bg-färg
 	:display-function 'almavis-år::rita-år)
@@ -95,43 +107,53 @@
 	   :background app-bg-färg
 	   :display-function 'almavis-månad::rita-månad))
   (:layouts
-    (årlayout (vertically (:height 700 :width 900)
+    (årlayout (vertically (:height 700 :width 1000)
 			 (1/10 command-menu) 
-			 (1/10 interactor)
-			 (8/10 år)))
-    (månadlayout (vertically (:height 700 :width 900)
+			 (9/10 år)))
+    (månadlayout (vertically (:height 700 :width 1000)
 			 (1/10 command-menu) 
-			 (1/10 interactor)
-			 (8/10 månad)))))
+			 (9/10 månad)))))
 
 (define-almavis-command (com-avsluta :menu "avsluta" :name "avsluta")
 			() 
 			(frame-exit *application-frame*))
 
-(define-almavis-command (com-toggle-datakälla
-			  :menu "toggla datakälla"
-			  :name "toggla datakälla")
-			() 
-			(ny-datakälla (toggle-datakälla
-					 (slot-value *application-frame* 'datahämtare) 
-					 (menu-choose (mapcar #'car *almanacka*)))))
+(define-almavis-command
+  (com-toggle-datakälla
+    :menu "almanackor"
+    :name "almanackor")
+  () 
+  (let ((datakälla (menu-choose (mapcar #'car *almanacka*))))
+    (unless (null datakälla)
+      (ny-datahämtare (toggle-datakälla
+			 (slot-value *application-frame* 'datahämtare) 
+			 datakälla)))))
 
 (define-almavis-command
   (com-gå-till-månad :name "gå till månad" :menu "gå till månad") ()
-  (gå-till (skapa-plats (menu-choose (mapcar #'car *månadsdata*)))))
+  (let ((månad (menu-choose (mapcar #'car *månadsdata*)))) 
+    (unless (null månad)
+      (gå-till (skapa-plats månad)))))
+
+(define-almavis-command
+  (com-gå-till-specifik-månad :name "gå till specifik månad") ((clim-månad clim-månad))
+  (gå-till (månad-plats clim-månad)))
 
 (define-almavis-command
   (com-gå-till-år :name "gå till år" :menu "gå till år") ()
   (gå-till-år))
 
+(define-almavis-command
+  (com-uppdatera :name "uppdatera" :menu "uppdatera") ()
+  (rita-om))
 
 (define-presentation-to-command-translator
-  gå-till-månad
-  (clim-månad com-gå-till-månad almavis
+  gå-till-specifik-månad
+  (clim-månad com-gå-till-specifik-månad almavis
 	      :gesture :select
 	      :documentation "Gå till månadsvyn.")
-  ()
-  nil)
+  (object)
+  (list object))
 
 ;;För att starta almavis
 (defun visa-grafiskt (almanacksnamn &optional månad dag)
@@ -145,19 +167,20 @@
     (setf (slot-value applikation 'datahämtare) datahämtare) 
     (clim:run-frame-top-level applikation)))
 
-(defmethod ny-datakälla (&optional (datahämtare nil))
+(defmethod ny-datahämtare (&optional (datahämtare nil))
   (setf (slot-value *application-frame* 'datahämtare)
 	datahämtare)
-  (redisplay-frame-panes *application-frame*))
+  (rita-om))
 
-(defmethod gå-till (&optional (plats nil))
+(defun gå-till (&optional (plats nil))
   (let ((datahämtare (slot-value *application-frame* 'datahämtare)))
     (setf (slot-value *application-frame* 'datahämtare)
 	  (byt-plats datahämtare plats)))
   (setf (frame-current-layout *application-frame*) 
 	(cond ((null plats) 'årlayout)
 	      ((plats-dag plats) 'daglayout)
-	      ((plats-månad plats) 'månadlayout))))
+	      ((plats-månad plats) 'månadlayout)
+	      (t (error "Måste välja en vy.")))))
 
 (defun gå-till-år () (gå-till))
 

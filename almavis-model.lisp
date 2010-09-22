@@ -345,19 +345,19 @@
 	:initform nil
 	:accessor plats-dag))) 
 
-(defmethod skapa-plats (månad &key (dag nil))
+(defun skapa-plats (månad &key (dag nil))
   (make-instance 'plats :månad månad :dag dag)) 
 
-(defmethod skapa-plats ((clim-månad clim-månad) &key (dag nil))
-  (skapa-plats (slot-value clim-månad 'namn) dag)) 
+(defmethod månad-plats ((clim-månad clim-månad))
+  (skapa-plats (slot-value clim-månad 'namn))) 
 
-(defmethod skapa-plats ((clim-dag clim-dag) &key dag)
+(defmethod dag-plats ((clim-dag clim-dag))
   (skapa-plats (slot-value clim-dag 'månadsnamn)
-	       (slot-value clim-dag 'dag-i-månad))) 
+	       :dag (slot-value clim-dag 'dag-i-månad))) 
 
-(defmethod skapa-plats ((clim-möte clim-möte) &key dag)
+(defmethod möte-plats ((clim-möte clim-möte))
   (skapa-plats (slot-value clim-möte 'månadsnamn)
-	       (slot-value clim-möte 'dag-i-månad))) 
+	       :dag (slot-value clim-möte 'dag-i-månad))) 
 
 (defclass datahämtare ()
   ((plats ;:type plats
@@ -369,13 +369,14 @@
 	       :accessor datakällor))) 
 
 (defmethod toggle-datakälla ((datahämtare datahämtare) datakälla)
-  (let* ((dh datahämtare)
-	 (datakällor (slot-value dh 'datakällor)))
-    (setf (slot-value dh 'datakällor)
-	  (if (member datakälla datakällor :test #'equalp)
-	    (remove datakälla datakällor :test #'equalp)
-	    (cons datakälla datakällor)))
-    dh)) 
+  (if (null datakälla) datahämtare
+    (let* ((dh datahämtare)
+	   (datakällor (slot-value dh 'datakällor)))
+      (setf (slot-value dh 'datakällor)
+	    (if (member datakälla datakällor :test #'equalp)
+	      (remove datakälla datakällor :test #'equalp)
+	      (cons datakälla datakällor)))
+      dh))) 
 
 (defmethod byt-plats ((datahämtare datahämtare) plats)
   (let ((dh datahämtare))
