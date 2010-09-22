@@ -128,17 +128,19 @@
     ((null clim-dag) nil)
     ((null (slot-value clim-dag 'möten)) nil)
     ((alma-kan-överlapp) (rita-överlappande-tider stream clim-dag))
-    ((dag-har-överlapp clim-dag) (rita-dag stream överlapp-färg))))
+    ((dag-har-överlapp clim-dag) (rita-överlapp-ruta stream))))
 
 (defun rita-överlappande-tider (stream clim-dag)
   (kvadratiskc
     #'(lambda
 	(clim-möte-a clim-möte-b)
 	(let ((överlapp (möten-överlapp clim-möte-a clim-möte-b)))
-	  (if (null överlapp) nil
-	    (rita-överlapp-tider stream
+	  (cond
+	    ((null överlapp) nil)
+	    (t (rita-överlapp-tider stream
 				 (alma-tp-starttid överlapp)
-				 (alma-tp-sluttid överlapp)))))
+				 (alma-tp-sluttid överlapp))
+	       (rita-överlapp-ruta stream)))))
     (slot-value clim-dag 'möten)))
 
 (defun dag-har-överlapp (clim-dag)
@@ -163,6 +165,7 @@
     (draw-rectangle* stream 0 0 px-dagbredd px-daghöjd :filled nil)))
 
 (defun rita-överlapp-tider (stream starttid sluttid)
+  "Rita från en tid till en annan, och rita ut "
   (with-drawing-options
     (stream :ink överlapp-färg)
     (draw-rectangle*
@@ -172,6 +175,15 @@
       px-dagbredd
       (tid-till-position sluttid px-daghöjd))))
 
+(defun rita-överlapp-ruta (stream)
+  (with-drawing-options
+    (stream :ink överlapp-färg)
+    (draw-rectangle*
+      stream
+      px-dagbredd
+      px-daghöjd
+      (- px-dagbredd px-överlapp-ruta-bredd)
+      (- px-daghöjd px-överlapp-ruta-höjd)))) 
 
 (define-application-frame
   årtest

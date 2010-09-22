@@ -3,10 +3,10 @@
 ;;; Lite färger för resten av applikationen att använda sig av
 
 ; Allmänna färger
-(defparameter app-bg-färg (make-rgb-color 0.6 0.6 0.6))
+(defparameter app-bg-färg (make-rgb-color 0.7 0.7 0.7))
 (defparameter dag-bg-färg (make-rgb-color 1 1 1)) 
 (defparameter bokad-färg (make-rgb-color 1 0.5 0)) 
-(defparameter överlapp-färg (make-rgb-color 0.7 0 0)) 
+(defparameter överlapp-färg (make-rgb-color 0.55 0 0)) 
 
 ; Månadsvyns färger
 (in-package #:almavis-månad) 
@@ -53,6 +53,8 @@
 (defparameter rader-per-månad (ceiling 31 dagar-per-rad))
 (defparameter px-daghöjd 25) ;;varje dagruta är såhär hög
 (defparameter px-dagbredd 15) ;;varje dagruta är såhär bred
+(defparameter px-överlapp-ruta-bredd 5) 
+(defparameter px-överlapp-ruta-höjd 5) 
 (defparameter px-mellan-dag 3)  ;;avståndet mellan dagrutor
 (defparameter px-mellan-rad 5)  ;;avståndet mellan rader av dagrutor
 (defparameter px-månads-padding 3) ;;mängd bakgrund på varje sida om dagrutorna
@@ -61,9 +63,9 @@
 ; Allmänna grafiska funktioner
 (in-package #:almavis) 
 
-
-;;;;;; Allmänna funktioner för vyerna ;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun rita-om ()
+  "Ritar om allt, typ som refresh i en browser, du vet."
+  (redisplay-frame-panes *application-frame* :force-p t)) 
 
 ;;;; Bygg-tabell
 ;; Används för att kämpa mot Clims tabeller.
@@ -80,7 +82,7 @@
     `(loop
      for ,i from ,start to ,stopp by ,per-rad do
      (formatting-row (,ström)
-		     (loop for ,var from ,i to (+ ,i (1- ,per-rad))
+		     (loop for ,var from ,i to (min ,stopp (+ ,i (1- ,per-rad)))
 			   do
 			   (formatting-cell (,ström)
 					    ,@body)))))) 
