@@ -70,9 +70,7 @@
 
 (defun yy ()
   (tt)
-  (visa-grafiskt (list (find-symbol "OLIVER" 'common-lisp-user)
-		       (find-symbol "ÖVERLAPP-TEST-A" 'common-lisp-user)
-		       (find-symbol "ÖVERLAPP-TEST-B" 'common-lisp-user))))
+  (visa-grafiskt (list (find-symbol "OLIVER" 'common-lisp-user)) 'september 12))
 
 (defun mm ()
   (tt)
@@ -105,14 +103,20 @@
 	:display-function 'almavis-år::rita-år)
     (månad :application
 	   :background app-bg-färg
-	   :display-function 'almavis-månad::rita-månad))
+	   :display-function 'almavis-månad::rita-månad)
+    (dag :application
+	   :background app-bg-färg
+	   :display-function 'almavis-dag::rita-dag))
   (:layouts
     (årlayout (vertically (:height 700 :width 1000)
 			 (1/10 command-menu) 
 			 (9/10 år)))
     (månadlayout (vertically (:height 700 :width 1000)
 			 (1/10 command-menu) 
-			 (9/10 månad)))))
+			 (9/10 månad)))
+    (daglayout (vertically (:height 700 :width 1000)
+			 (1/10 command-menu) 
+			 (9/10 dag)))))
 
 (define-almavis-command (com-avsluta :menu "avsluta" :name "avsluta")
 			() 
@@ -159,12 +163,17 @@
 (defun visa-grafiskt (almanacksnamn &optional månad dag)
   "Startar den grafiska interfacen för att visualisera almanackor"
   (let*
-    ((datahämtare
+    ((plats (make-instance 'plats :månad månad :dag dag)) 
+     (datahämtare
        (make-instance 'datahämtare
 		      :datakällor almanacksnamn
-		      :plats (make-instance 'plats :månad månad :dag dag)))
+		      :plats plats))
      (applikation (clim:make-application-frame 'almavis))) 
     (setf (slot-value applikation 'datahämtare) datahämtare) 
+    (cond ((and månad dag) 
+	   (setf (frame-current-layout applikation) 'daglayout))
+	  (månad
+	     (setf (frame-current-layout applikation) 'månadlayout))) 
     (clim:run-frame-top-level applikation)))
 
 (defmethod ny-datahämtare (&optional (datahämtare nil))

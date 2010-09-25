@@ -384,7 +384,7 @@
     dh)) 
 
 (defmethod skriv-ut-datakällor ((datahämtare datahämtare))
-  (format t "Datakällor: ~A~%" (slot-value datahämtare 'datakällor))) 
+  (format t "Almanackor: ~A~%" (slot-value datahämtare 'datakällor))) 
 
 (defmethod datahämtare->clim-data
   ((datahämtare datahämtare) &key (månad nil))

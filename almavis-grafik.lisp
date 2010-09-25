@@ -8,6 +8,9 @@
 (defparameter bokad-färg (make-rgb-color 1 0.5 0)) 
 (defparameter överlapp-färg (make-rgb-color 0.55 0 0)) 
 
+; Dagsvyns färger
+(in-package #:almavis-dag) 
+
 ; Månadsvyns färger
 (in-package #:almavis-månad) 
 (defparameter dag-bg-färg-normal (make-rgb-color 1 1 1))
@@ -30,6 +33,9 @@
 (defparameter tom-dag-färg (make-rgb-color 1 1 1))
 (defparameter ingen-dag-färg (make-rgb-color 0 0 0))
 (defparameter dagkant-färg (make-rgb-color 0 0 0))
+
+; Dagsvyns färger
+(in-package #:almavis-dag) 
 
 ; Månadsvyns dimensioner
 (in-package #:almavis-månad) 

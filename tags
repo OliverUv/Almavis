@@ -11,6 +11,7 @@
 #:almavis-år	almavis.lisp	/^(defpackage #:almavis-år (:use #:almavis :common-lisp-user :clim-user :clim-lisp :clim))$/;"	f
 +ars-vy+	almavis-ar.lisp	/^(defparameter +ars-vy+ (make-instance 'Ã¥r-view))$/;"	f
 +ars-vy+	almavis-ar.lisp	/^(defparameter +ars-vy+ (make-instance 'år-view))$/;"	f
++dag-vy+	almavis-dag.lisp	/^(defparameter +dag-vy+ (make-instance 'dag-view))$/;"	f
 +mÃ¥nads-vy+	almavis-manad.lisp	/^(defparameter +mÃ¥nads-vy+ (make-instance 'mÃ¥nad-view))$/;"	f
 +mÃ¥nads-vy-full+	almavis-manad.lisp	/^(defparameter +mÃ¥nads-vy-full+ (make-instance 'mÃ¥nad-view-full))$/;"	f
 +månads-vy+	almavis-dag.lisp	/^(defparameter +månads-vy+ (make-instance 'månad-view))$/;"	f
@@ -106,6 +107,7 @@ dag-bg-färg-normal	almavis-grafik.lisp	/^(defparameter dag-bg-färg-normal (make-
 dag-har-Ã¶verlapp	almavis-ar.lisp	/^(defun dag-har-Ã¶verlapp (clim-dag)$/;"	f
 dag-har-överlapp	almavis-ar.lisp	/^(defun dag-har-överlapp (clim-dag)$/;"	f
 dag-plats	almavis-model.lisp	/^(defmethod dag-plats ((clim-dag clim-dag))$/;"	f
+dag-view	almavis-dag.lisp	/^(defclass dag-view (view) ())$/;"	f
 dagar-per-rad	almavis-ar.lisp	/^(defparameter dagar-per-rad 8) ;;dvs per rad i månadsrutorna$/;"	f
 dagar-per-rad	almavis-grafik.lisp	/^(defparameter dagar-per-rad 4) $/;"	f
 dagar-per-rad	almavis-grafik.lisp	/^(defparameter dagar-per-rad 8) ;;dvs per rad i månadsrutorna$/;"	f
@@ -306,6 +308,7 @@ reactions	almavis.lisp	/^(defvar reactions 0) $/;"	f
 resten-platser	almavis.lisp	/^(defun resten-platser (platser)$/;"	f
 rita-dag	almavis-ar.lisp	/^(defun rita-dag (stream fÃ¤rg)$/;"	f
 rita-dag	almavis-ar.lisp	/^(defun rita-dag (stream färg)$/;"	f
+rita-dag	almavis-dag.lisp	/^(defun rita-dag (frame pane)$/;"	f
 rita-dag-bakgrund	almavis-manad.lisp	/^(defun rita-dag-bakgrund (stream fÃ¤rg)$/;"	f
 rita-dagkant	almavis-ar.lisp	/^(defun rita-dagkant (stream)$/;"	f
 rita-dagruta	almavis-ar.lisp	/^(defun rita-dagruta (stream clim-dag)$/;"	f
