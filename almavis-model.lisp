@@ -384,7 +384,16 @@
     dh)) 
 
 (defmethod skriv-ut-datakällor ((datahämtare datahämtare))
-  (format t "Almanackor: ~A~%" (slot-value datahämtare 'datakällor))) 
+  (let*
+    ((almanackor-visas (slot-value datahämtare 'datakällor))
+     (almanackor-ej-visas
+       (remove-if
+	 #'(lambda (almanacka)
+	     (member almanacka almanackor-visas))
+	 (mapcar #'car common-lisp-user::*almanacka*))))
+    (format t "Visar almanackor: ~A~%Visar ej:         ~A~%"
+	    almanackor-visas
+	    almanackor-ej-visas))) 
 
 (defmethod datahämtare->clim-data
   ((datahämtare datahämtare) &key (månad nil))

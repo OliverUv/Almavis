@@ -73,6 +73,11 @@
   "Ritar om allt, typ som refresh i en browser, du vet."
   (redisplay-frame-panes *application-frame* :force-p t)) 
 
+(defun skriv-ut-totala-möteslängder (clim-möteslista) 
+  (multiple-value-bind (timmar minuter)
+    (truncate (räkna-ihop-möteslängder clim-möteslista) 60)
+    (format t "Totalt bokat: ~d timmar, ~d minuter." timmar minuter)
+    (terpri))) 
 ;;;; Bygg-tabell
 ;; Används för att kämpa mot Clims tabeller.
 ;;

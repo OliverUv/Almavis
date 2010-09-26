@@ -17,11 +17,7 @@
     (terpri)
     (format t "~A~%" (plats-månad plats))
     (skriv-ut-datakällor (slot-value frame 'datahämtare)) 
-    (if (alma-kan-längd-av-tp)
-      (multiple-value-bind (timmar minuter)
-	(truncate (räkna-ihop-möteslängder möten-att-visa) 60)
-	(format t "Totalt bokat: ~d timmar, ~d minuter." timmar minuter)
-	(terpri)))
+    (skriv-ut-totala-möteslängder möten-att-visa)
     (formatting-table
       (pane :x-spacing '(1 :character) :y-spacing '(1 :line))
       (bygg-tabell

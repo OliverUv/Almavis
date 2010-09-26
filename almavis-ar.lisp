@@ -41,12 +41,7 @@
     (terpri)
     (terpri)
     (skriv-ut-datakällor (slot-value frame 'datahämtare)) 
-    (when (alma-kan-längd-av-tp)
-      (multiple-value-bind (timmar minuter)
-	(truncate (total-möteslängd årsalma) 60)
-	(format t "Totalt bokat: ~d timmar, ~d minuter." timmar minuter))
-      (terpri)
-      (terpri))
+    (skriv-ut-totala-möteslängder (möten årsalma)) 
     (formatting-table
       (pane :x-spacing '(2 :character) :y-spacing '(1 :line))
       (bygg-tabell
