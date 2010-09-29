@@ -359,6 +359,11 @@
   (skapa-plats (slot-value clim-möte 'månadsnamn)
 	       :dag (slot-value clim-möte 'dag-i-månad))) 
 
+(defmethod specifiera-plats ((plats plats) &key månad dag)
+  (skapa-plats
+    (if månad månad (plats-månad plats))
+    :dag (if dag dag (plats-dag plats)))) 
+
 (defclass datahämtare ()
   ((plats ;:type plats
 	  :initarg :plats
@@ -590,18 +595,13 @@
 	  (tidsperioddel (slot-value b 'alma-möte))))
     (funcall (alma-kan-överlapp) tidsperiod-a tidsperiod-b)))
 
+(defmethod finns-överlapp? ((clim-möte clim-möte) möteslista)
+  (find-if
+    #'(lambda (möte) (möten-överlappar clim-möte möte))
+    möteslista))
+
 (defun alma-tp-starttid (tidsperiod)
   (klockslag-till-heltal (start-klockslag tidsperiod)))
 
 (defun alma-tp-sluttid (tidsperiod)
   (klockslag-till-heltal (slut-klockslag tidsperiod)))
-
-(defun tid-till-position (tidpunkt max-position)
-  "Mappar en tidpunkt till ett nummer, så att nummret är lika nära
-  max-position som tiden är slutet på dagen. T.ex. 12:00 100 -> 50"
-  (labels 
-   ((antal-minuter
-     (tidpunkt)
-     (multiple-value-bind (timmar minuter) (truncate tidpunkt 100)
-                          (+ (* 60 timmar) minuter))))
-   (* max-position (/ (antal-minuter tidpunkt) (* 24 60)))))

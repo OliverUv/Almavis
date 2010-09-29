@@ -105,7 +105,7 @@
 	   :background app-bg-färg
 	   :display-function 'almavis-månad::rita-månad)
     (dag :application
-	   :background app-bg-färg
+	   :background dag-bg-färg
 	   :display-function 'almavis-dag::rita-dag))
   (:layouts
     (årlayout (vertically (:height 700 :width 1000)
@@ -140,16 +140,28 @@
       (gå-till (skapa-plats månad)))))
 
 (define-almavis-command
-  (com-gå-till-specifik-månad :name "gå till specifik månad") ((clim-månad clim-månad))
-  (gå-till (månad-plats clim-månad)))
-
-(define-almavis-command
   (com-gå-till-år :name "gå till år" :menu "gå till år") ()
   (gå-till-år))
 
 (define-almavis-command
   (com-uppdatera :name "uppdatera" :menu "uppdatera") ()
   (rita-om))
+
+(define-almavis-command
+  (com-gå-till-specifik-dag :name "gå till specifik dag") ((plats plats))
+  (gå-till plats))
+
+(define-presentation-to-command-translator
+  gå-till-specifik-dag
+  (plats com-gå-till-specifik-dag almavis
+	      :gesture :select
+	      :documentation "Gå till dagsvyn.")
+  (object)
+  (list object))
+
+(define-almavis-command
+  (com-gå-till-specifik-månad :name "gå till specifik månad") ((clim-månad clim-månad))
+  (gå-till (månad-plats clim-månad)))
 
 (define-presentation-to-command-translator
   gå-till-specifik-månad

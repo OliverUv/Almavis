@@ -6,8 +6,7 @@
 (do-symbols (symb :almavis) (import symb)) 
 
 (defclass dag-view (view) ())
-(defparameter +dag-vy+ (make-instance 'dag-view))
-
+(defparameter +dag-vy+ (make-instance 'dag-view)) 
 (defun rita-dag (frame pane)
   "Ritar ut en dag."
   (let*
@@ -20,4 +19,30 @@
 	    (if (> 3 (plats-dag plats)) "a" "e") 
 	    (plats-månad plats))
     (skriv-ut-datakällor (slot-value frame 'datahämtare)) 
-    (skriv-ut-totala-möteslängder möten-att-visa)))
+    (skriv-ut-totala-möteslängder möten-att-visa)
+    ;(rita-ut-tidslinjer frame) 
+    (rita-ut-möten (partitionera-möten möten-att-visa) frame)))
+
+#|(defun rita-ut-tidslinjer (ström)
+  (loop
+    for i from 0 below 24 do 
+    with x = px-tidslinje-padding
+    for y = (* i ) 
+    (setf (stream-cursor-position ström)
+	  (values ))))|# 
+
+(defun partitionera-möten (möten &optional (resultat nil))
+  (labels
+    ((sortera-in-möte
+       (möte möteslista)
+       (cond ((null möteslista) (cons (list möte) möteslista))
+	     ((finns-överlapp? möte (car möteslista))
+	      (cons (car möteslista) (sortera-in-möte möte (cdr möteslista))))
+	     (t (cons (cons möte (car möteslista)) (cdr möteslista))))))
+    (if (null möten) resultat
+      (partitionera-möten
+	(cdr möten) 
+	(sortera-in-möte (car möten) resultat))))) 
+
+(defun rita-ut-möten (partitionerade-möten ström)
+  (format t "Möten: ~A~%" partitionerade-möten))

@@ -22,7 +22,11 @@
       (pane :x-spacing '(1 :character) :y-spacing '(1 :line))
       (bygg-tabell
 	(i 1 (plats-antal-dagar plats) dagar-per-rad pane)
-	(rita-månads-dag pane i möten-att-visa plats)))))
+	(rita-månads-dag
+	  pane
+	  i
+	  möten-att-visa
+	  (specifiera-plats plats :dag i))))))
 
 (defun rita-månads-dag (ström dagnr månadens-möten plats)
   "Ritar ut en dag. Ritar en ruta per dag, som går att klicka för att komma

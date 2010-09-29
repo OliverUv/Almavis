@@ -34,8 +34,12 @@
 (defparameter ingen-dag-färg (make-rgb-color 0 0 0))
 (defparameter dagkant-färg (make-rgb-color 0 0 0))
 
-; Dagsvyns färger
+
+; Dagsvyns dimensioner
 (in-package #:almavis-dag) 
+(defparameter px-dagshöjd 700)
+(defparameter px-dagsbredd 1000)
+(defparameter px-mötesbredd 220) 
 
 ; Månadsvyns dimensioner
 (in-package #:almavis-månad) 
@@ -78,6 +82,45 @@
     (truncate (räkna-ihop-möteslängder clim-möteslista) 60)
     (format t "Totalt bokat: ~d timmar, ~d minuter." timmar minuter)
     (terpri))) 
+
+#|(defun tid-till-position (tidpunkt max-position)
+  "Mappar en tidpunkt till ett nummer, så att nummret är lika nära
+  max-position som tiden är slutet på dagen. T.ex. 12:00 100 -> 50"
+  (labels 
+   ((antal-minuter
+     (tidpunkt)
+     (multiple-value-bind (timmar minuter) (truncate tidpunkt 100)
+                          (+ (* 60 timmar) minuter))))
+   (* max-position (/ (antal-minuter tidpunkt) (* 24 60)))))|#
+
+(defun tid-till-position (tidpunkt max-position)
+  "Mappar en tidpunkt till ett nummer, så att nummret är lika nära
+  max-position som tiden är slutet på dagen. T.ex. 12:00 100 -> 50"
+  (let ((antal-minuter
+	  (multiple-value-bind (timmar minuter)
+	    (truncate tidpunkt 100)
+                          (+ (* 60 timmar) minuter))))
+   (mappa-position 0 (* 24 60) antal-minuter 0 max-position)))
+
+(defun mappa-position (in-min in-max invärde ut-min ut-max)
+  "Mappar från en procentuell position i ett intervall till
+  en motsvarande position i ett annat intervall, t.ex. så ger
+  9 i intervallet 7-10 värdet 13 i intervallet 3-18, eller
+  12 i intervallet 10-13. Alla intervall inklusive."
+  (check-type in-min integer) 
+  (check-type in-max integer) 
+  (check-type invärde integer) 
+  (check-type ut-min integer) 
+  (check-type ut-max integer) 
+  (assert (< ut-min ut-max)) 
+  (assert (< in-min in-max)) 
+  (assert (and (<= in-min invärde) (<= invärde in-max))) 
+  (let* ((%-of-interval (/ (- invärde in-min)
+			  (- in-max in-min))))
+    (round
+      (+ ut-min (* %-of-interval
+		   (- ut-max ut-min))))))
+
 ;;;; Bygg-tabell
 ;; Används för att kämpa mot Clims tabeller.
 ;;
