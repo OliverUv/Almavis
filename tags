@@ -11,6 +11,7 @@
 #:almavis-år	almavis.lisp	/^(defpackage #:almavis-år (:use #:almavis :common-lisp-user :clim-user :clim-lisp :clim))$/;"	f
 +ars-vy+	almavis-ar.lisp	/^(defparameter +ars-vy+ (make-instance 'Ã¥r-view))$/;"	f
 +ars-vy+	almavis-ar.lisp	/^(defparameter +ars-vy+ (make-instance 'år-view))$/;"	f
++dag-vy+	almavis-dag.lisp	/^(defparameter +dag-vy+ (make-instance 'dag-view)) $/;"	f
 +dag-vy+	almavis-dag.lisp	/^(defparameter +dag-vy+ (make-instance 'dag-view))$/;"	f
 +mÃ¥nads-vy+	almavis-manad.lisp	/^(defparameter +mÃ¥nads-vy+ (make-instance 'mÃ¥nad-view))$/;"	f
 +mÃ¥nads-vy-full+	almavis-manad.lisp	/^(defparameter +mÃ¥nads-vy-full+ (make-instance 'mÃ¥nad-view-full))$/;"	f
@@ -182,6 +183,7 @@ ljusare-mellanfärg	almavis-grafik.lisp	/^(defparameter ljusare-mellanfärg$/;"	f
 ljusast-fÃ¤rgvÃ¤rde	almavis-ar.lisp	/^(defparameter ljusast-fÃ¤rgvÃ¤rde 0.85)$/;"	f
 ljusast-färgvärde	almavis-grafik.lisp	/^(defparameter ljusast-färgvärde 0.85)$/;"	f
 lÃ¤gg-in-plats	almavis.lisp	/^(defun lÃ¤gg-in-plats (plats platser)$/;"	f
+mappa-position	almavis-grafik.lisp	/^(defun mappa-position (in-min in-max invärde ut-min ut-max)$/;"	f
 max-minuter	almavis-ar.lisp	/^(defparameter max-minuter 1440 "antal minuter vi skiljer pÃ¥ fÃ¤rgmÃ¤ssigt")$/;"	f
 max-minuter	almavis-ar.lisp	/^(defparameter max-minuter 1440 "antal minuter vi skiljer på färgmässigt")$/;"	f
 mm	almavis.lisp	/^(defun mm ()$/;"	f
@@ -281,6 +283,7 @@ px-daghöjd	almavis-ar.lisp	/^(defparameter px-daghöjd 25) ;;varje dagruta är såh
 px-daghöjd	almavis-grafik.lisp	/^(defparameter px-daghöjd 25) ;;varje dagruta är såhär hög$/;"	f
 px-daghöjd	almavis-grafik.lisp	/^(defun px-daghöjd ()$/;"	f
 px-daghöjd	almavis-manad.lisp	/^(defun px-daghöjd ()$/;"	f
+px-dagsbredd	almavis-grafik.lisp	/^(defparameter px-dagsbredd 1000)$/;"	f
 px-dagshöjd	almavis-grafik.lisp	/^(defparameter px-dagshöjd 700)$/;"	f
 px-kant	almavis-grafik.lisp	/^(defparameter px-kant 5) $/;"	f
 px-kant	almavis-manad.lisp	/^(defparameter px-kant 5) $/;"	f

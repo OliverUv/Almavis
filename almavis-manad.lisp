@@ -44,7 +44,7 @@
 		    `((plats) :färg ,dag-bg-färg-full)
 		    :view +månads-vy+))
 	  (t (present plats 'plats :view +månads-vy+)))
-    (loop ;; <3 loop
+    (loop
       for i from 0 below möten-per-dag
       for möte in möten
       with x = px-kant
@@ -113,21 +113,14 @@
      (möteslängd (if (alma-kan-längd-av-tp) (möteslängd-sträng clim-möte) ""))
      (mötesinfo (slot-value clim-möte 'mötesinfo)) 
      (orig-sträng (format nil "~A-~A~A ~A"
-			  start
-			  slut
+			  (skapa-tidstext start)
+			  (skapa-tidstext slut)
 			  möteslängd
 			  mötesinfo)))
     (loop
       for sträng = orig-sträng then (subseq sträng 0 (- (length sträng) 1))
-      until (<= (stream-string-width ström sträng) max-längd)
+      until (<= (sträng-px-längd sträng ström) max-längd)
       finally (return sträng)))) 
-
-(defun möteslängd-sträng (clim-möte)
-  (if (alma-kan-längd-av-tp)
-    (multiple-value-bind (timmar minuter)
-      (truncate (möteslängd clim-möte) 60) 
-      (format nil "[~dh ~dm]" timmar minuter)) 
-    ""))
 
 (defun testa-månad (almanacksnamn månad)
   "Startar den grafiska interfacen för att visualisera månader.

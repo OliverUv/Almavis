@@ -34,12 +34,17 @@
 (defparameter ingen-dag-färg (make-rgb-color 0 0 0))
 (defparameter dagkant-färg (make-rgb-color 0 0 0))
 
+; Allmänna dimensioner
+(in-package #:almavis) 
+(defparameter px-bokstavshöjd 15) 
 
 ; Dagsvyns dimensioner
 (in-package #:almavis-dag) 
 (defparameter px-dagshöjd 700)
-(defparameter px-dagsbredd 1000)
+(defparameter px-dagsbredd 800)
 (defparameter px-mötesbredd 220) 
+(defparameter px-tidslinje-padding 10) 
+ 
 
 ; Månadsvyns dimensioner
 (in-package #:almavis-månad) 
@@ -70,7 +75,7 @@
 (defparameter px-månads-padding 3) ;;mängd bakgrund på varje sida om dagrutorna
 
 
-; Allmänna grafiska funktioner
+; Allmänna funktioner för ritning av grafik och relaterat
 (in-package #:almavis) 
 
 (defun rita-om ()
@@ -82,16 +87,6 @@
     (truncate (räkna-ihop-möteslängder clim-möteslista) 60)
     (format t "Totalt bokat: ~d timmar, ~d minuter." timmar minuter)
     (terpri))) 
-
-#|(defun tid-till-position (tidpunkt max-position)
-  "Mappar en tidpunkt till ett nummer, så att nummret är lika nära
-  max-position som tiden är slutet på dagen. T.ex. 12:00 100 -> 50"
-  (labels 
-   ((antal-minuter
-     (tidpunkt)
-     (multiple-value-bind (timmar minuter) (truncate tidpunkt 100)
-                          (+ (* 60 timmar) minuter))))
-   (* max-position (/ (antal-minuter tidpunkt) (* 24 60)))))|#
 
 (defun tid-till-position (tidpunkt max-position)
   "Mappar en tidpunkt till ett nummer, så att nummret är lika nära
@@ -121,6 +116,24 @@
       (+ ut-min (* %-of-interval
 		   (- ut-max ut-min))))))
 
+(defun sträng-px-längd (sträng ström)
+  (stream-string-width ström sträng)) 
+
+(defun skapa-tidstext (tid)
+  (check-type tid integer)
+  (format nil "~A~A"
+	  (cond ((= tid 0) "000")
+		((< tid 1000) "0")
+		(t "")) 
+	  tid))
+
+(defun möteslängd-sträng (clim-möte)
+  (if (alma-kan-längd-av-tp)
+    (multiple-value-bind (timmar minuter)
+      (truncate (möteslängd clim-möte) 60) 
+      (format nil "[~dh ~dm]" timmar minuter)) 
+    ""))
+
 ;;;; Bygg-tabell
 ;; Används för att kämpa mot Clims tabeller.
 ;;
@@ -129,7 +142,6 @@
 ;; (bygg-tabell (i 1 100 10 stream) (prin1 i)) för att få rad- och cell-
 ;; strukturer för en 10x10 tabell med siffrorna 1-100 i, första raden med
 ;; siffrorna 1-10
-;; TODO: Skriver ut fler saker än stopp säger att den borde
 (defmacro bygg-tabell
   ((var start stopp per-rad ström) &body body)
   (let ((i (gensym "inner-loop-var"))) 
