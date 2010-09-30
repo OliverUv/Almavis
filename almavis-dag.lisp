@@ -21,6 +21,7 @@
 	    (plats-månad plats))
     (skriv-ut-datakällor (slot-value frame 'datahämtare)) 
     (skriv-ut-totala-möteslängder möten-att-visa)
+    (terpri) 
     (formatting-table ;;formatting table är fulhack här för att skriva ut
       (pane) 	      ;;allt under info-texten ovan, istället för på den.
       (formatting-row
@@ -30,23 +31,29 @@
 	  (rita-ut-tidslinjer pane) 
 	  (rita-ut-möten (partitionera-möten möten-att-visa) pane))))))
 
+;;TODO Kan optimeras, flera av värdena räknas ut varje iteration genom
+;;loopen en kan istället räknas ut bara en gång innan loopen körs.
 (defun rita-ut-tidslinjer (ström)
   (loop
-    for i from 0 below 2400 by 100
-    for tidstext = (skapa-tidstext i) 
+    for i from 0 to 2400 by 100
+    for tidstext = (skapa-tidstext i)
     for px-tidstext-längd = (sträng-px-längd tidstext ström) 
-    with x-vänster = px-tidslinje-padding
-    with x-höger = (+ px-tidslinje-padding px-dagsbredd)
-    for y = (mappa-position 0 2359 i 0 px-dagshöjd) 
+    with x-text-vänster = px-tidslinje-padding
+    for x-linje-vänster = (+ px-tidslinje-padding
+			      x-text-vänster
+			      px-tidstext-längd)
+    for x-linje-höger = (+ x-linje-vänster px-dagsbredd)
+    for y-linje = (mappa-position 0 2400 i 0 px-dagshöjd) 
+    for y-text = (- y-linje (/ px-bokstavshöjd 2)) 
     do
     (draw-line* ström
-		(+ x-vänster px-tidstext-längd)
-		(+ (/ px-bokstavshöjd 2) y)
-		x-höger
-		(+ (/ px-bokstavshöjd 2) y)
+		x-linje-vänster
+		y-linje
+		x-linje-höger
+		y-linje
 		:line-style (make-line-style :dashes t)) 
     (setf (stream-cursor-position ström)
-	  (values x-vänster y))
+	  (values x-text-vänster y-text))
     (format ström "~A" tidstext))) 
 
 (defun partitionera-möten (möten &optional (resultat nil))

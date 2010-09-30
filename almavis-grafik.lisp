@@ -40,7 +40,7 @@
 
 ; Dagsvyns dimensioner
 (in-package #:almavis-dag) 
-(defparameter px-dagshöjd 700)
+(defparameter px-dagshöjd 1400)
 (defparameter px-dagsbredd 800)
 (defparameter px-mötesbredd 220) 
 (defparameter px-tidslinje-padding 10) 
@@ -122,7 +122,8 @@
 (defun skapa-tidstext (tid)
   (check-type tid integer)
   (format nil "~A~A"
-	  (cond ((= tid 0) "000")
+	  (cond ((< tid 10) "000") 
+		((< tid 100) "00")
 		((< tid 1000) "0")
 		(t "")) 
 	  tid))
