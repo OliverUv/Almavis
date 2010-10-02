@@ -1,0 +1,62 @@
+I denna textfil förklaras hur man använder almavis.
+
+Almavis är ett grafiskt gränssnitt till almanackslabben. Det har tre olika vyer där man ser sina bokningar på olika vis. Beroende på hur man startar almavis så ser man olika vyer. För att starta almavis måste vi först ladda in all kod - sedan använder vi funktionen visa-grafiskt för att starta det grafiska gränssnittet.
+
+För att ladda in koden så att vi kan köra almavis så utför följande funktion:
+(load "/home/TDDC67/lab/almavis/almavis.lisp")
+
+För att sedan starta Almavis använd funktionen visa-grafiskt på något av följande vis:
+
+(visa-grafiskt '(ditt-almanacksnamn))
+(visa-grafiskt '(en-almanacka en-annan-almanacka))
+
+Såklart går det att ha med så många almanacksnamn man vill i listan. Almavis startar då och visar dig årsvyn för alla almanackorna. Längre ner kan du läsa om hur den fungerar. Det finns två andra vyer också, månadsvyn och dagsvyn. För att starta Almavis i månadsvyn, tala om vilken månad du vill titta på såhär:
+
+(visa-grafiskt '(min-almanacka) 'september)
+
+Vill vi komma till dagsvyn för ett speciellt datum så gör vi såhär:
+
+(visa-grafiskt '(min-almanacka) 'maj 12)
+
+Ok! Nu när du vet hur man startar Almavis undrar du säkert vad många av sakerna i de olika vyerna innebär. Innan jag förklarar det så ska jag tala om några allmänna saker:
+
+Om det inte går att klicka på möten, månader, dagar och annat, prova att stänga av numlock.
+
+Trycker du på knappen Almanackor så ser du vilka almanackor som finns definierade. Du kan trycka på en av dem för att välja om den ska visas eller inte. Trycker du på en som redan visas så slutar den visas, och vice versa.
+
+När du startart Almavis så går det fortfarande att använda resten av almanackan som förut - du kan boka möten, avboka dem, titta på de datastrukturer som byggts upp, etc. Tyvärr så reagerar inte Almavis direkt på de ändringar du gjort, så för att få Almavis att visa dina ändringar så behöver du trycka på knappen uppdatera.
+
+Almavis känner själv av hur mycket av labben du gjort färdigt, och drar automatiskt nytta av nya funktioner som du implementerat. För att Almavis ska kunna göra det så måste du starta om det när du implementerat en ny funktion. Det är också viktigt att du döper dina funktioner rätt. Här är en lista på namn som Almavis förväntar sig att du använder:
+
+    start-klockslag
+    slut-klockslag
+    längd-av-tidsperiod
+    skapa-tidsperioder
+    timdel (applicerbar på tidsrymd)
+    minutdel (applicerbar på tidsrymd)
+    heltal (applicerbar på timdel och minutdel)
+    överlapp
+    första-tidsperiod eller första-tidsperioden
+    resten-tidsperioder
+    lediga-tidsperioder
+
+
+Årsvyn
+
+I den här vyn så ser du tolv vita rutor, en för varje månad. I de tolv rutorna finns mindre rektanglar, en för varje dag. Dessa rutor visar information om hur många möten som finns bokade den dagen, och om de överlappar.
+
+Innan du implementerat längd-av-tidsperiod så kan rutan antingen vara vit, eller så har den en gul-orange färg som visar antal möten bokade. En ljus gul färg betyder att ett möte är bokat, lite mörkare innebär två möten, och så vidare upp till fyra möten. Efter att du implementerat längd-av-tidsperiod så ändrar rutan istället färg gradvis beroende på hur lång tid av dagen som är uppbokad - så en dag där du bokat 2h 30min kommer att vara ljusare än en dag där du bokat 5h 15min.
+
+Innan du implementerat överlapp så är de dagar som innehåller överlappande möten markerade med en liten mörkröd fyrkant i nedre höger hörn. Efter att du implementerat överlapp så syns också var under dagen överlappet finns, är rutan mörkröd högst upp betyder det att överlappet är på morgonen, är den mörkröd längre ner så betyder det att överlappet finns senare under dagen.
+
+
+Månadsvyn
+
+I månadsvyn så syns en ruta per dag. Varje ruta kan bara visa ett visst antal möen, om alla möten syns i rutan så är rutan vit. Om det finns fler möten bokade på dagen än som får plats i rutan så blir den orange istället.
+
+I varje dagruta så visas information om mötena som rader. Du kan trycka på ett möte för att se all information om det. Precis som i årsvyn så kan du här se mörkröd färg på mötena där de överlappar varandra, om du implementerat funktionen överlapp. Här representerar vänster sida av raden början av dagen, och höger sida av raden slutet på dagen. Har du inte implementerat överlapp så syns en liten mörkröd fyrkant längst ner till höger på raden.
+
+
+Dagsvyn
+
+

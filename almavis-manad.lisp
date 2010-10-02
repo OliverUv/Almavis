@@ -98,7 +98,12 @@
 		 (draw-rectangle* stream px-start 0 px-slut px-möteshöjd))))) 
 	  (t (with-drawing-options ;;Rita helt överlappad mötesbakgrund
 	       (stream :ink överlapp-färg)
-	       (draw-rectangle* stream 0 0 px-mötesbredd px-möteshöjd)))))
+	       (draw-rectangle*
+		 stream
+		 (- px-mötesbredd px-överlapp-ruta-bredd) 
+		 (- px-möteshöjd px-överlapp-ruta-höjd) 
+		 px-mötesbredd
+		 px-möteshöjd)))))
   (princ (bygg-mötessträng stream clim-möte px-mötesbredd))) 
 
 #|(defun rita-mötes-ruta (clim-möte ström)

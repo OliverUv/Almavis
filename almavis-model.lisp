@@ -1,7 +1,9 @@
 (in-package #:almavis)
 ;;;;;; Kommunikation med almanackan ;;;;;;
 ;;;; Funktioner för att testa vilken funktionalitet
-;;;; studenten har implementerat hittills
+;;;; studenten har implementerat hittills. Används både
+;;;; för att kolla om funktionaliten finns och för att
+;;;; hämta funktionsobjekten för att använda funktionaliteten.
 
 (defun alma-har-funktionalitet-p (funktionalitet-str)
   (find-symbol funktionalitet-str 'common-lisp-user))
@@ -9,8 +11,20 @@
 (defun alma-kan-längd-av-tp ()
   (alma-har-funktionalitet-p "LÄNGD-AV-TIDSPERIOD"))
 
-(defun alma-kan-tidsperioder ()
+(defun alma-kan-skapa-tidsperioder ()
   (alma-har-funktionalitet-p "SKAPA-TIDSPERIODER"))
+
+(defun alma-kan-första-tidsperiod ()
+  (or (alma-har-funktionalitet-p "FÖRSTA-TIDSPERIOD")
+      (alma-har-funktionalitet-p "FÖRSTA-TIDSPERIODEN"))) 
+
+(defun alma-kan-resten-tidsperioder ()
+  (alma-har-funktionalitet-p "RESTEN-TIDSPERIODER"))
+
+(defun alma-kan-tidsperioder ()
+  (and (alma-kan-skapa-tidsperioder)
+       (alma-kan-första-tidsperiod)
+       (alma-kan-resten-tidsperioder)))
 
 (defun alma-kan-skapa-tidsrymd ()
   (alma-har-funktionalitet-p "SKAPA-TIDSRYMD"))
@@ -29,9 +43,8 @@
 
 (defun alma-kan-ledigt ()
   (and
-   (alma-har-funktionalitet-p "LEDIGA-TIDSPERIODER")
-   (alma-har-funktionalitet-p "LEDIGT")
-   (alma-har-funktionalitet-p "SAMMA-LEDIGA-PERIODER")))
+    (alma-kan-tidsperioder) 
+    (alma-har-funktionalitet-p "LEDIGA-TIDSPERIODER")))
 
 (defun alma-kan-överlapp ()
   (alma-har-funktionalitet-p "ÖVERLAPP"))
@@ -44,10 +57,6 @@
 ;;;; vi ska blanda i det i vår kod, så här importerar vi den
 ;;;; funktionaliteten. Detta gör att vi själva inte får definiera
 ;;;; funktioner eller globala variabler med samma namn.
-
-;;;; I programmeringsmiljön jag använder görs detta i almavis
-;;;; paketdefinition, men den kommer troligtvis inte vara med
-;;;; när vi integrerar på IDA - då behövs dessa istället.
 
 (import 'common-lisp-user::dagalmanacka)
 (import 'common-lisp-user::dagalmanacka?)

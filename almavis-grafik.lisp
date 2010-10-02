@@ -37,6 +37,8 @@
 ; Allmänna dimensioner
 (in-package #:almavis) 
 (defparameter px-bokstavshöjd 15) 
+(defparameter px-överlapp-ruta-bredd 5) 
+(defparameter px-överlapp-ruta-höjd 5) 
 
 ; Dagsvyns dimensioner
 (in-package #:almavis-dag) 
@@ -71,8 +73,6 @@
 (defparameter rader-per-månad (ceiling 31 dagar-per-rad))
 (defparameter px-daghöjd 25) ;;varje dagruta är såhär hög
 (defparameter px-dagbredd 15) ;;varje dagruta är såhär bred
-(defparameter px-överlapp-ruta-bredd 5) 
-(defparameter px-överlapp-ruta-höjd 5) 
 (defparameter px-mellan-dag 3)  ;;avståndet mellan dagrutor
 (defparameter px-mellan-rad 5)  ;;avståndet mellan rader av dagrutor
 (defparameter px-månads-padding 3) ;;mängd bakgrund på varje sida om dagrutorna

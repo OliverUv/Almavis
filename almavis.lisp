@@ -109,14 +109,11 @@
 	   :display-function 'almavis-dag::rita-dag))
   (:layouts
     (årlayout (vertically (:height 700 :width 1000)
-			 (1/10 command-menu) 
-			 (9/10 år)))
+			  (1 år)))
     (månadlayout (vertically (:height 700 :width 1000)
-			 (1/10 command-menu) 
-			 (9/10 månad)))
+			     (1 månad)))
     (daglayout (vertically (:height 700 :width 1000)
-			 (1/10 command-menu) 
-			 (9/10 dag)))))
+			   (1 dag)))))
 
 (define-almavis-command (com-avsluta :menu "avsluta" :name "avsluta")
 			() 
@@ -134,14 +131,14 @@
 			 datakälla)))))
 
 (define-almavis-command
-  (com-gå-till-månad :name "gå till månad" :menu "gå till månad") ()
+  (com-gå-till-år :name "årsvy" :menu "årsvy") ()
+  (gå-till-år))
+
+(define-almavis-command
+  (com-gå-till-månad :name "visa månad" :menu "visa månad") ()
   (let ((månad (menu-choose (mapcar #'car *månadsdata*)))) 
     (unless (null månad)
       (gå-till (skapa-plats månad)))))
-
-(define-almavis-command
-  (com-gå-till-år :name "gå till år" :menu "gå till år") ()
-  (gå-till-år))
 
 (define-almavis-command
   (com-uppdatera :name "uppdatera" :menu "uppdatera") ()
@@ -160,7 +157,8 @@
   (list object))
 
 (define-almavis-command
-  (com-gå-till-specifik-månad :name "gå till specifik månad") ((clim-månad clim-månad))
+  (com-gå-till-specifik-månad :name "gå till specifik månad")
+  ((clim-månad clim-månad))
   (gå-till (månad-plats clim-månad)))
 
 (define-presentation-to-command-translator

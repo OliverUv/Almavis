@@ -113,10 +113,7 @@
        (starttid (alma-tp-starttid tidsperiod))
        (sluttid (alma-tp-sluttid tidsperiod))
        (px-start-y (tid-till-position starttid px-dagshöjd))
-       (px-slut-y (tid-till-position sluttid px-dagshöjd))
-       (cursor-x-pos (multiple-value-bind (x y)
-		       (stream-cursor-position ström)
-		       x))) 
+       (px-slut-y (tid-till-position sluttid px-dagshöjd))) 
       (with-drawing-options
 	(ström :ink bokad-färg)
 	(draw-rectangle*
