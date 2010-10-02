@@ -42,9 +42,12 @@
 (in-package #:almavis-dag) 
 (defparameter px-dagshöjd 1400)
 (defparameter px-dagsbredd 800)
-(defparameter px-mötesbredd 220) 
+(defparameter px-möteskol-bredd 220) 
 (defparameter px-tidslinje-padding 10) 
- 
+(defparameter px-mellan-möteskol 5) 
+(defparameter max-antal-möteskolumner 
+  (floor (- px-dagsbredd (* 2 px-tidslinje-padding))
+	 (+ px-möteskol-bredd px-mellan-möteskol))) 
 
 ; Månadsvyns dimensioner
 (in-package #:almavis-månad) 
@@ -119,6 +122,12 @@
 (defun sträng-px-längd (sträng ström)
   (stream-string-width ström sträng)) 
 
+(defun förkorta-sträng (orig-sträng px-max-längd ström)
+  (loop
+      for sträng = orig-sträng then (subseq sträng 0 (- (length sträng) 1))
+      until (<= (sträng-px-längd sträng ström) px-max-längd)
+      finally (return sträng))) 
+
 (defun skapa-tidstext (tid)
   (check-type tid integer)
   (format nil "~A~A"
@@ -133,7 +142,33 @@
     (multiple-value-bind (timmar minuter)
       (truncate (möteslängd clim-möte) 60) 
       (format nil "[~dh ~dm]" timmar minuter)) 
-    ""))
+    "[?h ?m]"))
+
+(defun byt-cursor-position (ström &key x y)
+  "Tar cursor-positionen från en ström (det som avgör var text skrivs ut)
+  och ändrar dess x- och y-värden till det som specifieras,
+  om något specifieras. Annars lämnas värdena som de är."
+  (multiple-value-bind
+    (original-x original-y)
+    (stream-cursor-position ström)
+	(setf (stream-cursor-position ström)
+	      (values
+		(or x original-x)
+		(or y original-y))))) 
+
+(defun skriv-rader (ström px-max-x px-max-y stränglista)
+  "Skriver ut ett antal textsträngar på individuella rader.
+  Ser till att inte skriva ut mer än som får plats på antalet
+  pixlar som angivs av px-max-x och px-max-y."
+  (multiple-value-bind 
+    (original-x original-y) 
+    (stream-cursor-position ström) 
+    (loop
+      for sträng in stränglista
+      for i from 1 to (floor px-max-y px-bokstavshöjd)
+      do
+      (format ström "~A~%" (förkorta-sträng sträng px-max-x ström))
+      (byt-cursor-position ström :x original-x))))
 
 ;;;; Bygg-tabell
 ;; Används för att kämpa mot Clims tabeller.

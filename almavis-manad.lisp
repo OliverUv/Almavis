@@ -50,8 +50,9 @@
       with x = px-kant
       for y = (+ px-kant (* (+ px-möteshöjd px-mellan-möten) i)) 
       do
-      (setf (stream-cursor-position ström) (values (+ px-mötestext-padding x)
-						   (+ px-mötestext-padding y)))
+      (byt-cursor-position ström
+			   :x (+ px-mötestext-padding x)
+			   :y (+ px-mötestext-padding y))
       (with-local-coordinates
 	(ström x y)
 	(present möte
@@ -110,17 +111,14 @@
     ((x-orig (stream-cursor-position ström))
      (start (slot-value clim-möte 'start-kl))
      (slut (slot-value clim-möte 'slut-kl))
-     (möteslängd (if (alma-kan-längd-av-tp) (möteslängd-sträng clim-möte) ""))
+     (möteslängd (möteslängd-sträng clim-möte))
      (mötesinfo (slot-value clim-möte 'mötesinfo)) 
      (orig-sträng (format nil "~A-~A~A ~A"
 			  (skapa-tidstext start)
 			  (skapa-tidstext slut)
 			  möteslängd
 			  mötesinfo)))
-    (loop
-      for sträng = orig-sträng then (subseq sträng 0 (- (length sträng) 1))
-      until (<= (sträng-px-längd sträng ström) max-längd)
-      finally (return sträng)))) 
+    (förkorta-sträng orig-sträng max-längd ström))) 
 
 (defun testa-månad (almanacksnamn månad)
   "Startar den grafiska interfacen för att visualisera månader.

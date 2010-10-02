@@ -28,35 +28,45 @@
 	(pane)
 	(formatting-cell
 	  (pane)
-	  (rita-ut-tidslinjer pane) 
-	  (rita-ut-möten (partitionera-möten möten-att-visa) pane))))))
+	  (let* 
+	    ((px-möteskol-x (rita-ut-tidslinjer pane))) 
+	    (rita-ut-möten
+	      px-möteskol-x
+	      (partitionera-möten möten-att-visa)
+	      pane)))))))
 
 ;;TODO Kan optimeras, flera av värdena räknas ut varje iteration genom
 ;;loopen en kan istället räknas ut bara en gång innan loopen körs.
 (defun rita-ut-tidslinjer (ström)
+  "Ritar ut de horisontella linjer som indikerar tider för mötena.
+  Returnerar x-koordinaten för första möteskolumnen"
   (loop
     for i from 0 to 2400 by 100
     for tidstext = (skapa-tidstext i)
     for px-tidstext-längd = (sträng-px-längd tidstext ström) 
-    with x-text-vänster = px-tidslinje-padding
-    for x-linje-vänster = (+ px-tidslinje-padding
-			      x-text-vänster
+    with px-text-vänster-x = px-tidslinje-padding
+    for px-linje-vänster-x = (+ px-tidslinje-padding
+			      px-text-vänster-x
 			      px-tidstext-längd)
-    for x-linje-höger = (+ x-linje-vänster px-dagsbredd)
-    for y-linje = (mappa-position 0 2400 i 0 px-dagshöjd) 
-    for y-text = (- y-linje (/ px-bokstavshöjd 2)) 
+    for px-linje-höger-x = (+ px-linje-vänster-x px-dagsbredd)
+    for px-linje-y = (mappa-position 0 2400 i 0 px-dagshöjd) 
+    for px-tidstext-y = (- px-linje-y (/ px-bokstavshöjd 2)) 
     do
     (draw-line* ström
-		x-linje-vänster
-		y-linje
-		x-linje-höger
-		y-linje
+		px-linje-vänster-x
+		px-linje-y
+		px-linje-höger-x
+		px-linje-y
 		:line-style (make-line-style :dashes t)) 
     (setf (stream-cursor-position ström)
-	  (values x-text-vänster y-text))
-    (format ström "~A" tidstext))) 
+	  (values px-text-vänster-x px-tidstext-y))
+    (format ström "~A" tidstext)
+    finally (return px-linje-vänster-x))) 
 
 (defun partitionera-möten (möten &optional (resultat nil))
+  "Delar in en lista med clim-möten i flera listor så att inga möten
+  i en underlista överlappar varandra. Vi delar in mötena i så få
+  underlistor som möjligt. Resultatet har formen: ((clim-möte*)*)"
   (labels
     ((sortera-in-möte
        (möte möteslista)
@@ -69,6 +79,59 @@
 	(cdr möten) 
 	(sortera-in-möte (car möten) resultat))))) 
 
-(defun rita-ut-möten (partitionerade-möten ström)
-  ;(loop for mötespartition in partitionerade-möten))
-  (format t "Möten: ~A~%" partitionerade-möten))
+(defun rita-ut-möten (px-kolumn-ett-x partitionerade-möten ström)
+  "Tar x-koordinaten för den första möteskolumnen, en lista med
+  partitionerade möten på formen ((clim-möte*)*) och ritar ut
+  mötena på en ström."
+  (loop for mötespartition in partitionerade-möten
+	for i from 0 to (1- max-antal-möteskolumner)
+	for px-kolumn-vänster-x = (+ px-kolumn-ett-x
+				     (* i (+ px-mellan-möteskol
+					     px-möteskol-bredd)))
+	do
+	(loop for möte in mötespartition
+	      do
+	      (setf (stream-cursor-position ström)
+		    (values px-kolumn-vänster-x 0)) 
+	      (with-local-coordinates
+		(ström px-kolumn-vänster-x 0) 
+		(present möte
+			 'clim-möte
+			 :view +dag-vy+)))))
+
+(define-presentation-method
+  present
+  (clim-möte (type clim-möte) stream (view dag-view) &key)
+  (rita-möte clim-möte stream))
+
+(defun rita-möte (clim-möte ström)
+  (with-slots
+    (alma-möte start-kl slut-kl almanacksnamn mötesinfo) 
+    clim-möte
+    (let*
+      ((tidsperiod (tidsperioddel alma-möte))
+       (starttid (alma-tp-starttid tidsperiod))
+       (sluttid (alma-tp-sluttid tidsperiod))
+       (px-start-y (tid-till-position starttid px-dagshöjd))
+       (px-slut-y (tid-till-position sluttid px-dagshöjd))
+       (cursor-x-pos (multiple-value-bind (x y)
+		       (stream-cursor-position ström)
+		       x))) 
+      (with-drawing-options
+	(ström :ink bokad-färg)
+	(draw-rectangle*
+	  ström
+	  0
+	  px-start-y
+	  px-möteskol-bredd	
+	  px-slut-y))
+      (byt-cursor-position ström :y px-start-y) 
+      (skriv-rader ström
+		   px-möteskol-bredd
+		   (- px-slut-y px-start-y)
+		   (list mötesinfo
+			 (format nil "~A - ~A  ~A"
+						(skapa-tidstext start-kl)
+						(skapa-tidstext slut-kl)
+						(möteslängd-sträng clim-möte))
+			 (format nil "~A" almanacksnamn))))))

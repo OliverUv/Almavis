@@ -171,6 +171,27 @@
   (object)
   (list object))
 
+(define-almavis-command
+  (com-visa-mötesinfo :name "Visa mötesinfo")
+  ((clim-möte clim-möte))
+  (with-slots
+    (start-kl slut-kl almanacksnamn mötesinfo)
+    clim-möte
+    (menu-choose (list
+		   (format nil "~A - ~A"
+			 (skapa-tidstext start-kl)
+			 (skapa-tidstext slut-kl))
+		 (format nil "~A" mötesinfo)
+		 (format nil "~A" almanacksnamn))))) 
+
+(define-presentation-to-command-translator
+  visa-mötesinfo
+  (clim-möte com-visa-mötesinfo almavis
+	     :gesture :select
+	     :documentation "Visa mötesinfo")
+  (object)
+  (list object)) 
+
 ;;För att starta almavis
 (defun visa-grafiskt (almanacksnamn &optional månad dag)
   "Startar den grafiska interfacen för att visualisera almanackor"
