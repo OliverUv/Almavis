@@ -32,13 +32,12 @@ Almavis känner själv av hur mycket av labben du gjort färdigt, och drar autom
     slut-klockslag
     längd-av-tidsperiod
     skapa-tidsperioder
-    timdel (applicerbar på tidsrymd)
-    minutdel (applicerbar på tidsrymd)
-    heltal (applicerbar på timdel och minutdel)
-    överlapp
     första-tidsperiod eller första-tidsperioden
     resten-tidsperioder
+    tom-tidsperioder
+    överlapp
     lediga-tidsperioder
+    samma-lediga-tidsperioder
 
 
 Årsvyn
@@ -59,4 +58,8 @@ I varje dagruta så visas information om mötena som rader. Du kan trycka på et
 
 Dagsvyn
 
+Här ser vi mötena för en viss dag. Inga konstigheter. Klickar du på ett möte så får du se all information om mötet. Mötena visas i orangea rutor.
 
+Om du har implementerat lediga-tidsperioder och samma-lediga-tidsperioder så visas ljusblåa block till vänster om mötena. Blocken visar de tider som är lediga för alla almanackor som visas just nu.
+
+Om du bara implementerat lediga-tidsperioder så kan du se en enskild almanackas lediga tider genom att bara visa den almanackan. De lediga tidsperioderna visas då som gröna block till vänster om bokningarna.

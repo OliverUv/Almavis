@@ -28,6 +28,13 @@
 	(pane)
 	(formatting-cell
 	  (pane)
+	  (cond ((alma-kan-jämför)
+		 (rita-ledigheter pane (gemensam-ledighet datahämtare)))
+		((and (alma-kan-ledigt)
+		      (= 1 (antal-datakällor datahämtare)))
+		 (rita-ledigheter
+		   pane
+		   (ledighet datahämtare))))
 	  (let* 
 	    ((px-möteskol-x (rita-ut-tidslinjer pane))) 
 	    (rita-ut-möten
@@ -132,3 +139,23 @@
 						(skapa-tidstext slut-kl)
 						(möteslängd-sträng clim-möte))
 			 (format nil "~A" almanacksnamn))))))
+
+(defun rita-ledigheter (ström clim-ledigheter)
+  (mapc
+    #'(lambda
+	(clim-ledighet)
+	(let*
+	  ((tidsperiod (slot-value clim-ledighet 'tidsperiod))
+	   (starttid (alma-tp-starttid tidsperiod))
+	   (sluttid (alma-tp-sluttid tidsperiod))
+	   (px-start-y (tid-till-position starttid px-dagshöjd))
+	   (px-slut-y (tid-till-position sluttid px-dagshöjd))) 
+	  (with-drawing-options
+	    (ström :ink ledig-färg)
+	    (draw-rectangle*
+	      ström
+	      0
+	      px-start-y
+	      (* 2 px-tidslinje-padding) 
+	      px-slut-y))))
+    clim-ledigheter)) 

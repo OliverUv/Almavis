@@ -21,8 +21,12 @@
 (defun alma-kan-resten-tidsperioder ()
   (alma-har-funktionalitet-p "RESTEN-TIDSPERIODER"))
 
+(defun alma-kan-tom-tidsperioder ()
+  (alma-har-funktionalitet-p "TOM-TIDSPERIODER?"))
+
 (defun alma-kan-tidsperioder ()
   (and (alma-kan-skapa-tidsperioder)
+       (alma-kan-tom-tidsperioder) 
        (alma-kan-första-tidsperiod)
        (alma-kan-resten-tidsperioder)))
 
@@ -38,8 +42,8 @@
   (alma-har-funktionalitet-p "AVBOKA-MÖTE"))
 
 (defun alma-kan-jämför ()
-  (and (alma-har-funktionalitet-p "JÄMFÖR")
-       (alma-har-funktionalitet-p "GEMENSAMMA-TIDER")))
+  (and (alma-kan-ledigt)
+       (alma-har-funktionalitet-p "SAMMA-LEDIGA-PERIODER")))
 
 (defun alma-kan-ledigt ()
   (and
@@ -72,7 +76,10 @@
 (import 'common-lisp-user::packa-upp)
 (import 'common-lisp-user::resten-dagalmanacka)
 (import 'common-lisp-user::skapa-dag)
+(import 'common-lisp-user::skapa-klockslag)
+(import 'common-lisp-user::skapa-minut)
 (import 'common-lisp-user::skapa-månad)
+(import 'common-lisp-user::skapa-timme)
 (import 'common-lisp-user::slut-klockslag)
 (import 'common-lisp-user::start-klockslag)
 (import 'common-lisp-user::tidsperioddel)
@@ -397,6 +404,9 @@
     (setf (slot-value dh 'plats) plats)
     dh)) 
 
+(defmethod antal-datakällor ((datahämtare datahämtare))
+  (length (slot-value datahämtare 'datakällor))) 
+
 (defmethod skriv-ut-datakällor ((datahämtare datahämtare))
   (let*
     ((almanackor-visas (slot-value datahämtare 'datakällor))
@@ -409,6 +419,9 @@
 	    almanackor-visas
 	    almanackor-ej-visas))) 
 
+;Hämtar ut clim-data från en datahämtare. Hämtar datan som
+;specifieras av platsen i datahämtaren. Om :månad t så hämtar
+;den ut månaden även om det är en dag specifierad.
 (defmethod datahämtare->clim-data
   ((datahämtare datahämtare) &key (månad nil))
   (with-slots (plats datakällor) datahämtare 
@@ -432,6 +445,64 @@
   "Med denna funktion kan man hämta månadsobjekt även om datahämtarens plats
   är en dag."
   (datahämtare->clim-data datahämtare :månad t)) 
+
+(defclass clim-ledighet
+  ()
+  ((tidsperiod :accessor tidsperiod :initarg :tidsperiod))) 
+
+(defun skapa-ledigheter (alma-tidsperioder)
+  ;(progn (break "skapa-ledigheter")) 
+  (assert (alma-kan-tidsperioder)) 
+  (if (funcall (alma-kan-tom-tidsperioder) alma-tidsperioder)
+    nil
+    (cons
+      (make-instance
+	'clim-ledighet
+	:tidsperiod (funcall (alma-kan-första-tidsperiod)
+			     alma-tidsperioder))
+      (skapa-ledigheter
+	(funcall (alma-kan-resten-tidsperioder)
+		 alma-tidsperioder))))) 
+
+(defmethod ledighet ((datahämtare datahämtare))
+  "Hämtar ut de lediga tiderna för en datakälla i en datahämtare,
+  för den dag som datahämtarens plats pekar ut.
+  Returnerar en lista med clim-ledigperiod objekt."
+  (assert (alma-kan-ledigt)) 
+  (with-slots (datakällor plats) datahämtare
+    (assert (= 1 (length datakällor)))
+    (assert (and (plats-månad plats) (plats-dag plats))) 
+    (let* ((clim-dag (car (datahämtare->clim-data datahämtare)))
+	  (alma-dag (slot-value clim-dag 'alma-dag))
+	  (start-kl (skapa-klockslag (skapa-timme 0) (skapa-minut 0)))
+	  (slut-kl (skapa-klockslag (skapa-timme 23) (skapa-minut 59))))
+      (skapa-ledigheter (funcall (alma-kan-ledigt)
+				 alma-dag start-kl slut-kl))))) 
+
+(defmethod gemensam-ledighet ((datahämtare datahämtare))
+  "Hämtar ut de gemensamma lediga tiderna för alla datakällor i
+  datahämtaren, för den dagen som datahämtarens plats pekar ut.
+  Returnerar en lista med clim-ledighperiod objekt."
+  (assert (alma-kan-jämför)) 
+  (with-slots (datakällor plats) datahämtare
+    (assert (and (plats-månad plats) (plats-dag plats)))
+    (let*
+      ((clim-dagar (datahämtare->clim-data datahämtare))
+       (start-kl (skapa-klockslag (skapa-timme 0) (skapa-minut 0)))
+       (slut-kl (skapa-klockslag (skapa-timme 23) (skapa-minut 59)))
+       (lediga-tidsperioder
+	 (mapcar
+	   #'(lambda (clim-dag)
+	       (funcall (alma-kan-ledigt)
+			(slot-value clim-dag 'alma-dag)
+			start-kl
+			slut-kl))
+	   clim-dagar)))
+      (skapa-ledigheter
+	(reduce
+	  #'(lambda (tp1 tp2)
+	      (funcall (alma-kan-jämför) tp1 tp2))
+	  lediga-tidsperioder))))) 
 
 (defmethod plats-antal-dagar ((plats plats))
   (if (null (plats-månad plats)) 0 
@@ -524,6 +595,8 @@
                                (slot-value objekt djup-slot))))))
 
 ;;;Smidig funktion för att plocka ut års, månads eller dagsalmanackor i clim-format ur varandra. Dessa kan tas från en lista med clim-årsalmor, eller från de alma-almanackor som finns definierade.
+;Hämtar ut en clim-dag, en clim-månad eller ett clim-år från varje
+;årsalmanacka som specifieras av datakällor.
 (defun plocka-ut
   (datakällor ;;lista med almanacksnamn
     &key månadsnamn dag-i-månad

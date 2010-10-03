@@ -10,6 +10,7 @@
 
 ; Dagsvyns färger
 (in-package #:almavis-dag) 
+(defparameter ledig-färg (make-rgb-color 0.6 0.9 0.9)) 
 
 ; Månadsvyns färger
 (in-package #:almavis-månad) 

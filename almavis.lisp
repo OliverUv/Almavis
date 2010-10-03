@@ -180,7 +180,7 @@
 			 (skapa-tidstext start-kl)
 			 (skapa-tidstext slut-kl))
 		 (format nil "~A" mötesinfo)
-		 (format nil "~A" almanacksnamn))))) 
+		 (format nil "~A" almanacksnamn)))))
 
 (define-presentation-to-command-translator
   visa-mötesinfo
