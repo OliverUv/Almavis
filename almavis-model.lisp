@@ -161,6 +161,13 @@
              (timmar (heltal (timdel tidsrymd)))
              (minuter (heltal (minutdel tidsrymd))))
             (+ minuter (* 60 timmar))))
+
+(defmethod överlappande-möten ((clim-möte clim-möte) andra-möten)
+  "Returnerar en lista med de mötena i andra-möten som överlappar clim-möte."
+  (remove-if-not
+    #'(lambda (annat-möte)
+	(möten-överlappar annat-möte clim-möte))
+    andra-möten)) 
  
 (defmethod clim-år-union ((a clim-år) (b clim-år))
   "Slår ihop två clim-år till ett, resultatet får namn och alma-år

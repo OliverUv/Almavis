@@ -43,8 +43,8 @@
 
 ; Dagsvyns dimensioner
 (in-package #:almavis-dag) 
-(defparameter px-dagshöjd 1400)
-(defparameter px-dagsbredd 800)
+(defparameter px-dagshöjd 1800)
+(defparameter px-dagsbredd 900)
 (defparameter px-möteskol-bredd 220) 
 (defparameter px-tidslinje-padding 10) 
 (defparameter px-mellan-möteskol 5) 

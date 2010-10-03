@@ -14,10 +14,10 @@
     ((datahämtare (slot-value frame 'datahämtare))
      (plats (slot-value datahämtare 'plats)) 
      (möten-att-visa (datahämtare->clim-möten datahämtare)))
-    (terpri)
-    (format t "~A~%" (plats-månad plats))
     (skriv-ut-datakällor (slot-value frame 'datahämtare)) 
     (skriv-ut-totala-möteslängder möten-att-visa)
+    (terpri)
+    (format t "~A~%" (plats-månad plats))
     (formatting-table
       (pane :x-spacing '(1 :character) :y-spacing '(1 :line))
       (bygg-tabell
@@ -73,10 +73,7 @@
 (define-presentation-method
   present
   (clim-möte (type clim-möte) stream (view månad-view) &key)
-  (let ((överlappande-möten
-	  (remove-if-not #'(lambda (annat-möte)
-			     (möten-överlappar annat-möte clim-möte))
-			 andra-möten))) 
+  (let ((överlappande-möten (överlappande-möten clim-möte andra-möten))) 
     (cond ((null överlappande-möten) ;;Rita bara mötesbakgrund
 	   (with-drawing-options
 	     (stream :ink bokad-färg)

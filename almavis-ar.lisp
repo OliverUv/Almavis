@@ -31,17 +31,9 @@
     ((årsalmor-att-visa
        (datahämtare->clim-data (slot-value frame 'datahämtare)))
      (årsalma (reduce #'clim-år-union årsalmor-att-visa)))
-    (terpri)
-    (format t "Svart: Dagen finns ej.~%Vit: Dagen obokad.~%")
-    (format t "Gul-orangt: Bokat, ju mörkare färg, desto ~A.~%"
-	    (if (alma-kan-längd-av-tp)
-	      "längre bokad tid"
-	      "fler bokade möten (upp till fyra)"))
-    (format t "Rött: Överlappande mötestider.")
-    (terpri)
-    (terpri)
     (skriv-ut-datakällor (slot-value frame 'datahämtare)) 
     (skriv-ut-totala-möteslängder (möten årsalma)) 
+    (terpri)
     (formatting-table
       (pane :x-spacing '(2 :character) :y-spacing '(1 :line))
       (bygg-tabell

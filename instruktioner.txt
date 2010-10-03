@@ -60,6 +60,6 @@ Dagsvyn
 
 Här ser vi mötena för en viss dag. Inga konstigheter. Klickar du på ett möte så får du se all information om mötet. Mötena visas i orangea rutor.
 
-Om du har implementerat lediga-tidsperioder och samma-lediga-tidsperioder så visas ljusblåa block till vänster om mötena. Blocken visar de tider som är lediga för alla almanackor som visas just nu.
+Om du har implementerat lediga-tidsperioder och samma-lediga-tidsperioder så visas ljusblåa block till vänster om mötena. Blocken visar de tider som är lediga för alla almanackor som visas just nu. Om du bara implementerat lediga-tidsperioder så kan du se en enskild almanackas lediga tider genom att bara visa den almanackan.
 
-Om du bara implementerat lediga-tidsperioder så kan du se en enskild almanackas lediga tider genom att bara visa den almanackan. De lediga tidsperioderna visas då som gröna block till vänster om bokningarna.
+Om du inte implementerat överlapp så syns en liten röd fyrkant i övre vänster hörn av mötet. Har du däremot implementerat överlapp så kan du se på höger sida av mötet precis var det överlappar med andra möten.

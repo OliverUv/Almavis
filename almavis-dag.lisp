@@ -14,13 +14,13 @@
     ((datahämtare (slot-value frame 'datahämtare))
      (plats (slot-value datahämtare 'plats)) 
      (möten-att-visa (datahämtare->clim-möten datahämtare)))
+    (skriv-ut-datakällor (slot-value frame 'datahämtare)) 
+    (skriv-ut-totala-möteslängder möten-att-visa)
     (terpri)
     (format t "Den ~A~A ~A~%"
 	    (plats-dag plats)
 	    (if (> 3 (plats-dag plats)) "a" "e") 
 	    (plats-månad plats))
-    (skriv-ut-datakällor (slot-value frame 'datahämtare)) 
-    (skriv-ut-totala-möteslängder möten-att-visa)
     (terpri) 
     (formatting-table ;;formatting table är fulhack här för att skriva ut
       (pane) 	      ;;allt under info-texten ovan, istället för på den.
@@ -40,6 +40,7 @@
 	    (rita-ut-möten
 	      px-möteskol-x
 	      (partitionera-möten möten-att-visa)
+	      möten-att-visa
 	      pane)))))))
 
 ;;TODO Kan optimeras, flera av värdena räknas ut varje iteration genom
@@ -86,7 +87,7 @@
 	(cdr möten) 
 	(sortera-in-möte (car möten) resultat))))) 
 
-(defun rita-ut-möten (px-kolumn-ett-x partitionerade-möten ström)
+(defun rita-ut-möten (px-kolumn-ett-x partitionerade-möten dagens-möten ström)
   "Tar x-koordinaten för den första möteskolumnen, en lista med
   partitionerade möten på formen ((clim-möte*)*) och ritar ut
   mötena på en ström."
@@ -103,15 +104,17 @@
 	      (with-local-coordinates
 		(ström px-kolumn-vänster-x 0) 
 		(present möte
-			 'clim-möte
+			 `((clim-möte) :andra-möten ,(remove möte dagens-möten))
 			 :view +dag-vy+)))))
+
+(define-presentation-type clim-möte () :options ((andra-möten nil))) 
 
 (define-presentation-method
   present
   (clim-möte (type clim-möte) stream (view dag-view) &key)
-  (rita-möte clim-möte stream))
+  (rita-möte clim-möte andra-möten stream))
 
-(defun rita-möte (clim-möte ström)
+(defun rita-möte (clim-möte andra-möten ström)
   (with-slots
     (alma-möte start-kl slut-kl almanacksnamn mötesinfo) 
     clim-möte
@@ -120,8 +123,9 @@
        (starttid (alma-tp-starttid tidsperiod))
        (sluttid (alma-tp-sluttid tidsperiod))
        (px-start-y (tid-till-position starttid px-dagshöjd))
-       (px-slut-y (tid-till-position sluttid px-dagshöjd))) 
-      (with-drawing-options
+       (px-slut-y (tid-till-position sluttid px-dagshöjd))
+       (överlappande-möten (överlappande-möten clim-möte andra-möten))) 
+      (with-drawing-options ;;Rita mötets bakgrund
 	(ström :ink bokad-färg)
 	(draw-rectangle*
 	  ström
@@ -129,15 +133,42 @@
 	  px-start-y
 	  px-möteskol-bredd	
 	  px-slut-y))
+      (cond ;;Rita eventuellt överlappsgrejjer
+	((null överlappande-möten) nil)
+	((alma-kan-överlapp)
+	 (loop
+	   for möte in överlappande-möten
+	   do
+	   (let* ((överlapp (möten-överlapp clim-möte möte))
+		  (starttid (alma-tp-starttid överlapp))
+		  (sluttid (alma-tp-sluttid överlapp))
+		  (px-start (tid-till-position starttid px-dagshöjd))
+		  (px-slut (tid-till-position sluttid px-dagshöjd))) 
+	     (with-drawing-options
+	       (ström :ink överlapp-färg)
+	       (draw-rectangle*
+		 ström
+		 (- px-möteskol-bredd px-överlapp-ruta-bredd) 
+		 px-start
+		 px-möteskol-bredd
+		 px-slut)))))
+	(t (with-drawing-options
+	     (ström :ink överlapp-färg)
+	     (draw-rectangle*
+	       ström
+	       0 
+	       px-start-y
+	       px-överlapp-ruta-bredd
+	       (+ px-start-y px-överlapp-ruta-höjd))))) 
       (byt-cursor-position ström :y px-start-y) 
       (skriv-rader ström
 		   px-möteskol-bredd
 		   (- px-slut-y px-start-y)
 		   (list mötesinfo
 			 (format nil "~A - ~A  ~A"
-						(skapa-tidstext start-kl)
-						(skapa-tidstext slut-kl)
-						(möteslängd-sträng clim-möte))
+				 (skapa-tidstext start-kl)
+				 (skapa-tidstext slut-kl)
+				 (möteslängd-sträng clim-möte))
 			 (format nil "~A" almanacksnamn))))))
 
 (defun rita-ledigheter (ström clim-ledigheter)
