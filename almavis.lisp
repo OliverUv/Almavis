@@ -70,9 +70,7 @@
 
 (defun yy ()
   (tt)
-  (visa-grafiskt (list (find-symbol "OLIVER" 'common-lisp-user)
-		       (find-symbol "ÖVERLAPP-TEST-A" 'common-lisp-user)
-		       (find-symbol "ÖVERLAPP-TEST-B" 'common-lisp-user))))
+  (visa-grafiskt (list (find-symbol "OLIVER" 'common-lisp-user)) 'september 12))
 
 (defun mm ()
   (tt)
@@ -105,14 +103,17 @@
 	:display-function 'almavis-år::rita-år)
     (månad :application
 	   :background app-bg-färg
-	   :display-function 'almavis-månad::rita-månad))
+	   :display-function 'almavis-månad::rita-månad)
+    (dag :application
+	   :background dag-bg-färg
+	   :display-function 'almavis-dag::rita-dag))
   (:layouts
     (årlayout (vertically (:height 700 :width 1000)
-			 (1/10 command-menu) 
-			 (9/10 år)))
+			  (1 år)))
     (månadlayout (vertically (:height 700 :width 1000)
-			 (1/10 command-menu) 
-			 (9/10 månad)))))
+			     (1 månad)))
+    (daglayout (vertically (:height 700 :width 1000)
+			   (1 dag)))))
 
 (define-almavis-command (com-avsluta :menu "avsluta" :name "avsluta")
 			() 
@@ -130,22 +131,35 @@
 			 datakälla)))))
 
 (define-almavis-command
-  (com-gå-till-månad :name "gå till månad" :menu "gå till månad") ()
+  (com-gå-till-år :name "årsvy" :menu "årsvy") ()
+  (gå-till-år))
+
+(define-almavis-command
+  (com-gå-till-månad :name "visa månad" :menu "visa månad") ()
   (let ((månad (menu-choose (mapcar #'car *månadsdata*)))) 
     (unless (null månad)
       (gå-till (skapa-plats månad)))))
 
 (define-almavis-command
-  (com-gå-till-specifik-månad :name "gå till specifik månad") ((clim-månad clim-månad))
-  (gå-till (månad-plats clim-månad)))
-
-(define-almavis-command
-  (com-gå-till-år :name "gå till år" :menu "gå till år") ()
-  (gå-till-år))
-
-(define-almavis-command
   (com-uppdatera :name "uppdatera" :menu "uppdatera") ()
   (rita-om))
+
+(define-almavis-command
+  (com-gå-till-specifik-dag :name "gå till specifik dag") ((plats plats))
+  (gå-till plats))
+
+(define-presentation-to-command-translator
+  gå-till-specifik-dag
+  (plats com-gå-till-specifik-dag almavis
+	      :gesture :select
+	      :documentation "Gå till dagsvyn.")
+  (object)
+  (list object))
+
+(define-almavis-command
+  (com-gå-till-specifik-månad :name "gå till specifik månad")
+  ((clim-månad clim-månad))
+  (gå-till (månad-plats clim-månad)))
 
 (define-presentation-to-command-translator
   gå-till-specifik-månad
@@ -155,16 +169,42 @@
   (object)
   (list object))
 
+(define-almavis-command
+  (com-visa-mötesinfo :name "Visa mötesinfo")
+  ((clim-möte clim-möte))
+  (with-slots
+    (start-kl slut-kl almanacksnamn mötesinfo)
+    clim-möte
+    (menu-choose (list
+		   (format nil "~A - ~A"
+			 (skapa-tidstext start-kl)
+			 (skapa-tidstext slut-kl))
+		 (format nil "~A" mötesinfo)
+		 (format nil "~A" almanacksnamn)))))
+
+(define-presentation-to-command-translator
+  visa-mötesinfo
+  (clim-möte com-visa-mötesinfo almavis
+	     :gesture :select
+	     :documentation "Visa mötesinfo")
+  (object)
+  (list object)) 
+
 ;;För att starta almavis
 (defun visa-grafiskt (almanacksnamn &optional månad dag)
   "Startar den grafiska interfacen för att visualisera almanackor"
   (let*
-    ((datahämtare
+    ((plats (make-instance 'plats :månad månad :dag dag)) 
+     (datahämtare
        (make-instance 'datahämtare
 		      :datakällor almanacksnamn
-		      :plats (make-instance 'plats :månad månad :dag dag)))
+		      :plats plats))
      (applikation (clim:make-application-frame 'almavis))) 
     (setf (slot-value applikation 'datahämtare) datahämtare) 
+    (cond ((and månad dag) 
+	   (setf (frame-current-layout applikation) 'daglayout))
+	  (månad
+	     (setf (frame-current-layout applikation) 'månadlayout))) 
     (clim:run-frame-top-level applikation)))
 
 (defmethod ny-datahämtare (&optional (datahämtare nil))

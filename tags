@@ -11,6 +11,8 @@
 #:almavis-år	almavis.lisp	/^(defpackage #:almavis-år (:use #:almavis :common-lisp-user :clim-user :clim-lisp :clim))$/;"	f
 +ars-vy+	almavis-ar.lisp	/^(defparameter +ars-vy+ (make-instance 'Ã¥r-view))$/;"	f
 +ars-vy+	almavis-ar.lisp	/^(defparameter +ars-vy+ (make-instance 'år-view))$/;"	f
++dag-vy+	almavis-dag.lisp	/^(defparameter +dag-vy+ (make-instance 'dag-view)) $/;"	f
++dag-vy+	almavis-dag.lisp	/^(defparameter +dag-vy+ (make-instance 'dag-view))$/;"	f
 +mÃ¥nads-vy+	almavis-manad.lisp	/^(defparameter +mÃ¥nads-vy+ (make-instance 'mÃ¥nad-view))$/;"	f
 +mÃ¥nads-vy-full+	almavis-manad.lisp	/^(defparameter +mÃ¥nads-vy-full+ (make-instance 'mÃ¥nad-view-full))$/;"	f
 +månads-vy+	almavis-dag.lisp	/^(defparameter +månads-vy+ (make-instance 'månad-view))$/;"	f
@@ -106,6 +108,7 @@ dag-bg-färg-normal	almavis-grafik.lisp	/^(defparameter dag-bg-färg-normal (make-
 dag-har-Ã¶verlapp	almavis-ar.lisp	/^(defun dag-har-Ã¶verlapp (clim-dag)$/;"	f
 dag-har-överlapp	almavis-ar.lisp	/^(defun dag-har-överlapp (clim-dag)$/;"	f
 dag-plats	almavis-model.lisp	/^(defmethod dag-plats ((clim-dag clim-dag))$/;"	f
+dag-view	almavis-dag.lisp	/^(defclass dag-view (view) ())$/;"	f
 dagar-per-rad	almavis-ar.lisp	/^(defparameter dagar-per-rad 8) ;;dvs per rad i månadsrutorna$/;"	f
 dagar-per-rad	almavis-grafik.lisp	/^(defparameter dagar-per-rad 4) $/;"	f
 dagar-per-rad	almavis-grafik.lisp	/^(defparameter dagar-per-rad 8) ;;dvs per rad i månadsrutorna$/;"	f
@@ -125,6 +128,7 @@ datahämtare->clim-månad	almavis.lisp	/^(defmethod datahämtare->clim-månad ((data
 datahämtare->clim-möten	almavis-model.lisp	/^(defmethod datahämtare->clim-möten$/;"	f
 datahämtare->clim-möten	almavis.lisp	/^(defmethod datahämtare->clim-möten$/;"	f
 filtrera-mÃ¶ten	almavis-manad.lisp	/^(defun filtrera-mÃ¶ten (display-mÃ¥nad Ã¥rsalmor)$/;"	f
+finns-överlapp?	almavis-model.lisp	/^(defmethod finns-överlapp? ((clim-möte clim-möte) möteslista)$/;"	f
 for	almavis-grafik.lisp	/^(defmacro for (var from start to end do &body body)$/;"	f
 funcall-pÃ¥-slot	almavis.lisp	/^(defun funcall-pÃ¥-slot (objekt slot fun)$/;"	f
 funcall-på-slot	almavis-model.lisp	/^(defun funcall-på-slot (objekt slot fun)$/;"	f
@@ -167,6 +171,7 @@ konvertera-möten	almavis.lisp	/^(defun konvertera-möten (alma-namn månadsnamn da
 konvertera-Ã¥r	almavis.lisp	/^(defun konvertera-Ã¥r (alma-namn alma-Ã¥r)$/;"	f
 konvertera-år	almavis-model.lisp	/^(defun konvertera-år (alma-namn alma-år)$/;"	f
 konvertera-år	almavis.lisp	/^(defun konvertera-år (alma-namn alma-år)$/;"	f
+korta-ner-sträng	almavis-grafik.lisp	/^(defun korta-ner-sträng (orig-sträng px-max-längd ström)$/;"	f
 kvadratisk	almavis-model.lisp	/^(defun kvadratisk (binär-funktion$/;"	f
 kvadratisk	almavis.lisp	/^(defun kvadratisk (binÃ¤r-funktion$/;"	f
 kvadratisk	almavis.lisp	/^(defun kvadratisk (binär-funktion$/;"	f
@@ -179,6 +184,9 @@ ljusare-mellanfärg	almavis-grafik.lisp	/^(defparameter ljusare-mellanfärg$/;"	f
 ljusast-fÃ¤rgvÃ¤rde	almavis-ar.lisp	/^(defparameter ljusast-fÃ¤rgvÃ¤rde 0.85)$/;"	f
 ljusast-färgvärde	almavis-grafik.lisp	/^(defparameter ljusast-färgvärde 0.85)$/;"	f
 lÃ¤gg-in-plats	almavis.lisp	/^(defun lÃ¤gg-in-plats (plats platser)$/;"	f
+mappa-position	almavis-grafik.lisp	/^(defun mappa-position (in-min in-max invärde ut-min ut-max)$/;"	f
+max-antal-möteskolumner	almavis-grafik.lisp	/^(defparameter max-antal-möteskolumner $/;"	f
+max-antal-möteskolumner	almavis-grafik.lisp	/^(defparameter max-antal-möteskolumner 4) $/;"	f
 max-minuter	almavis-ar.lisp	/^(defparameter max-minuter 1440 "antal minuter vi skiljer pÃ¥ fÃ¤rgmÃ¤ssigt")$/;"	f
 max-minuter	almavis-ar.lisp	/^(defparameter max-minuter 1440 "antal minuter vi skiljer på färgmässigt")$/;"	f
 mm	almavis.lisp	/^(defun mm ()$/;"	f
@@ -215,9 +223,11 @@ möten-överlapp	almavis-model.lisp	/^(defmethod möten-överlapp ((a clim-möte) (b 
 möten-överlapp	almavis.lisp	/^(defmethod möten-överlapp ((a clim-möte) (b clim-möte))$/;"	f
 möten-överlappar	almavis-model.lisp	/^(defmethod möten-överlappar ((a clim-möte) (b clim-möte))$/;"	f
 möten-överlappar	almavis.lisp	/^(defmethod möten-överlappar ((a clim-möte) (b clim-möte))$/;"	f
+mötesfärg	almavis-grafik.lisp	/^(defparameter mötesfärg (make-rgb-color 1 0.5 0)) $/;"	f
 möteslängd	almavis-model.lisp	/^(defmethod möteslängd ((clim-möte clim-möte))$/;"	f
 möteslängd	almavis.lisp	/^(defmethod möteslängd ((clim-möte clim-möte))$/;"	f
 möteslängd-sträng	almavis-dag.lisp	/^(defun möteslängd-sträng (clim-möte)$/;"	f
+möteslängd-sträng	almavis-grafik.lisp	/^(defun möteslängd-sträng (clim-möte)$/;"	f
 möteslängd-sträng	almavis-manad.lisp	/^(defun möteslängd-sträng (clim-möte)$/;"	f
 mötestid-till-färgvärde	almavis-ar.lisp	/^(defun mötestid-till-färgvärde (mötesminuter)$/;"	f
 ny-datahämtare	almavis.lisp	/^(defmethod ny-datahämtare (&optional (datahämtare nil))$/;"	f
@@ -227,6 +237,7 @@ ny-platser-frÃ¥n-lista	almavis.lisp	/^(defun ny-platser-frÃ¥n-lista (lista-med-p
 ny-testdata	unit-tests.lisp	/^(defun ny-testdata (testsymbol testdata)$/;"	f
 nytt-unit-test	unit-tests.lisp	/^(defun nytt-unit-test (testsymbol testfun)$/;"	f
 old-bygg-tabell	almavis-grafik.lisp	/^(defmacro old-bygg-tabell$/;"	f
+partitionera-möten	almavis-dag.lisp	/^(defun partitionera-möten (möten &optional (resultat nil))$/;"	f
 plats	almavis-dag.lisp	/^(define-presentation-type plats () :options ((färg dag-bg-färg-normal))) $/;"	f
 plats	almavis-manad.lisp	/^(define-presentation-type plats () :options ((färg dag-bg-färg-normal))) $/;"	f
 plats	almavis-model.lisp	/^(defclass plats ()$/;"	f
@@ -265,6 +276,7 @@ plocka-ut-mÃ¥nad	almavis.lisp	/^(defun plocka-ut-mÃ¥nad (clim-Ã¥r mÃ¥nadsnr)$/;"
 plocka-ut-mÃ¶ten	almavis-manad.lisp	/^(defun plocka-ut-mÃ¶ten (display-mÃ¥nader)$/;"	f
 plocka-ut-månad	almavis-model.lisp	/^(defun plocka-ut-månad (clim-år månadsnr)$/;"	f
 plocka-ut-månad	almavis.lisp	/^(defun plocka-ut-månad (clim-år månadsnr)$/;"	f
+px-bokstavshöjd	almavis-grafik.lisp	/^(defparameter px-bokstavshöjd 15) $/;"	f
 px-dagbredd	almavis-ar.lisp	/^(defparameter px-dagbredd 15) ;;varje dagruta är såhär bred$/;"	f
 px-dagbredd	almavis-ar.lisp	/^(defparameter px-dagbredd 15)$/;"	f
 px-dagbredd	almavis-grafik.lisp	/^(defparameter px-dagbredd 15) ;;varje dagruta är såhär bred$/;"	f
@@ -277,6 +289,10 @@ px-daghöjd	almavis-ar.lisp	/^(defparameter px-daghöjd 25) ;;varje dagruta är såh
 px-daghöjd	almavis-grafik.lisp	/^(defparameter px-daghöjd 25) ;;varje dagruta är såhär hög$/;"	f
 px-daghöjd	almavis-grafik.lisp	/^(defun px-daghöjd ()$/;"	f
 px-daghöjd	almavis-manad.lisp	/^(defun px-daghöjd ()$/;"	f
+px-dagsbredd	almavis-grafik.lisp	/^(defparameter px-dagsbredd 1000)$/;"	f
+px-dagsbredd	almavis-grafik.lisp	/^(defparameter px-dagsbredd 800)$/;"	f
+px-dagshöjd	almavis-grafik.lisp	/^(defparameter px-dagshöjd 1400)$/;"	f
+px-dagshöjd	almavis-grafik.lisp	/^(defparameter px-dagshöjd 700)$/;"	f
 px-kant	almavis-grafik.lisp	/^(defparameter px-kant 5) $/;"	f
 px-kant	almavis-manad.lisp	/^(defparameter px-kant 5) $/;"	f
 px-mellan-dag	almavis-ar.lisp	/^(defparameter px-mellan-dag 3)  ;;avståndet mellan dagrutor$/;"	f
@@ -284,6 +300,7 @@ px-mellan-dag	almavis-grafik.lisp	/^(defparameter px-mellan-dag 3)  ;;avståndet 
 px-mellan-mÃ¶ten	almavis-manad.lisp	/^(defparameter px-mellan-mÃ¶ten 5) $/;"	f
 px-mellan-möten	almavis-grafik.lisp	/^(defparameter px-mellan-möten 5) $/;"	f
 px-mellan-möten	almavis-manad.lisp	/^(defparameter px-mellan-möten 5) $/;"	f
+px-mellan-möteskol	almavis-grafik.lisp	/^(defparameter px-mellan-möteskol 5) $/;"	f
 px-mellan-rad	almavis-ar.lisp	/^(defparameter px-mellan-rad 5)  ;;avståndet mellan rader av dagrutor$/;"	f
 px-mellan-rad	almavis-grafik.lisp	/^(defparameter px-mellan-rad 5)  ;;avståndet mellan rader av dagrutor$/;"	f
 px-mÃ¶tesbredd	almavis-manad.lisp	/^(defparameter px-mÃ¶tesbredd 220) $/;"	f
@@ -296,8 +313,11 @@ px-mötesbredd	almavis-grafik.lisp	/^(defparameter px-mötesbredd 220) $/;"	f
 px-mötesbredd	almavis-manad.lisp	/^(defparameter px-mötesbredd 220) $/;"	f
 px-möteshöjd	almavis-grafik.lisp	/^(defparameter px-möteshöjd 16) $/;"	f
 px-möteshöjd	almavis-manad.lisp	/^(defparameter px-möteshöjd 16) $/;"	f
+px-möteskol-bredd	almavis-grafik.lisp	/^(defparameter px-möteskol-bredd 220) $/;"	f
+px-möteskol-bredd	almavis-grafik.lisp	/^(defparameter px-möteskol-bredd 5) $/;"	f
 px-mötestext-padding	almavis-grafik.lisp	/^(defparameter px-mötestext-padding 2) $/;"	f
 px-mötestext-padding	almavis-manad.lisp	/^(defparameter px-mötestext-padding 2) $/;"	f
+px-tidslinje-padding	almavis-grafik.lisp	/^(defparameter px-tidslinje-padding 10) $/;"	f
 px-överlapp-ruta-bredd	almavis-grafik.lisp	/^(defparameter px-överlapp-ruta-bredd 5) $/;"	f
 px-överlapp-ruta-höjd	almavis-grafik.lisp	/^(defparameter px-överlapp-ruta-höjd 5) $/;"	f
 rader-per-månad	almavis-ar.lisp	/^(defparameter rader-per-månad (ceiling 31 dagar-per-rad))$/;"	f
@@ -306,6 +326,7 @@ reactions	almavis.lisp	/^(defvar reactions 0) $/;"	f
 resten-platser	almavis.lisp	/^(defun resten-platser (platser)$/;"	f
 rita-dag	almavis-ar.lisp	/^(defun rita-dag (stream fÃ¤rg)$/;"	f
 rita-dag	almavis-ar.lisp	/^(defun rita-dag (stream färg)$/;"	f
+rita-dag	almavis-dag.lisp	/^(defun rita-dag (frame pane)$/;"	f
 rita-dag-bakgrund	almavis-manad.lisp	/^(defun rita-dag-bakgrund (stream fÃ¤rg)$/;"	f
 rita-dagkant	almavis-ar.lisp	/^(defun rita-dagkant (stream)$/;"	f
 rita-dagruta	almavis-ar.lisp	/^(defun rita-dagruta (stream clim-dag)$/;"	f
@@ -319,8 +340,12 @@ rita-månad	almavis-dag.lisp	/^(defun rita-månad (frame pane)$/;"	f
 rita-månad	almavis-manad.lisp	/^(defun rita-månad (frame pane)$/;"	f
 rita-månads-dag	almavis-dag.lisp	/^(defun rita-månads-dag (ström dagnr månadens-möten plats)$/;"	f
 rita-månads-dag	almavis-manad.lisp	/^(defun rita-månads-dag (ström dagnr månadens-möten plats)$/;"	f
+rita-mötesruta	almavis-dag.lisp	/^(defun rita-mötesruta (clim-möte ström)$/;"	f
 rita-om	almavis-grafik.lisp	/^(defun rita-om ()$/;"	f
 rita-om	almavis.lisp	/^(defun rita-om ()$/;"	f
+rita-ut-möten	almavis-dag.lisp	/^(defun rita-ut-möten (partitionerade-möten ström)$/;"	f
+rita-ut-möten	almavis-dag.lisp	/^(defun rita-ut-möten (px-kolumn-ett-x partitionerade-möten ström)$/;"	f
+rita-ut-tidslinjer	almavis-dag.lisp	/^(defun rita-ut-tidslinjer (ström)$/;"	f
 rita-Ã¥r	almavis-ar.lisp	/^(defun rita-Ã¥r (frame pane)$/;"	f
 rita-Ã¶verlapp	almavis-ar.lisp	/^(defun rita-Ã¶verlapp (stream clim-dag)$/;"	f
 rita-Ã¶verlapp-tider	almavis-ar.lisp	/^(defun rita-Ã¶verlapp-tider (stream starttid sluttid)$/;"	f
@@ -357,12 +382,16 @@ skapa-plats	almavis-model.lisp	/^(defmethod skapa-plats ((clim-månad clim-månad)
 skapa-plats	almavis-model.lisp	/^(defmethod skapa-plats ((clim-möte clim-möte) &key dag)$/;"	f
 skapa-plats	almavis-model.lisp	/^(defmethod skapa-plats (månad &key (dag nil))$/;"	f
 skapa-plats	almavis-model.lisp	/^(defun skapa-plats (månad &key (dag nil))$/;"	f
+skapa-tidstext	almavis-grafik.lisp	/^(defun skapa-tidstext (tid)$/;"	f
 skriv-ut-datakällor	almavis-model.lisp	/^(defmethod skriv-ut-datakällor ((datahämtare datahämtare))$/;"	f
+skriv-ut-totala-möteslängder	almavis-grafik.lisp	/^(defun skriv-ut-totala-möteslängder (clim-möteslista) $/;"	f
 slot-har-vÃ¤rde	almavis.lisp	/^(defun slot-har-vÃ¤rde (objekt slot value)$/;"	f
 slot-har-värde	almavis-model.lisp	/^(defun slot-har-värde (objekt slot value)$/;"	f
 slot-har-värde	almavis.lisp	/^(defun slot-har-värde (objekt slot value)$/;"	f
+specifiera-plats	almavis-model.lisp	/^(defmethod specifiera-plats ((plats plats) &key månad dag)$/;"	f
 specifik-clim-dag	almavis-manad.lisp	/^(defun specifik-clim-dag (dagnr platser)$/;"	f
 standard-test	unit-tests.lisp	/^(defun standard-test (test-data)$/;"	f
+sträng-px-längd	almavis-grafik.lisp	/^(defun sträng-px-längd (sträng ström)$/;"	f
 stÃ¤ng-knapp-tryckt	almavis-grafik.lisp	/^(defun stÃ¤ng-knapp-tryckt (button)$/;"	f
 stäng-knapp-tryckt	almavis-grafik.lisp	/^(defun stäng-knapp-tryckt (button)$/;"	f
 stäng-knapp-tryckt	almavis.lisp	/^(defun stäng-knapp-tryckt (button)$/;"	f
@@ -373,6 +402,7 @@ testa-månad	almavis-dag.lisp	/^(defun testa-månad (almanacksnamn månad)$/;"	f
 testa-månad	almavis-manad.lisp	/^(defun testa-månad (almanacksnamn månad)$/;"	f
 testa-Ã¥r	almavis-ar.lisp	/^(defun testa-Ã¥r (&rest Ã¥rsalmanacksnamn)$/;"	f
 testa-år	almavis-ar.lisp	/^(defun testa-år (&rest årsalmanacksnamn)$/;"	f
+tid-till-position	almavis-grafik.lisp	/^(defun tid-till-position (tidpunkt max-position)$/;"	f
 tid-till-position	almavis-model.lisp	/^(defun tid-till-position (tidpunkt max-position)$/;"	f
 tid-till-position	almavis.lisp	/^(defun tid-till-position (tidpunkt max-position)$/;"	f
 toggle-datakälla	almavis-model.lisp	/^(defmethod toggle-datakälla ((datahämtare datahämtare) datakälla)$/;"	f

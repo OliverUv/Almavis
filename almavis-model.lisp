@@ -1,7 +1,9 @@
 (in-package #:almavis)
 ;;;;;; Kommunikation med almanackan ;;;;;;
 ;;;; Funktioner för att testa vilken funktionalitet
-;;;; studenten har implementerat hittills
+;;;; studenten har implementerat hittills. Används både
+;;;; för att kolla om funktionaliten finns och för att
+;;;; hämta funktionsobjekten för att använda funktionaliteten.
 
 (defun alma-har-funktionalitet-p (funktionalitet-str)
   (find-symbol funktionalitet-str 'common-lisp-user))
@@ -9,8 +11,24 @@
 (defun alma-kan-längd-av-tp ()
   (alma-har-funktionalitet-p "LÄNGD-AV-TIDSPERIOD"))
 
-(defun alma-kan-tidsperioder ()
+(defun alma-kan-skapa-tidsperioder ()
   (alma-har-funktionalitet-p "SKAPA-TIDSPERIODER"))
+
+(defun alma-kan-första-tidsperiod ()
+  (or (alma-har-funktionalitet-p "FÖRSTA-TIDSPERIOD")
+      (alma-har-funktionalitet-p "FÖRSTA-TIDSPERIODEN"))) 
+
+(defun alma-kan-resten-tidsperioder ()
+  (alma-har-funktionalitet-p "RESTEN-TIDSPERIODER"))
+
+(defun alma-kan-tom-tidsperioder ()
+  (alma-har-funktionalitet-p "TOM-TIDSPERIODER?"))
+
+(defun alma-kan-tidsperioder ()
+  (and (alma-kan-skapa-tidsperioder)
+       (alma-kan-tom-tidsperioder) 
+       (alma-kan-första-tidsperiod)
+       (alma-kan-resten-tidsperioder)))
 
 (defun alma-kan-skapa-tidsrymd ()
   (alma-har-funktionalitet-p "SKAPA-TIDSRYMD"))
@@ -24,14 +42,13 @@
   (alma-har-funktionalitet-p "AVBOKA-MÖTE"))
 
 (defun alma-kan-jämför ()
-  (and (alma-har-funktionalitet-p "JÄMFÖR")
-       (alma-har-funktionalitet-p "GEMENSAMMA-TIDER")))
+  (and (alma-kan-ledigt)
+       (alma-har-funktionalitet-p "SAMMA-LEDIGA-PERIODER")))
 
 (defun alma-kan-ledigt ()
   (and
-   (alma-har-funktionalitet-p "LEDIGA-TIDSPERIODER")
-   (alma-har-funktionalitet-p "LEDIGT")
-   (alma-har-funktionalitet-p "SAMMA-LEDIGA-PERIODER")))
+    (alma-kan-tidsperioder) 
+    (alma-har-funktionalitet-p "LEDIGA-TIDSPERIODER")))
 
 (defun alma-kan-överlapp ()
   (alma-har-funktionalitet-p "ÖVERLAPP"))
@@ -44,10 +61,6 @@
 ;;;; vi ska blanda i det i vår kod, så här importerar vi den
 ;;;; funktionaliteten. Detta gör att vi själva inte får definiera
 ;;;; funktioner eller globala variabler med samma namn.
-
-;;;; I programmeringsmiljön jag använder görs detta i almavis
-;;;; paketdefinition, men den kommer troligtvis inte vara med
-;;;; när vi integrerar på IDA - då behövs dessa istället.
 
 (import 'common-lisp-user::dagalmanacka)
 (import 'common-lisp-user::dagalmanacka?)
@@ -63,7 +76,10 @@
 (import 'common-lisp-user::packa-upp)
 (import 'common-lisp-user::resten-dagalmanacka)
 (import 'common-lisp-user::skapa-dag)
+(import 'common-lisp-user::skapa-klockslag)
+(import 'common-lisp-user::skapa-minut)
 (import 'common-lisp-user::skapa-månad)
+(import 'common-lisp-user::skapa-timme)
 (import 'common-lisp-user::slut-klockslag)
 (import 'common-lisp-user::start-klockslag)
 (import 'common-lisp-user::tidsperioddel)
@@ -145,6 +161,13 @@
              (timmar (heltal (timdel tidsrymd)))
              (minuter (heltal (minutdel tidsrymd))))
             (+ minuter (* 60 timmar))))
+
+(defmethod överlappande-möten ((clim-möte clim-möte) andra-möten)
+  "Returnerar en lista med de mötena i andra-möten som överlappar clim-möte."
+  (remove-if-not
+    #'(lambda (annat-möte)
+	(möten-överlappar annat-möte clim-möte))
+    andra-möten)) 
  
 (defmethod clim-år-union ((a clim-år) (b clim-år))
   "Slår ihop två clim-år till ett, resultatet får namn och alma-år
@@ -359,6 +382,11 @@
   (skapa-plats (slot-value clim-möte 'månadsnamn)
 	       :dag (slot-value clim-möte 'dag-i-månad))) 
 
+(defmethod specifiera-plats ((plats plats) &key månad dag)
+  (skapa-plats
+    (if månad månad (plats-månad plats))
+    :dag (if dag dag (plats-dag plats)))) 
+
 (defclass datahämtare ()
   ((plats ;:type plats
 	  :initarg :plats
@@ -383,9 +411,24 @@
     (setf (slot-value dh 'plats) plats)
     dh)) 
 
-(defmethod skriv-ut-datakällor ((datahämtare datahämtare))
-  (format t "Datakällor: ~A~%" (slot-value datahämtare 'datakällor))) 
+(defmethod antal-datakällor ((datahämtare datahämtare))
+  (length (slot-value datahämtare 'datakällor))) 
 
+(defmethod skriv-ut-datakällor ((datahämtare datahämtare))
+  (let*
+    ((almanackor-visas (slot-value datahämtare 'datakällor))
+     (almanackor-ej-visas
+       (remove-if
+	 #'(lambda (almanacka)
+	     (member almanacka almanackor-visas))
+	 (mapcar #'car common-lisp-user::*almanacka*))))
+    (format t "Visar almanackor: ~A~%Visar ej:         ~A~%"
+	    almanackor-visas
+	    almanackor-ej-visas))) 
+
+;Hämtar ut clim-data från en datahämtare. Hämtar datan som
+;specifieras av platsen i datahämtaren. Om :månad t så hämtar
+;den ut månaden även om det är en dag specifierad.
 (defmethod datahämtare->clim-data
   ((datahämtare datahämtare) &key (månad nil))
   (with-slots (plats datakällor) datahämtare 
@@ -409,6 +452,64 @@
   "Med denna funktion kan man hämta månadsobjekt även om datahämtarens plats
   är en dag."
   (datahämtare->clim-data datahämtare :månad t)) 
+
+(defclass clim-ledighet
+  ()
+  ((tidsperiod :accessor tidsperiod :initarg :tidsperiod))) 
+
+(defun skapa-ledigheter (alma-tidsperioder)
+  ;(progn (break "skapa-ledigheter")) 
+  (assert (alma-kan-tidsperioder)) 
+  (if (funcall (alma-kan-tom-tidsperioder) alma-tidsperioder)
+    nil
+    (cons
+      (make-instance
+	'clim-ledighet
+	:tidsperiod (funcall (alma-kan-första-tidsperiod)
+			     alma-tidsperioder))
+      (skapa-ledigheter
+	(funcall (alma-kan-resten-tidsperioder)
+		 alma-tidsperioder))))) 
+
+(defmethod ledighet ((datahämtare datahämtare))
+  "Hämtar ut de lediga tiderna för en datakälla i en datahämtare,
+  för den dag som datahämtarens plats pekar ut.
+  Returnerar en lista med clim-ledigperiod objekt."
+  (assert (alma-kan-ledigt)) 
+  (with-slots (datakällor plats) datahämtare
+    (assert (= 1 (length datakällor)))
+    (assert (and (plats-månad plats) (plats-dag plats))) 
+    (let* ((clim-dag (car (datahämtare->clim-data datahämtare)))
+	  (alma-dag (slot-value clim-dag 'alma-dag))
+	  (start-kl (skapa-klockslag (skapa-timme 0) (skapa-minut 0)))
+	  (slut-kl (skapa-klockslag (skapa-timme 23) (skapa-minut 59))))
+      (skapa-ledigheter (funcall (alma-kan-ledigt)
+				 alma-dag start-kl slut-kl))))) 
+
+(defmethod gemensam-ledighet ((datahämtare datahämtare))
+  "Hämtar ut de gemensamma lediga tiderna för alla datakällor i
+  datahämtaren, för den dagen som datahämtarens plats pekar ut.
+  Returnerar en lista med clim-ledighperiod objekt."
+  (assert (alma-kan-jämför)) 
+  (with-slots (datakällor plats) datahämtare
+    (assert (and (plats-månad plats) (plats-dag plats)))
+    (let*
+      ((clim-dagar (datahämtare->clim-data datahämtare))
+       (start-kl (skapa-klockslag (skapa-timme 0) (skapa-minut 0)))
+       (slut-kl (skapa-klockslag (skapa-timme 23) (skapa-minut 59)))
+       (lediga-tidsperioder
+	 (mapcar
+	   #'(lambda (clim-dag)
+	       (funcall (alma-kan-ledigt)
+			(slot-value clim-dag 'alma-dag)
+			start-kl
+			slut-kl))
+	   clim-dagar)))
+      (skapa-ledigheter
+	(reduce
+	  #'(lambda (tp1 tp2)
+	      (funcall (alma-kan-jämför) tp1 tp2))
+	  lediga-tidsperioder))))) 
 
 (defmethod plats-antal-dagar ((plats plats))
   (if (null (plats-månad plats)) 0 
@@ -501,6 +602,8 @@
                                (slot-value objekt djup-slot))))))
 
 ;;;Smidig funktion för att plocka ut års, månads eller dagsalmanackor i clim-format ur varandra. Dessa kan tas från en lista med clim-årsalmor, eller från de alma-almanackor som finns definierade.
+;Hämtar ut en clim-dag, en clim-månad eller ett clim-år från varje
+;årsalmanacka som specifieras av datakällor.
 (defun plocka-ut
   (datakällor ;;lista med almanacksnamn
     &key månadsnamn dag-i-månad
@@ -581,18 +684,13 @@
 	  (tidsperioddel (slot-value b 'alma-möte))))
     (funcall (alma-kan-överlapp) tidsperiod-a tidsperiod-b)))
 
+(defmethod finns-överlapp? ((clim-möte clim-möte) möteslista)
+  (find-if
+    #'(lambda (möte) (möten-överlappar clim-möte möte))
+    möteslista))
+
 (defun alma-tp-starttid (tidsperiod)
   (klockslag-till-heltal (start-klockslag tidsperiod)))
 
 (defun alma-tp-sluttid (tidsperiod)
   (klockslag-till-heltal (slut-klockslag tidsperiod)))
-
-(defun tid-till-position (tidpunkt max-position)
-  "Mappar en tidpunkt till ett nummer, så att nummret är lika nära
-  max-position som tiden är slutet på dagen. T.ex. 12:00 100 -> 50"
-  (labels 
-   ((antal-minuter
-     (tidpunkt)
-     (multiple-value-bind (timmar minuter) (truncate tidpunkt 100)
-                          (+ (* 60 timmar) minuter))))
-   (* max-position (/ (antal-minuter tidpunkt) (* 24 60)))))

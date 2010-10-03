@@ -14,19 +14,19 @@
     ((datahämtare (slot-value frame 'datahämtare))
      (plats (slot-value datahämtare 'plats)) 
      (möten-att-visa (datahämtare->clim-möten datahämtare)))
+    (skriv-ut-datakällor (slot-value frame 'datahämtare)) 
+    (skriv-ut-totala-möteslängder möten-att-visa)
     (terpri)
     (format t "~A~%" (plats-månad plats))
-    (skriv-ut-datakällor (slot-value frame 'datahämtare)) 
-    (if (alma-kan-längd-av-tp)
-      (multiple-value-bind (timmar minuter)
-	(truncate (räkna-ihop-möteslängder möten-att-visa) 60)
-	(format t "Totalt bokat: ~d timmar, ~d minuter." timmar minuter)
-	(terpri)))
     (formatting-table
       (pane :x-spacing '(1 :character) :y-spacing '(1 :line))
       (bygg-tabell
 	(i 1 (plats-antal-dagar plats) dagar-per-rad pane)
-	(rita-månads-dag pane i möten-att-visa plats)))))
+	(rita-månads-dag
+	  pane
+	  i
+	  möten-att-visa
+	  (specifiera-plats plats :dag i))))))
 
 (defun rita-månads-dag (ström dagnr månadens-möten plats)
   "Ritar ut en dag. Ritar en ruta per dag, som går att klicka för att komma
@@ -44,14 +44,15 @@
 		    `((plats) :färg ,dag-bg-färg-full)
 		    :view +månads-vy+))
 	  (t (present plats 'plats :view +månads-vy+)))
-    (loop ;; <3 loop
+    (loop
       for i from 0 below möten-per-dag
       for möte in möten
       with x = px-kant
       for y = (+ px-kant (* (+ px-möteshöjd px-mellan-möten) i)) 
       do
-      (setf (stream-cursor-position ström) (values (+ px-mötestext-padding x)
-						   (+ px-mötestext-padding y)))
+      (byt-cursor-position ström
+			   :x (+ px-mötestext-padding x)
+			   :y (+ px-mötestext-padding y))
       (with-local-coordinates
 	(ström x y)
 	(present möte
@@ -72,10 +73,7 @@
 (define-presentation-method
   present
   (clim-möte (type clim-möte) stream (view månad-view) &key)
-  (let ((överlappande-möten
-	  (remove-if-not #'(lambda (annat-möte)
-			     (möten-överlappar annat-möte clim-möte))
-			 andra-möten))) 
+  (let ((överlappande-möten (överlappande-möten clim-möte andra-möten))) 
     (cond ((null överlappande-möten) ;;Rita bara mötesbakgrund
 	   (with-drawing-options
 	     (stream :ink bokad-färg)
@@ -97,7 +95,12 @@
 		 (draw-rectangle* stream px-start 0 px-slut px-möteshöjd))))) 
 	  (t (with-drawing-options ;;Rita helt överlappad mötesbakgrund
 	       (stream :ink överlapp-färg)
-	       (draw-rectangle* stream 0 0 px-mötesbredd px-möteshöjd)))))
+	       (draw-rectangle*
+		 stream
+		 (- px-mötesbredd px-överlapp-ruta-bredd) 
+		 (- px-möteshöjd px-överlapp-ruta-höjd) 
+		 px-mötesbredd
+		 px-möteshöjd)))))
   (princ (bygg-mötessträng stream clim-möte px-mötesbredd))) 
 
 #|(defun rita-mötes-ruta (clim-möte ström)
@@ -110,24 +113,14 @@
     ((x-orig (stream-cursor-position ström))
      (start (slot-value clim-möte 'start-kl))
      (slut (slot-value clim-möte 'slut-kl))
-     (möteslängd (if (alma-kan-längd-av-tp) (möteslängd-sträng clim-möte) ""))
+     (möteslängd (möteslängd-sträng clim-möte))
      (mötesinfo (slot-value clim-möte 'mötesinfo)) 
      (orig-sträng (format nil "~A-~A~A ~A"
-			  start
-			  slut
+			  (skapa-tidstext start)
+			  (skapa-tidstext slut)
 			  möteslängd
 			  mötesinfo)))
-    (loop
-      for sträng = orig-sträng then (subseq sträng 0 (- (length sträng) 1))
-      until (<= (stream-string-width ström sträng) max-längd)
-      finally (return sträng)))) 
-
-(defun möteslängd-sträng (clim-möte)
-  (if (alma-kan-längd-av-tp)
-    (multiple-value-bind (timmar minuter)
-      (truncate (möteslängd clim-möte) 60) 
-      (format nil "[~dh ~dm]" timmar minuter)) 
-    ""))
+    (förkorta-sträng orig-sträng max-längd ström))) 
 
 (defun testa-månad (almanacksnamn månad)
   "Startar den grafiska interfacen för att visualisera månader.
