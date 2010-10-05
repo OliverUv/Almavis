@@ -6,7 +6,10 @@
 ;;;; hämta funktionsobjekten för att använda funktionaliteten.
 
 (defun alma-har-funktionalitet-p (funktionalitet-str)
-  (find-symbol funktionalitet-str 'common-lisp-user))
+  (if
+    (fboundp (find-symbol funktionalitet-str 'common-lisp-user))
+    (find-symbol funktionalitet-str 'common-lisp-user)
+    nil))
 
 (defun alma-kan-längd-av-tp ()
   (alma-har-funktionalitet-p "LÄNGD-AV-TIDSPERIOD"))
@@ -47,11 +50,34 @@
 
 (defun alma-kan-ledigt ()
   (and
-    (alma-kan-tidsperioder) 
+    (alma-kan-överlapp) 
     (alma-har-funktionalitet-p "LEDIGA-TIDSPERIODER")))
 
 (defun alma-kan-överlapp ()
+  (alma-kan-tidsperioder) 
   (alma-har-funktionalitet-p "ÖVERLAPP"))
+
+(defun alma-ta-bort-funktionalitet (fun-lista &optional (res nil))
+  (cond
+    ((endp fun-lista) res)
+    ((equalp (car fun-lista) 'o)
+     (alma-ta-bort-funktionalitet
+       (rest fun-lista)
+       (cons (fmakunbound 'common-lisp-user::överlapp) res)))
+    ((equalp (car fun-lista) 't)
+     (alma-ta-bort-funktionalitet
+       (rest fun-lista)
+       (cons (fmakunbound 'common-lisp-user::längd-av-tidsperiod) res)))
+    ((equalp (car fun-lista) 'l)
+     (alma-ta-bort-funktionalitet
+       (rest fun-lista)
+       (cons (fmakunbound 'common-lisp-user::lediga-tidsperioder) res)))
+    ((equalp (car fun-lista) 'j)
+     (alma-ta-bort-funktionalitet
+       (rest fun-lista)
+       (cons (fmakunbound 'common-lisp-user::samma-lediga-perioder) res)))
+    (t (format t "Kan inte ta bort ~A" (car fun-lista))
+       nil)))
 
 ;;;;;; Funktionsbindningar ;;;;;;
 ;;;; Vi vill använda en hel del funktioner ifrån almanackan.
@@ -458,7 +484,6 @@
   ((tidsperiod :accessor tidsperiod :initarg :tidsperiod))) 
 
 (defun skapa-ledigheter (alma-tidsperioder)
-  ;(progn (break "skapa-ledigheter")) 
   (assert (alma-kan-tidsperioder)) 
   (if (funcall (alma-kan-tom-tidsperioder) alma-tidsperioder)
     nil

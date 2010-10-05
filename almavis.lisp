@@ -1,7 +1,7 @@
-;;;;;; almavis ;;;;;;
+;;;;;; Almavis ;;;;;;
 ;;; Författare: Oliver Uvman
-;;; Version: 0.1
-;;; Senast uppdaterad: 2010-09-18
+;;; Version: 0.2
+;;; Senast uppdaterad: 2010-10-05
 ;;;
 ;;; Almavissystemet är en grafisk interface till almanackan (lab 4 och 6
 ;;; i kursen Funktionell Programmering och Lisp på Linköpings Universitet).
@@ -66,30 +66,29 @@
 	    (almavis::rita-om)))))|#
 
 ;; Testfunktioner för snabba change/compile/run cycles
-(defun tt () (funcall (find-symbol "RUN-TESTS" 'almavis)))
+#|(defun dd (lista)
+  (almavis::alma-ta-bort-funktionalitet lista))|# 
 
-(defun yy ()
+#|(defun tt () (funcall (find-symbol "RUN-TESTS" 'almavis)))|#
+
+#|(defun yy ()
   (tt)
-  (visa-grafiskt (list (find-symbol "OLIVER" 'common-lisp-user)) 'september 12))
+  (visa-grafiskt (list (find-symbol "OLIVER" 'common-lisp-user)) 'september 12))|#
 
-(defun mm ()
+#|(defun mm ()
   (tt)
   (funcall (find-symbol "TESTA-MÅNAD" 'almavis-månad)
 	   (list (find-symbol "LISA" 'common-lisp-user))
-	   (find-symbol "SEPTEMBER" 'common-lisp-user)))
+	   (find-symbol "SEPTEMBER" 'common-lisp-user)))|#
 
-(defun mmö ()
+#|(defun mmö ()
   (tt)
   (funcall (find-symbol "TESTA-MÅNAD" 'almavis-månad)
            (list (find-symbol "ÖVERLAPP-TEST-A" 'common-lisp-user)
 		 (find-symbol "ÖVERLAPP-TEST-B" 'common-lisp-user))
-	   (find-symbol "FEBRUARI" 'common-lisp-user)))
+	   (find-symbol "FEBRUARI" 'common-lisp-user)))|#
 
 (in-package #:almavis) 
-
-(defun stäng-knapp-tryckt (button)
-  (accepting-values
-   (*query-io* :own-window t) (frame-exit *application-frame*)))
 
 ;;Definierar applikationsfönstret
 (define-application-frame

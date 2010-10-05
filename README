@@ -13,6 +13,9 @@ might redo the backend in a more normal fashion and repurpose it again
 to fit McClim, so that it might be used as an example app for that
 project.
 
+The system is loaded by loading the file almavis.lisp. In it, you will
+also find instructions for what the other files do.
+
 Author: Oliver Uvman
 
 =============================

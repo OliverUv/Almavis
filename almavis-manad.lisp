@@ -93,7 +93,10 @@
 	       (with-drawing-options
 		 (stream :ink överlapp-färg)
 		 (draw-rectangle* stream px-start 0 px-slut px-möteshöjd))))) 
-	  (t (with-drawing-options ;;Rita helt överlappad mötesbakgrund
+	  (t (with-drawing-options ;;Rita mötesbakgrund
+	       (stream :ink bokad-färg)
+	       (draw-rectangle* stream 0 0 px-mötesbredd px-möteshöjd))
+	     (with-drawing-options ;;Rita överlappsruta
 	       (stream :ink överlapp-färg)
 	       (draw-rectangle*
 		 stream

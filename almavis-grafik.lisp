@@ -87,10 +87,11 @@
   (redisplay-frame-panes *application-frame* :force-p t)) 
 
 (defun skriv-ut-totala-möteslängder (clim-möteslista) 
-  (multiple-value-bind (timmar minuter)
-    (truncate (räkna-ihop-möteslängder clim-möteslista) 60)
-    (format t "Totalt bokat: ~d timmar, ~d minuter." timmar minuter)
-    (terpri))) 
+  (when (alma-kan-längd-av-tp)
+    (multiple-value-bind (timmar minuter)
+      (truncate (räkna-ihop-möteslängder clim-möteslista) 60)
+      (format t "Totalt bokat: ~d timmar, ~d minuter." timmar minuter)
+      (terpri)))) 
 
 (defun tid-till-position (tidpunkt max-position)
   "Mappar en tidpunkt till ett nummer, så att nummret är lika nära
