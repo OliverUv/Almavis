@@ -46,7 +46,7 @@
 
 (defun alma-kan-jämför ()
   (and (alma-kan-ledigt)
-       (alma-har-funktionalitet-p "SAMMA-LEDIGA-PERIODER")))
+       (alma-har-funktionalitet-p "SAMMA-LEDIGA-PERIODER"))) 
 
 (defun alma-kan-ledigt ()
   (and
@@ -115,8 +115,6 @@
 (import 'common-lisp-user::typkontroll)
 (import 'common-lisp-user::årsalmanacka?)
 (import 'common-lisp-user::överlappar?)
-(import 'common-lisp-user::*almanacka*)
-(import 'common-lisp-user::*månadsdata*)
 
 (import 'common-lisp-user::*almanacka*)
 (import 'common-lisp-user::*månadsdata*)
@@ -421,6 +419,15 @@
    (datakällor :initarg :datakällor ;;lista med almanacksnamn
 	       :initform (error "Datakällor för datahämtare måste initieras.")
 	       :accessor datakällor))) 
+
+(defun datakälla-finns? (almanacksnamn)
+  (member almanacksnamn *almanacka* :key #'car)) 
+
+(defun månad-finns? (månadsnamn)
+  (member månadsnamn *månadsdata* :key #'car)) 
+
+(defun månad-har-dag? (månadsnamn dagsnummer)
+  (<= dagsnummer (cdr (assoc månadsnamn *månadsdata*)))) 
 
 (defmethod toggle-datakälla ((datahämtare datahämtare) datakälla)
   (if (null datakälla) datahämtare

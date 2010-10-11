@@ -29,8 +29,13 @@
 ;;;; En konvention jag använder är att skriva alma-objekt om det är ett objekt
 ;;;; med almanackslabbens typsystem, och clim-objekt om det är ett CLOS-objekt.
 
+
 ;;;;;; Ladda Clim ;;;;;;
-(require :climxm)
+;; Kodraden nedan gömmer också varningar vi börjat få i ACL8.2, då de deprecate:ade
+;; without-interrupts. Vi använder aldrig den funktionen själva, men det gör clim.
+;; När vi uppgraderar till ACL9.0 försvinner without-interrupts - då bör det också
+;; vara borta från CLIM enligt Franz.
+(handler-bind ((warning #'muffle-warning)) (require :climxm))
 
 (defpackage #:almavis (:use :common-lisp-user :clim-user :clim-lisp :clim))
 (defpackage #:almavis-år (:use #:almavis :common-lisp-user :clim-user :clim-lisp :clim))
@@ -192,19 +197,24 @@
 ;;För att starta almavis
 (defun visa-grafiskt (almanacksnamn &optional månad dag)
   "Startar den grafiska interfacen för att visualisera almanackor"
-  (let*
-    ((plats (make-instance 'plats :månad månad :dag dag)) 
-     (datahämtare
-       (make-instance 'datahämtare
-		      :datakällor almanacksnamn
-		      :plats plats))
-     (applikation (clim:make-application-frame 'almavis))) 
-    (setf (slot-value applikation 'datahämtare) datahämtare) 
-    (cond ((and månad dag) 
-	   (setf (frame-current-layout applikation) 'daglayout))
-	  (månad
-	     (setf (frame-current-layout applikation) 'månadlayout))) 
-    (clim:run-frame-top-level applikation)))
+  (if
+    (and (every #'datakälla-finns? almanacksnamn)
+	 (if (null månad) t (månad-finns? månad))
+	 (if (null dag) t (månad-har-dag? månad dag))) 
+    (let*
+      ((plats (make-instance 'plats :månad månad :dag dag)) 
+       (datahämtare
+	 (make-instance 'datahämtare
+			:datakällor almanacksnamn
+			:plats plats))
+       (applikation (clim:make-application-frame 'almavis))) 
+      (setf (slot-value applikation 'datahämtare) datahämtare) 
+      (cond ((and månad dag) 
+	     (setf (frame-current-layout applikation) 'daglayout))
+	    (månad
+	      (setf (frame-current-layout applikation) 'månadlayout))) 
+      (clim:run-frame-top-level applikation))
+    (error "Antingen så fanns inte almanackan, månaden eller dagen.")))
 
 (defmethod ny-datahämtare (&optional (datahämtare nil))
   (setf (slot-value *application-frame* 'datahämtare)
