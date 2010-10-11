@@ -1,49 +1,49 @@
 ;;;;;; Almavis ;;;;;;
-;;; Författare: Oliver Uvman
+;;; FÃ¶rfattare: Oliver Uvman
 ;;; Version: 0.2
 ;;; Senast uppdaterad: 2010-10-05
 ;;;
-;;; Almavissystemet är en grafisk interface till almanackan (lab 4 och 6
-;;; i kursen Funktionell Programmering och Lisp på Linköpings Universitet).
-;;; I den här filen definierar jag övergripande funktioner som används för
-;;; att definiera och starta systemet. De övriga filerna är som följer:
+;;; Almavissystemet Ã¤r en grafisk interface till almanackan (lab 4 och 6
+;;; i kursen Funktionell Programmering och Lisp pÃ¥ LinkÃ¶pings Universitet).
+;;; I den hÃ¤r filen definierar jag Ã¶vergripande funktioner som anvÃ¤nds fÃ¶r
+;;; att definiera och starta systemet. De Ã¶vriga filerna Ã¤r som fÃ¶ljer:
 ;;;
-;;; almavis-model: Innehåller klassdefinitioner och de operationer som
-;;; behövs för att konvertera data från almanackans typsystem till CLOS.
-;;; Här finns också massor av funktioner för att hantera den data vi har
-;;; så att det blir lättare att visa den grafiskt. Skulle väl kallas för
+;;; almavis-model: InnehÃ¥ller klassdefinitioner och de operationer som
+;;; behÃ¶vs fÃ¶r att konvertera data frÃ¥n almanackans typsystem till CLOS.
+;;; HÃ¤r finns ocksÃ¥ massor av funktioner fÃ¶r att hantera den data vi har
+;;; sÃ¥ att det blir lÃ¤ttare att visa den grafiskt. Skulle vÃ¤l kallas fÃ¶r
 ;;; applikationens business logic.
 ;;;
-;;; unit-tests: Innehåller funktioner för att definiera och köra automatiska
-;;; tester som kontrollerar att business-logiken fungerar ungefär som den ska,
-;;; och för att ladda in testdata för att kontrollera det grafiska.
+;;; unit-tests: InnehÃ¥ller funktioner fÃ¶r att definiera och kÃ¶ra automatiska
+;;; tester som kontrollerar att business-logiken fungerar ungefÃ¤r som den ska,
+;;; och fÃ¶r att ladda in testdata fÃ¶r att kontrollera det grafiska.
 ;;;
-;;; almavis-grafik: Innehåller generella funktioner för att rita ut grafik.
-;;; Innehåller också konfigurationsparametrar för all grafisk layout och
+;;; almavis-grafik: InnehÃ¥ller generella funktioner fÃ¶r att rita ut grafik.
+;;; InnehÃ¥ller ocksÃ¥ konfigurationsparametrar fÃ¶r all grafisk layout och
 ;;; design.
 ;;;
-;;; almavis-år: Kod specifik för att visa årsvyn.
-;;; almavis-månad: Kod specifik för att visa månadsvyn.
-;;; almavis-dag: Kod specifik för att visa dagsvyn.
+;;; almavis-Ã¥r: Kod specifik fÃ¶r att visa Ã¥rsvyn.
+;;; almavis-mÃ¥nad: Kod specifik fÃ¶r att visa mÃ¥nadsvyn.
+;;; almavis-dag: Kod specifik fÃ¶r att visa dagsvyn.
 
-;;;; En konvention jag använder är att skriva alma-objekt om det är ett objekt
-;;;; med almanackslabbens typsystem, och clim-objekt om det är ett CLOS-objekt.
+;;;; En konvention jag anvÃ¤nder Ã¤r att skriva alma-objekt om det Ã¤r ett objekt
+;;;; med almanackslabbens typsystem, och clim-objekt om det Ã¤r ett CLOS-objekt.
 
 
 ;;;;;; Ladda Clim ;;;;;;
-;; Kodraden nedan gömmer också varningar vi börjat få i ACL8.2, då de deprecate:ade
-;; without-interrupts. Vi använder aldrig den funktionen själva, men det gör clim.
-;; När vi uppgraderar till ACL9.0 försvinner without-interrupts - då bör det också
-;; vara borta från CLIM enligt Franz.
+;; Kodraden nedan gÃ¶mmer ocksÃ¥ varningar vi bÃ¶rjat fÃ¥ i ACL8.2, dÃ¥ de deprecate:ade
+;; without-interrupts. Vi anvÃ¤nder aldrig den funktionen sjÃ¤lva, men det gÃ¶r clim.
+;; NÃ¤r vi uppgraderar till ACL9.0 fÃ¶rsvinner without-interrupts - dÃ¥ bÃ¶r det ocksÃ¥
+;; vara borta frÃ¥n CLIM enligt Franz.
 (handler-bind ((warning #'muffle-warning)) (require :climxm))
 
 (defpackage #:almavis (:use :common-lisp-user :clim-user :clim-lisp :clim))
-(defpackage #:almavis-år (:use #:almavis :common-lisp-user :clim-user :clim-lisp :clim))
-(defpackage #:almavis-månad (:use #:almavis :common-lisp-user :clim-user :clim-lisp :clim))
+(defpackage #:almavis-Ã¥r (:use #:almavis :common-lisp-user :clim-user :clim-lisp :clim))
+(defpackage #:almavis-mÃ¥nad (:use #:almavis :common-lisp-user :clim-user :clim-lisp :clim))
 (defpackage #:almavis-dag (:use #:almavis :common-lisp-user :clim-user :clim-lisp :clim))
 
-;;Används för att testa om clim reagerar på vissa saker, pga
-;;att clim är svårdebuggat som fasen
+;;AnvÃ¤nds fÃ¶r att testa om clim reagerar pÃ¥ vissa saker, pga
+;;att clim Ã¤r svÃ¥rdebuggat som fasen
 (defvar reactions 0) 
 (defun REACTTEST () (setf reactions (1+ reactions))) 
 
@@ -54,14 +54,14 @@
 (load "almavis-dag.cl")
 (load "unit-tests.cl")
 
-(defun visa-grafiskt (almanacksnamn &optional månad dag)
+(defun visa-grafiskt (almanacksnamn &optional mÃ¥nad dag)
   (if (almavis::alma-kan-klockslag) 
-    (mp:process-run-function "almavis" #'almavis::visa-grafiskt almanacksnamn månad dag)
-    (format t "Du måste implementera start-klockslag och slut-klockslag först.")))
+    (mp:process-run-function "almavis" #'almavis::visa-grafiskt almanacksnamn mÃ¥nad dag)
+    (format t "Du mÃ¥ste implementera start-klockslag och slut-klockslag fÃ¶rst.")))
 
-;;;; Med denna hook gör vi så att bokningar gjorda med boka syns på
-;;;; interfacen direkt. TODO: Få detta att fungera, just nu binds
-;;;; ingenting om av någon anledning.
+;;;; Med denna hook gÃ¶r vi sÃ¥ att bokningar gjorda med boka syns pÃ¥
+;;;; interfacen direkt. TODO: FÃ¥ detta att fungera, just nu binds
+;;;; ingenting om av nÃ¥gon anledning.
 #|(let ((bokfun (fdefinition 'boka)))
   (setf (fdefinition 'boka)
 	(lambda (&rest args)
@@ -70,7 +70,7 @@
 	    (REACTTEST) 
 	    (almavis::rita-om)))))|#
 
-;; Testfunktioner för snabba change/compile/run cycles
+;; Testfunktioner fÃ¶r snabba change/compile/run cycles
 #|(defun dd (lista)
   (almavis::alma-ta-bort-funktionalitet lista))|# 
 
@@ -82,40 +82,40 @@
 
 #|(defun mm ()
   (tt)
-  (funcall (find-symbol "TESTA-MÅNAD" 'almavis-månad)
+  (funcall (find-symbol "TESTA-MÃ…NAD" 'almavis-mÃ¥nad)
 	   (list (find-symbol "LISA" 'common-lisp-user))
 	   (find-symbol "SEPTEMBER" 'common-lisp-user)))|#
 
-#|(defun mmö ()
+#|(defun mmÃ¶ ()
   (tt)
-  (funcall (find-symbol "TESTA-MÅNAD" 'almavis-månad)
-           (list (find-symbol "ÖVERLAPP-TEST-A" 'common-lisp-user)
-		 (find-symbol "ÖVERLAPP-TEST-B" 'common-lisp-user))
+  (funcall (find-symbol "TESTA-MÃ…NAD" 'almavis-mÃ¥nad)
+           (list (find-symbol "Ã–VERLAPP-TEST-A" 'common-lisp-user)
+		 (find-symbol "Ã–VERLAPP-TEST-B" 'common-lisp-user))
 	   (find-symbol "FEBRUARI" 'common-lisp-user)))|#
 
 (in-package #:almavis) 
 
-;;Definierar applikationsfönstret
+;;Definierar applikationsfÃ¶nstret
 (define-application-frame
   almavis
   () ;Superclasses
-  ((datahämtare :initarg :datahämtare :accessor datahämtare)) ;Slots
+  ((datahÃ¤mtare :initarg :datahÃ¤mtare :accessor datahÃ¤mtare)) ;Slots
   (:panes
     (command-menu :command-menu)
-    (år :application
-	:background app-bg-färg
-	:display-function 'almavis-år::rita-år)
-    (månad :application
-	   :background app-bg-färg
-	   :display-function 'almavis-månad::rita-månad)
+    (Ã¥r :application
+	:background app-bg-fÃ¤rg
+	:display-function 'almavis-Ã¥r::rita-Ã¥r)
+    (mÃ¥nad :application
+	   :background app-bg-fÃ¤rg
+	   :display-function 'almavis-mÃ¥nad::rita-mÃ¥nad)
     (dag :application
-	   :background dag-bg-färg
+	   :background dag-bg-fÃ¤rg
 	   :display-function 'almavis-dag::rita-dag))
   (:layouts
-    (årlayout (vertically (:height 700 :width 1000)
-			  (1 år)))
-    (månadlayout (vertically (:height 700 :width 1000)
-			     (1 månad)))
+    (Ã¥rlayout (vertically (:height 700 :width 1000)
+			  (1 Ã¥r)))
+    (mÃ¥nadlayout (vertically (:height 700 :width 1000)
+			     (1 mÃ¥nad)))
     (daglayout (vertically (:height 700 :width 1000)
 			   (1 dag)))))
 
@@ -124,114 +124,114 @@
 			(frame-exit *application-frame*))
 
 (define-almavis-command
-  (com-toggle-datakälla
+  (com-toggle-datakÃ¤lla
     :menu "almanackor"
     :name "almanackor")
   () 
-  (let ((datakälla (menu-choose (mapcar #'car *almanacka*))))
-    (unless (null datakälla)
-      (ny-datahämtare (toggle-datakälla
-			 (slot-value *application-frame* 'datahämtare) 
-			 datakälla)))))
+  (let ((datakÃ¤lla (menu-choose (mapcar #'car *almanacka*))))
+    (unless (null datakÃ¤lla)
+      (ny-datahÃ¤mtare (toggle-datakÃ¤lla
+			 (slot-value *application-frame* 'datahÃ¤mtare) 
+			 datakÃ¤lla)))))
 
 (define-almavis-command
-  (com-gå-till-år :name "årsvy" :menu "årsvy") ()
-  (gå-till-år))
+  (com-gÃ¥-till-Ã¥r :name "Ã¥rsvy" :menu "Ã¥rsvy") ()
+  (gÃ¥-till-Ã¥r))
 
 (define-almavis-command
-  (com-gå-till-månad :name "visa månad" :menu "visa månad") ()
-  (let ((månad (menu-choose (mapcar #'car *månadsdata*)))) 
-    (unless (null månad)
-      (gå-till (skapa-plats månad)))))
+  (com-gÃ¥-till-mÃ¥nad :name "visa mÃ¥nad" :menu "visa mÃ¥nad") ()
+  (let ((mÃ¥nad (menu-choose (mapcar #'car *mÃ¥nadsdata*)))) 
+    (unless (null mÃ¥nad)
+      (gÃ¥-till (skapa-plats mÃ¥nad)))))
 
 (define-almavis-command
   (com-uppdatera :name "uppdatera" :menu "uppdatera") ()
   (rita-om))
 
 (define-almavis-command
-  (com-gå-till-specifik-dag :name "gå till specifik dag") ((plats plats))
-  (gå-till plats))
+  (com-gÃ¥-till-specifik-dag :name "gÃ¥ till specifik dag") ((plats plats))
+  (gÃ¥-till plats))
 
 (define-presentation-to-command-translator
-  gå-till-specifik-dag
-  (plats com-gå-till-specifik-dag almavis
+  gÃ¥-till-specifik-dag
+  (plats com-gÃ¥-till-specifik-dag almavis
 	      :gesture :select
-	      :documentation "Gå till dagsvyn.")
+	      :documentation "GÃ¥ till dagsvyn.")
   (object)
   (list object))
 
 (define-almavis-command
-  (com-gå-till-specifik-månad :name "gå till specifik månad")
-  ((clim-månad clim-månad))
-  (gå-till (månad-plats clim-månad)))
+  (com-gÃ¥-till-specifik-mÃ¥nad :name "gÃ¥ till specifik mÃ¥nad")
+  ((clim-mÃ¥nad clim-mÃ¥nad))
+  (gÃ¥-till (mÃ¥nad-plats clim-mÃ¥nad)))
 
 (define-presentation-to-command-translator
-  gå-till-specifik-månad
-  (clim-månad com-gå-till-specifik-månad almavis
+  gÃ¥-till-specifik-mÃ¥nad
+  (clim-mÃ¥nad com-gÃ¥-till-specifik-mÃ¥nad almavis
 	      :gesture :select
-	      :documentation "Gå till månadsvyn.")
+	      :documentation "GÃ¥ till mÃ¥nadsvyn.")
   (object)
   (list object))
 
 (define-almavis-command
-  (com-visa-mötesinfo :name "Visa mötesinfo")
-  ((clim-möte clim-möte))
+  (com-visa-mÃ¶tesinfo :name "Visa mÃ¶tesinfo")
+  ((clim-mÃ¶te clim-mÃ¶te))
   (with-slots
-    (start-kl slut-kl almanacksnamn mötesinfo)
-    clim-möte
+    (start-kl slut-kl almanacksnamn mÃ¶tesinfo)
+    clim-mÃ¶te
     (menu-choose (list
 		   (format nil "~A - ~A"
 			 (skapa-tidstext start-kl)
 			 (skapa-tidstext slut-kl))
-		 (format nil "~A" mötesinfo)
+		 (format nil "~A" mÃ¶tesinfo)
 		 (format nil "~A" almanacksnamn)))))
 
 (define-presentation-to-command-translator
-  visa-mötesinfo
-  (clim-möte com-visa-mötesinfo almavis
+  visa-mÃ¶tesinfo
+  (clim-mÃ¶te com-visa-mÃ¶tesinfo almavis
 	     :gesture :select
-	     :documentation "Visa mötesinfo")
+	     :documentation "Visa mÃ¶tesinfo")
   (object)
   (list object)) 
 
-;;För att starta almavis
-(defun visa-grafiskt (almanacksnamn &optional månad dag)
-  "Startar den grafiska interfacen för att visualisera almanackor"
+;;FÃ¶r att starta almavis
+(defun visa-grafiskt (almanacksnamn &optional mÃ¥nad dag)
+  "Startar den grafiska interfacen fÃ¶r att visualisera almanackor"
   (if
-    (and (every #'datakälla-finns? almanacksnamn)
-	 (if (null månad) t (månad-finns? månad))
-	 (if (null dag) t (månad-har-dag? månad dag))) 
+    (and (every #'datakÃ¤lla-finns? almanacksnamn)
+	 (if (null mÃ¥nad) t (mÃ¥nad-finns? mÃ¥nad))
+	 (if (null dag) t (mÃ¥nad-har-dag? mÃ¥nad dag))) 
     (let*
-      ((plats (make-instance 'plats :månad månad :dag dag)) 
-       (datahämtare
-	 (make-instance 'datahämtare
-			:datakällor almanacksnamn
+      ((plats (make-instance 'plats :mÃ¥nad mÃ¥nad :dag dag)) 
+       (datahÃ¤mtare
+	 (make-instance 'datahÃ¤mtare
+			:datakÃ¤llor almanacksnamn
 			:plats plats))
        (applikation (clim:make-application-frame 'almavis))) 
-      (setf (slot-value applikation 'datahämtare) datahämtare) 
-      (cond ((and månad dag) 
+      (setf (slot-value applikation 'datahÃ¤mtare) datahÃ¤mtare) 
+      (cond ((and mÃ¥nad dag) 
 	     (setf (frame-current-layout applikation) 'daglayout))
-	    (månad
-	      (setf (frame-current-layout applikation) 'månadlayout))) 
+	    (mÃ¥nad
+	      (setf (frame-current-layout applikation) 'mÃ¥nadlayout))) 
       (clim:run-frame-top-level applikation))
-    (error "Antingen så fanns inte almanackan, månaden eller dagen.")))
+    (error "Antingen sÃ¥ fanns inte almanackan, mÃ¥naden eller dagen.")))
 
-(defmethod ny-datahämtare (&optional (datahämtare nil))
-  (setf (slot-value *application-frame* 'datahämtare)
-	datahämtare)
+(defmethod ny-datahÃ¤mtare (&optional (datahÃ¤mtare nil))
+  (setf (slot-value *application-frame* 'datahÃ¤mtare)
+	datahÃ¤mtare)
   (rita-om))
 
-(defun gå-till (&optional (plats nil))
-  (let ((datahämtare (slot-value *application-frame* 'datahämtare)))
-    (setf (slot-value *application-frame* 'datahämtare)
-	  (byt-plats datahämtare plats)))
+(defun gÃ¥-till (&optional (plats nil))
+  (let ((datahÃ¤mtare (slot-value *application-frame* 'datahÃ¤mtare)))
+    (setf (slot-value *application-frame* 'datahÃ¤mtare)
+	  (byt-plats datahÃ¤mtare plats)))
   (setf (frame-current-layout *application-frame*) 
-	(cond ((null plats) 'årlayout)
+	(cond ((null plats) 'Ã¥rlayout)
 	      ((plats-dag plats) 'daglayout)
-	      ((plats-månad plats) 'månadlayout)
-	      (t (error "Måste välja en vy.")))))
+	      ((plats-mÃ¥nad plats) 'mÃ¥nadlayout)
+	      (t (error "MÃ¥ste vÃ¤lja en vy.")))))
 
-(defun gå-till-år () (gå-till))
+(defun gÃ¥-till-Ã¥r () (gÃ¥-till))
 
-;Döda alla McClim-program som körs
+;DÃ¶da alla McClim-program som kÃ¶rs
 ;(progn (loop for port in climi::*all-ports* do (clim:destroy-port port)) (setq climi::*all-ports* nil))

@@ -1,209 +1,209 @@
-(in-package #:almavis-år)
+(in-package #:almavis-Ã¥r)
 
-;; Hack för att importera allt i almavis-paketet, eftersom det inte finns
-;; något sätt att importera alla symboler (även icke-exporterade), och inte
-;; heller något sätt att exportera alla symboler på.
+;; Hack fÃ¶r att importera allt i almavis-paketet, eftersom det inte finns
+;; nÃ¥got sÃ¤tt att importera alla symboler (Ã¤ven icke-exporterade), och inte
+;; heller nÃ¥got sÃ¤tt att exportera alla symboler pÃ¥.
 (do-symbols (symb :almavis) (import symb)) 
 
-(defclass år-view (view) ())
-(defparameter +ars-vy+ (make-instance 'år-view))
+(defclass Ã¥r-view (view) ())
+(defparameter +ars-vy+ (make-instance 'Ã¥r-view))
 
-;;Denna parameter bestämmer över hur många minuters uppbokning
-;;vi skiljer på färgvärden. Är man uppbokad fler minuter än detta
-;;värde under en dag så reflekteras det inte. Detta värde talar
-;;alltså om efter hur många minuter den mörkaste färgen uppnåts.
-(defparameter max-minuter 1440 "antal minuter vi skiljer på färgmässigt")
+;;Denna parameter bestÃ¤mmer Ã¶ver hur mÃ¥nga minuters uppbokning
+;;vi skiljer pÃ¥ fÃ¤rgvÃ¤rden. Ã„r man uppbokad fler minuter Ã¤n detta
+;;vÃ¤rde under en dag sÃ¥ reflekteras det inte. Detta vÃ¤rde talar
+;;alltsÃ¥ om efter hur mÃ¥nga minuter den mÃ¶rkaste fÃ¤rgen uppnÃ¥ts.
+(defparameter max-minuter 1440 "antal minuter vi skiljer pÃ¥ fÃ¤rgmÃ¤ssigt")
 
-;;Dessa parametrar specifierar mellan vilka värden R,G eller B
-;;får ligga i det RGB-värde som visar information om hur
-;;en dag är uppbokad. Ju högre värde, desto ljusare färg.
-;;Det är antaget att ljus färg representerar färre bokningar,
-;;och mörk färg fler bokningar. Detta används både för att visa
-;;olika mängder orangt för bokade dagar, och olika mängder blått
-;;för visning av ledighet.
-(defun skapa-bokad-färg (variabelt-värde) (make-rgb-color 
-					      bokat-röd
-					      variabelt-värde
-					      bokat-blå))
+;;Dessa parametrar specifierar mellan vilka vÃ¤rden R,G eller B
+;;fÃ¥r ligga i det RGB-vÃ¤rde som visar information om hur
+;;en dag Ã¤r uppbokad. Ju hÃ¶gre vÃ¤rde, desto ljusare fÃ¤rg.
+;;Det Ã¤r antaget att ljus fÃ¤rg representerar fÃ¤rre bokningar,
+;;och mÃ¶rk fÃ¤rg fler bokningar. Detta anvÃ¤nds bÃ¥de fÃ¶r att visa
+;;olika mÃ¤ngder orangt fÃ¶r bokade dagar, och olika mÃ¤ngder blÃ¥tt
+;;fÃ¶r visning av ledighet.
+(defun skapa-bokad-fÃ¤rg (variabelt-vÃ¤rde) (make-rgb-color 
+					      bokat-rÃ¶d
+					      variabelt-vÃ¤rde
+					      bokat-blÃ¥))
 
-(defun rita-år (frame pane)
+(defun rita-Ã¥r (frame pane)
   (let*
-    ((årsalmor-att-visa
-       (datahämtare->clim-data (slot-value frame 'datahämtare)))
-     (årsalma (reduce #'clim-år-union årsalmor-att-visa)))
-    (skriv-ut-datakällor (slot-value frame 'datahämtare)) 
-    (skriv-ut-totala-möteslängder (möten årsalma)) 
+    ((Ã¥rsalmor-att-visa
+       (datahÃ¤mtare->clim-data (slot-value frame 'datahÃ¤mtare)))
+     (Ã¥rsalma (reduce #'clim-Ã¥r-union Ã¥rsalmor-att-visa)))
+    (skriv-ut-datakÃ¤llor (slot-value frame 'datahÃ¤mtare)) 
+    (skriv-ut-totala-mÃ¶teslÃ¤ngder (mÃ¶ten Ã¥rsalma)) 
     (terpri)
     (formatting-table
       (pane :x-spacing '(2 :character) :y-spacing '(1 :line))
       (bygg-tabell
-	(i 0 11 månader-per-rad pane)
-	(present (plocka-ut-månad årsalma i)
-		 'clim-månad
+	(i 0 11 mÃ¥nader-per-rad pane)
+	(present (plocka-ut-mÃ¥nad Ã¥rsalma i)
+		 'clim-mÃ¥nad
 		 :view +ars-vy+)))))
 
 (define-presentation-method
   present
-  (clim-månad (type clim-månad) stream (view år-view) &key)
-  (princ ;;Skriv ut månadsnamn och bokad tid
+  (clim-mÃ¥nad (type clim-mÃ¥nad) stream (view Ã¥r-view) &key)
+  (princ ;;Skriv ut mÃ¥nadsnamn och bokad tid
     (format nil "~A: ~A h"
-	    (slot-value clim-månad 'namn)
-	    (if (alma-kan-längd-av-tp)
-	      (truncate (total-möteslängd clim-månad) 60)
+	    (slot-value clim-mÃ¥nad 'namn)
+	    (if (alma-kan-lÃ¤ngd-av-tp)
+	      (truncate (total-mÃ¶teslÃ¤ngd clim-mÃ¥nad) 60)
 	      "?"))) 
-  (terpri) ;;nyrad efter månadsnamnet
+  (terpri) ;;nyrad efter mÃ¥nadsnamnet
   (with-local-coordinates
     (stream)
-    (with-drawing-options ;;rita block så att hela månadsområdet kan klickas
-      (stream :ink tom-dag-färg)
+    (with-drawing-options ;;rita block sÃ¥ att hela mÃ¥nadsomrÃ¥det kan klickas
+      (stream :ink tom-dag-fÃ¤rg)
       (draw-rectangle* stream 0 0
-		       (+ (* 2 px-månads-padding) 
+		       (+ (* 2 px-mÃ¥nads-padding) 
 			  (* (1- dagar-per-rad) px-mellan-dag) 
-			  (* dagar-per-rad (+ 2 px-dagbredd))) ;;plus två för kanten
-		       (+ (* 2 px-månads-padding)
-			  (* (1- rader-per-månad) px-mellan-rad) 
-			  (* rader-per-månad (+ 2 px-daghöjd))))) ;;plus två för kanten
+			  (* dagar-per-rad (+ 2 px-dagbredd))) ;;plus tvÃ¥ fÃ¶r kanten
+		       (+ (* 2 px-mÃ¥nads-padding)
+			  (* (1- rader-per-mÃ¥nad) px-mellan-rad) 
+			  (* rader-per-mÃ¥nad (+ 2 px-daghÃ¶jd))))) ;;plus tvÃ¥ fÃ¶r kanten
     (formatting-table ;;En tabell med dagarna i
       (stream :x-spacing `(,px-mellan-dag :pixel) :y-spacing `(,px-mellan-rad :pixel))
       (bygg-tabell (i 0 31 8 stream)
-		   (rita-dagruta stream (plocka-ut-dag clim-månad i))))))
+		   (rita-dagruta stream (plocka-ut-dag clim-mÃ¥nad i))))))
 
 (defun rita-dagruta (stream clim-dag)
   (cond ((null clim-dag) nil)
-	(t (rita-dag stream (beräkna-dag-färg clim-dag))
-	   (rita-överlapp stream clim-dag)
+	(t (rita-dag stream (berÃ¤kna-dag-fÃ¤rg clim-dag))
+	   (rita-Ã¶verlapp stream clim-dag)
 	   (rita-dagkant stream))))
 
 (defun rita-icke-dag (stream)
-  (rita-dag stream ingen-dag-färg))
+  (rita-dag stream ingen-dag-fÃ¤rg))
 
-(defun beräkna-dag-färg (clim-dag)
-  (let ((möteslista (slot-value clim-dag 'möten)))
-    (if (null möteslista)
-      tom-dag-färg ;;färg för tomma dagar
-      (bokad-färgintensitet möteslista))))
+(defun berÃ¤kna-dag-fÃ¤rg (clim-dag)
+  (let ((mÃ¶teslista (slot-value clim-dag 'mÃ¶ten)))
+    (if (null mÃ¶teslista)
+      tom-dag-fÃ¤rg ;;fÃ¤rg fÃ¶r tomma dagar
+      (bokad-fÃ¤rgintensitet mÃ¶teslista))))
 
-(defun bokad-färgintensitet (möteslista)
-  "Returnerar det färgvärde som en bokad dag ska ha. Om almanackan kan
-  räkna ut längden av tidsperioder så kan vi ge en väldigt fingradig
-  färgskala, annars väljer vi ett antal steg beroende på antal möten
-  istället."
-  (if (alma-kan-längd-av-tp)
-    (skapa-bokad-färg (mötestid-till-färgvärde
-		   (räkna-ihop-möteslängder möteslista)))
-    (let ((intensitet (length möteslista)))
-      (cond ((< intensitet 1) (skapa-bokad-färg ljusast-färgvärde))
-	    ((< intensitet 2) (skapa-bokad-färg ljusare-mellanfärg))
-	    ((< intensitet 3) (skapa-bokad-färg mörkare-mellanfärg))
-	    (t (skapa-bokad-färg mörkast-färgvärde))))))
+(defun bokad-fÃ¤rgintensitet (mÃ¶teslista)
+  "Returnerar det fÃ¤rgvÃ¤rde som en bokad dag ska ha. Om almanackan kan
+  rÃ¤kna ut lÃ¤ngden av tidsperioder sÃ¥ kan vi ge en vÃ¤ldigt fingradig
+  fÃ¤rgskala, annars vÃ¤ljer vi ett antal steg beroende pÃ¥ antal mÃ¶ten
+  istÃ¤llet."
+  (if (alma-kan-lÃ¤ngd-av-tp)
+    (skapa-bokad-fÃ¤rg (mÃ¶testid-till-fÃ¤rgvÃ¤rde
+		   (rÃ¤kna-ihop-mÃ¶teslÃ¤ngder mÃ¶teslista)))
+    (let ((intensitet (length mÃ¶teslista)))
+      (cond ((< intensitet 1) (skapa-bokad-fÃ¤rg ljusast-fÃ¤rgvÃ¤rde))
+	    ((< intensitet 2) (skapa-bokad-fÃ¤rg ljusare-mellanfÃ¤rg))
+	    ((< intensitet 3) (skapa-bokad-fÃ¤rg mÃ¶rkare-mellanfÃ¤rg))
+	    (t (skapa-bokad-fÃ¤rg mÃ¶rkast-fÃ¤rgvÃ¤rde))))))
 
-(defun mötestid-till-färgvärde (mötesminuter)
-  "Returnerar ett färgvärde beroende på antal mötesminuter.
-  Värdet ligger mellan mörkast- och ljusast-färgvärde."
-  (let ((färgstyrka (/ mötesminuter max-minuter)))
-    ;;Färgstyrka ligger mellan 0 och inf
+(defun mÃ¶testid-till-fÃ¤rgvÃ¤rde (mÃ¶tesminuter)
+  "Returnerar ett fÃ¤rgvÃ¤rde beroende pÃ¥ antal mÃ¶tesminuter.
+  VÃ¤rdet ligger mellan mÃ¶rkast- och ljusast-fÃ¤rgvÃ¤rde."
+  (let ((fÃ¤rgstyrka (/ mÃ¶tesminuter max-minuter)))
+    ;;FÃ¤rgstyrka ligger mellan 0 och inf
     (cond
-      ((>= färgstyrka 1) mörkast-färgvärde)
-      ((<= färgstyrka 0) ljusast-färgvärde)
+      ((>= fÃ¤rgstyrka 1) mÃ¶rkast-fÃ¤rgvÃ¤rde)
+      ((<= fÃ¤rgstyrka 0) ljusast-fÃ¤rgvÃ¤rde)
       (t
-	(+ mörkast-färgvärde ;;returnera minst det mörkaste
-	   (* (- ljusast-färgvärde mörkast-färgvärde)
-	      (- 1 färgstyrka))))))) ;;det ska ju bli mörkare för högre styrka
+	(+ mÃ¶rkast-fÃ¤rgvÃ¤rde ;;returnera minst det mÃ¶rkaste
+	   (* (- ljusast-fÃ¤rgvÃ¤rde mÃ¶rkast-fÃ¤rgvÃ¤rde)
+	      (- 1 fÃ¤rgstyrka))))))) ;;det ska ju bli mÃ¶rkare fÃ¶r hÃ¶gre styrka
 
-(defun rita-överlapp (stream clim-dag)
+(defun rita-Ã¶verlapp (stream clim-dag)
   (cond
     ((null clim-dag) nil)
-    ((null (slot-value clim-dag 'möten)) nil)
-    ((alma-kan-överlapp) (rita-överlappande-tider stream clim-dag))
-    ((dag-har-överlapp clim-dag) (rita-överlapp-ruta stream))))
+    ((null (slot-value clim-dag 'mÃ¶ten)) nil)
+    ((alma-kan-Ã¶verlapp) (rita-Ã¶verlappande-tider stream clim-dag))
+    ((dag-har-Ã¶verlapp clim-dag) (rita-Ã¶verlapp-ruta stream))))
 
-(defun rita-överlappande-tider (stream clim-dag)
+(defun rita-Ã¶verlappande-tider (stream clim-dag)
   (kvadratiskc
     #'(lambda
-	(clim-möte-a clim-möte-b)
-	(let ((överlapp (möten-överlapp clim-möte-a clim-möte-b)))
+	(clim-mÃ¶te-a clim-mÃ¶te-b)
+	(let ((Ã¶verlapp (mÃ¶ten-Ã¶verlapp clim-mÃ¶te-a clim-mÃ¶te-b)))
 	  (cond
-	    ((null överlapp) nil)
-	    (t (rita-överlapp-tider stream
-				 (alma-tp-starttid överlapp)
-				 (alma-tp-sluttid överlapp))
-	       (rita-överlapp-ruta stream)))))
-    (slot-value clim-dag 'möten)))
+	    ((null Ã¶verlapp) nil)
+	    (t (rita-Ã¶verlapp-tider stream
+				 (alma-tp-starttid Ã¶verlapp)
+				 (alma-tp-sluttid Ã¶verlapp))
+	       (rita-Ã¶verlapp-ruta stream)))))
+    (slot-value clim-dag 'mÃ¶ten)))
 
-(defun dag-har-överlapp (clim-dag)
+(defun dag-har-Ã¶verlapp (clim-dag)
   (labels
     ((my-or (a b) (or a b)))
     (kvadratisk
-      #'möten-överlappar
+      #'mÃ¶ten-Ã¶verlappar
       #'my-or
       '()
       #'my-or
       '()
-      (slot-value clim-dag 'möten))))
+      (slot-value clim-dag 'mÃ¶ten))))
 
-(defun rita-dag (stream färg)
+(defun rita-dag (stream fÃ¤rg)
   (with-drawing-options
-    (stream :ink färg)
-    (draw-rectangle* stream 0 0 px-dagbredd px-daghöjd)))
+    (stream :ink fÃ¤rg)
+    (draw-rectangle* stream 0 0 px-dagbredd px-daghÃ¶jd)))
 
 (defun rita-dagkant (stream)
   (with-drawing-options
-    (stream :ink dagkant-färg)
-    (draw-rectangle* stream 0 0 px-dagbredd px-daghöjd :filled nil)))
+    (stream :ink dagkant-fÃ¤rg)
+    (draw-rectangle* stream 0 0 px-dagbredd px-daghÃ¶jd :filled nil)))
 
-(defun rita-överlapp-tider (stream starttid sluttid)
-  "Rita från en tid till en annan, och rita ut "
+(defun rita-Ã¶verlapp-tider (stream starttid sluttid)
+  "Rita frÃ¥n en tid till en annan, och rita ut "
   (with-drawing-options
-    (stream :ink överlapp-färg)
+    (stream :ink Ã¶verlapp-fÃ¤rg)
     (draw-rectangle*
       stream
       0
-      (tid-till-position starttid px-daghöjd)
+      (tid-till-position starttid px-daghÃ¶jd)
       px-dagbredd
-      (tid-till-position sluttid px-daghöjd))))
+      (tid-till-position sluttid px-daghÃ¶jd))))
 
-(defun rita-överlapp-ruta (stream)
+(defun rita-Ã¶verlapp-ruta (stream)
   (with-drawing-options
-    (stream :ink överlapp-färg)
+    (stream :ink Ã¶verlapp-fÃ¤rg)
     (draw-rectangle*
       stream
       px-dagbredd
-      px-daghöjd
-      (- px-dagbredd px-överlapp-ruta-bredd)
-      (- px-daghöjd px-överlapp-ruta-höjd)))) 
+      px-daghÃ¶jd
+      (- px-dagbredd px-Ã¶verlapp-ruta-bredd)
+      (- px-daghÃ¶jd px-Ã¶verlapp-ruta-hÃ¶jd)))) 
 
 (define-application-frame
-  årtest
+  Ã¥rtest
   () ;Superclasses
-  ((datahämtare :initarg :datahämtare :accessor datahämtare)) ;Slots
+  ((datahÃ¤mtare :initarg :datahÃ¤mtare :accessor datahÃ¤mtare)) ;Slots
   (:panes
-    (år :application
+    (Ã¥r :application
 	:max-height 700 :height 700
 	:max-width 1000 :width 1000
-	:background app-bg-färg
-	:display-function #'rita-år))
-  (:layouts (default år)))
+	:background app-bg-fÃ¤rg
+	:display-function #'rita-Ã¥r))
+  (:layouts (default Ã¥r)))
 
-(define-årtest-command (com-gå-till-månad :name "månad" :menu "månad")
-		       ((clim-månad 'clim-månad))
+(define-Ã¥rtest-command (com-gÃ¥-till-mÃ¥nad :name "mÃ¥nad" :menu "mÃ¥nad")
+		       ((clim-mÃ¥nad 'clim-mÃ¥nad))
 		       ;(menu-choose 'din 'klick 'registrerades ':D) 
 		       (REACTTEST))
-		       ;(gå-till-månadsvy (skapa-plats clim-månad)))
+		       ;(gÃ¥-till-mÃ¥nadsvy (skapa-plats clim-mÃ¥nad)))
 
 (define-presentation-to-command-translator
-  gå-till-månad
-  (clim-månad com-gå-till-månad årtest
+  gÃ¥-till-mÃ¥nad
+  (clim-mÃ¥nad com-gÃ¥-till-mÃ¥nad Ã¥rtest
 	      :gesture :select
-	      :documentation "Gå till månadsvyn.")
+	      :documentation "GÃ¥ till mÃ¥nadsvyn.")
   (object)
   (progn
     (REACTTEST) 
     (list object)))
 
-(defun testa-år (&rest årsalmanacksnamn)
-  "Startar den grafiska interfacen för att visualisera almanackor"
-  (defvar app (clim:make-application-frame 'årtest))
-  (setf (slot-value app 'datahämtare)
-	(make-instance 'datahämtare
-		       :datakällor årsalmanacksnamn))
+(defun testa-Ã¥r (&rest Ã¥rsalmanacksnamn)
+  "Startar den grafiska interfacen fÃ¶r att visualisera almanackor"
+  (defvar app (clim:make-application-frame 'Ã¥rtest))
+  (setf (slot-value app 'datahÃ¤mtare)
+	(make-instance 'datahÃ¤mtare
+		       :datakÃ¤llor Ã¥rsalmanacksnamn))
   (clim:run-frame-top-level app))

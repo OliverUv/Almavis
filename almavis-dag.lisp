@@ -1,8 +1,8 @@
 (in-package #:almavis-dag)
 
-;; Hack för att importera allt i almavis-paketet, eftersom det inte finns
-;; något sätt att importera alla symboler (även icke-exporterade), och inte
-;; heller något sätt att exportera alla symboler på.
+;; Hack fÃ¶r att importera allt i almavis-paketet, eftersom det inte finns
+;; nÃ¥got sÃ¤tt att importera alla symboler (Ã¤ven icke-exporterade), och inte
+;; heller nÃ¥got sÃ¤tt att exportera alla symboler pÃ¥.
 (do-symbols (symb :almavis) (import symb)) 
 
 (defclass dag-view (view) ())
@@ -11,167 +11,167 @@
 (defun rita-dag (frame pane)
   "Ritar ut en dag."
   (let*
-    ((datahämtare (slot-value frame 'datahämtare))
-     (plats (slot-value datahämtare 'plats)) 
-     (möten-att-visa (datahämtare->clim-möten datahämtare)))
-    (skriv-ut-datakällor (slot-value frame 'datahämtare)) 
-    (skriv-ut-totala-möteslängder möten-att-visa)
+    ((datahÃ¤mtare (slot-value frame 'datahÃ¤mtare))
+     (plats (slot-value datahÃ¤mtare 'plats)) 
+     (mÃ¶ten-att-visa (datahÃ¤mtare->clim-mÃ¶ten datahÃ¤mtare)))
+    (skriv-ut-datakÃ¤llor (slot-value frame 'datahÃ¤mtare)) 
+    (skriv-ut-totala-mÃ¶teslÃ¤ngder mÃ¶ten-att-visa)
     (terpri)
     (format t "Den ~A~A ~A~%"
 	    (plats-dag plats)
 	    (if (> 3 (plats-dag plats)) "a" "e") 
-	    (plats-månad plats))
+	    (plats-mÃ¥nad plats))
     (terpri) 
-    (formatting-table ;;formatting table är fulhack här för att skriva ut
-      (pane) 	      ;;allt under info-texten ovan, istället för på den.
+    (formatting-table ;;formatting table Ã¤r fulhack hÃ¤r fÃ¶r att skriva ut
+      (pane) 	      ;;allt under info-texten ovan, istÃ¤llet fÃ¶r pÃ¥ den.
       (formatting-row
 	(pane)
 	(formatting-cell
 	  (pane)
-	  (cond ((alma-kan-jämför)
-		 (rita-ledigheter pane (gemensam-ledighet datahämtare)))
+	  (cond ((alma-kan-jÃ¤mfÃ¶r)
+		 (rita-ledigheter pane (gemensam-ledighet datahÃ¤mtare)))
 		((and (alma-kan-ledigt)
-		      (= 1 (antal-datakällor datahämtare)))
+		      (= 1 (antal-datakÃ¤llor datahÃ¤mtare)))
 		 (rita-ledigheter
 		   pane
-		   (ledighet datahämtare))))
+		   (ledighet datahÃ¤mtare))))
 	  (let* 
-	    ((px-möteskol-x (rita-ut-tidslinjer pane))) 
-	    (rita-ut-möten
-	      px-möteskol-x
-	      (partitionera-möten möten-att-visa)
-	      möten-att-visa
+	    ((px-mÃ¶teskol-x (rita-ut-tidslinjer pane))) 
+	    (rita-ut-mÃ¶ten
+	      px-mÃ¶teskol-x
+	      (partitionera-mÃ¶ten mÃ¶ten-att-visa)
+	      mÃ¶ten-att-visa
 	      pane)))))))
 
-;;TODO Kan optimeras, flera av värdena räknas ut varje iteration genom
-;;loopen en kan istället räknas ut bara en gång innan loopen körs.
-(defun rita-ut-tidslinjer (ström)
-  "Ritar ut de horisontella linjer som indikerar tider för mötena.
-  Returnerar x-koordinaten för första möteskolumnen"
+;;TODO Kan optimeras, flera av vÃ¤rdena rÃ¤knas ut varje iteration genom
+;;loopen en kan istÃ¤llet rÃ¤knas ut bara en gÃ¥ng innan loopen kÃ¶rs.
+(defun rita-ut-tidslinjer (strÃ¶m)
+  "Ritar ut de horisontella linjer som indikerar tider fÃ¶r mÃ¶tena.
+  Returnerar x-koordinaten fÃ¶r fÃ¶rsta mÃ¶teskolumnen"
   (loop
     for i from 0 to 2400 by 100
     for tidstext = (skapa-tidstext i)
-    for px-tidstext-längd = (sträng-px-längd tidstext ström) 
-    with px-text-vänster-x = px-tidslinje-padding
-    for px-linje-vänster-x = (+ px-tidslinje-padding
-			      px-text-vänster-x
-			      px-tidstext-längd)
-    for px-linje-höger-x = (+ px-linje-vänster-x px-dagsbredd)
-    for px-linje-y = (mappa-position 0 2400 i 0 px-dagshöjd) 
-    for px-tidstext-y = (- px-linje-y (/ px-bokstavshöjd 2)) 
+    for px-tidstext-lÃ¤ngd = (strÃ¤ng-px-lÃ¤ngd tidstext strÃ¶m) 
+    with px-text-vÃ¤nster-x = px-tidslinje-padding
+    for px-linje-vÃ¤nster-x = (+ px-tidslinje-padding
+			      px-text-vÃ¤nster-x
+			      px-tidstext-lÃ¤ngd)
+    for px-linje-hÃ¶ger-x = (+ px-linje-vÃ¤nster-x px-dagsbredd)
+    for px-linje-y = (mappa-position 0 2400 i 0 px-dagshÃ¶jd) 
+    for px-tidstext-y = (- px-linje-y (/ px-bokstavshÃ¶jd 2)) 
     do
-    (draw-line* ström
-		px-linje-vänster-x
+    (draw-line* strÃ¶m
+		px-linje-vÃ¤nster-x
 		px-linje-y
-		px-linje-höger-x
+		px-linje-hÃ¶ger-x
 		px-linje-y
 		:line-style (make-line-style :dashes t)) 
-    (setf (stream-cursor-position ström)
-	  (values px-text-vänster-x px-tidstext-y))
-    (format ström "~A" tidstext)
-    finally (return px-linje-vänster-x))) 
+    (setf (stream-cursor-position strÃ¶m)
+	  (values px-text-vÃ¤nster-x px-tidstext-y))
+    (format strÃ¶m "~A" tidstext)
+    finally (return px-linje-vÃ¤nster-x))) 
 
-(defun partitionera-möten (möten &optional (resultat nil))
-  "Delar in en lista med clim-möten i flera listor så att inga möten
-  i en underlista överlappar varandra. Vi delar in mötena i så få
-  underlistor som möjligt. Resultatet har formen: ((clim-möte*)*)"
+(defun partitionera-mÃ¶ten (mÃ¶ten &optional (resultat nil))
+  "Delar in en lista med clim-mÃ¶ten i flera listor sÃ¥ att inga mÃ¶ten
+  i en underlista Ã¶verlappar varandra. Vi delar in mÃ¶tena i sÃ¥ fÃ¥
+  underlistor som mÃ¶jligt. Resultatet har formen: ((clim-mÃ¶te*)*)"
   (labels
-    ((sortera-in-möte
-       (möte möteslista)
-       (cond ((null möteslista) (cons (list möte) möteslista))
-	     ((finns-överlapp? möte (car möteslista))
-	      (cons (car möteslista) (sortera-in-möte möte (cdr möteslista))))
-	     (t (cons (cons möte (car möteslista)) (cdr möteslista))))))
-    (if (null möten) resultat
-      (partitionera-möten
-	(cdr möten) 
-	(sortera-in-möte (car möten) resultat))))) 
+    ((sortera-in-mÃ¶te
+       (mÃ¶te mÃ¶teslista)
+       (cond ((null mÃ¶teslista) (cons (list mÃ¶te) mÃ¶teslista))
+	     ((finns-Ã¶verlapp? mÃ¶te (car mÃ¶teslista))
+	      (cons (car mÃ¶teslista) (sortera-in-mÃ¶te mÃ¶te (cdr mÃ¶teslista))))
+	     (t (cons (cons mÃ¶te (car mÃ¶teslista)) (cdr mÃ¶teslista))))))
+    (if (null mÃ¶ten) resultat
+      (partitionera-mÃ¶ten
+	(cdr mÃ¶ten) 
+	(sortera-in-mÃ¶te (car mÃ¶ten) resultat))))) 
 
-(defun rita-ut-möten (px-kolumn-ett-x partitionerade-möten dagens-möten ström)
-  "Tar x-koordinaten för den första möteskolumnen, en lista med
-  partitionerade möten på formen ((clim-möte*)*) och ritar ut
-  mötena på en ström."
-  (loop for mötespartition in partitionerade-möten
-	for i from 0 to (1- max-antal-möteskolumner)
-	for px-kolumn-vänster-x = (+ px-kolumn-ett-x
-				     (* i (+ px-mellan-möteskol
-					     px-möteskol-bredd)))
+(defun rita-ut-mÃ¶ten (px-kolumn-ett-x partitionerade-mÃ¶ten dagens-mÃ¶ten strÃ¶m)
+  "Tar x-koordinaten fÃ¶r den fÃ¶rsta mÃ¶teskolumnen, en lista med
+  partitionerade mÃ¶ten pÃ¥ formen ((clim-mÃ¶te*)*) och ritar ut
+  mÃ¶tena pÃ¥ en strÃ¶m."
+  (loop for mÃ¶tespartition in partitionerade-mÃ¶ten
+	for i from 0 to (1- max-antal-mÃ¶teskolumner)
+	for px-kolumn-vÃ¤nster-x = (+ px-kolumn-ett-x
+				     (* i (+ px-mellan-mÃ¶teskol
+					     px-mÃ¶teskol-bredd)))
 	do
-	(loop for möte in mötespartition
+	(loop for mÃ¶te in mÃ¶tespartition
 	      do
-	      (setf (stream-cursor-position ström)
-		    (values px-kolumn-vänster-x 0)) 
+	      (setf (stream-cursor-position strÃ¶m)
+		    (values px-kolumn-vÃ¤nster-x 0)) 
 	      (with-local-coordinates
-		(ström px-kolumn-vänster-x 0) 
-		(present möte
-			 `((clim-möte) :andra-möten ,(remove möte dagens-möten))
+		(strÃ¶m px-kolumn-vÃ¤nster-x 0) 
+		(present mÃ¶te
+			 `((clim-mÃ¶te) :andra-mÃ¶ten ,(remove mÃ¶te dagens-mÃ¶ten))
 			 :view +dag-vy+)))))
 
-(define-presentation-type clim-möte () :options ((andra-möten nil))) 
+(define-presentation-type clim-mÃ¶te () :options ((andra-mÃ¶ten nil))) 
 
 (define-presentation-method
   present
-  (clim-möte (type clim-möte) stream (view dag-view) &key)
-  (rita-möte clim-möte andra-möten stream))
+  (clim-mÃ¶te (type clim-mÃ¶te) stream (view dag-view) &key)
+  (rita-mÃ¶te clim-mÃ¶te andra-mÃ¶ten stream))
 
-(defun rita-möte (clim-möte andra-möten ström)
+(defun rita-mÃ¶te (clim-mÃ¶te andra-mÃ¶ten strÃ¶m)
   (with-slots
-    (alma-möte start-kl slut-kl almanacksnamn mötesinfo) 
-    clim-möte
+    (alma-mÃ¶te start-kl slut-kl almanacksnamn mÃ¶tesinfo) 
+    clim-mÃ¶te
     (let*
-      ((tidsperiod (tidsperioddel alma-möte))
+      ((tidsperiod (tidsperioddel alma-mÃ¶te))
        (starttid (alma-tp-starttid tidsperiod))
        (sluttid (alma-tp-sluttid tidsperiod))
-       (px-start-y (tid-till-position starttid px-dagshöjd))
-       (px-slut-y (tid-till-position sluttid px-dagshöjd))
-       (överlappande-möten (överlappande-möten clim-möte andra-möten))) 
-      (with-drawing-options ;;Rita mötets bakgrund
-	(ström :ink bokad-färg)
+       (px-start-y (tid-till-position starttid px-dagshÃ¶jd))
+       (px-slut-y (tid-till-position sluttid px-dagshÃ¶jd))
+       (Ã¶verlappande-mÃ¶ten (Ã¶verlappande-mÃ¶ten clim-mÃ¶te andra-mÃ¶ten))) 
+      (with-drawing-options ;;Rita mÃ¶tets bakgrund
+	(strÃ¶m :ink bokad-fÃ¤rg)
 	(draw-rectangle*
-	  ström
+	  strÃ¶m
 	  0
 	  px-start-y
-	  px-möteskol-bredd	
+	  px-mÃ¶teskol-bredd	
 	  px-slut-y))
-      (cond ;;Rita eventuellt överlappsgrejjer
-	((null överlappande-möten) nil)
-	((alma-kan-överlapp)
+      (cond ;;Rita eventuellt Ã¶verlappsgrejjer
+	((null Ã¶verlappande-mÃ¶ten) nil)
+	((alma-kan-Ã¶verlapp)
 	 (loop
-	   for möte in överlappande-möten
+	   for mÃ¶te in Ã¶verlappande-mÃ¶ten
 	   do
-	   (let* ((överlapp (möten-överlapp clim-möte möte))
-		  (starttid (alma-tp-starttid överlapp))
-		  (sluttid (alma-tp-sluttid överlapp))
-		  (px-start (tid-till-position starttid px-dagshöjd))
-		  (px-slut (tid-till-position sluttid px-dagshöjd))) 
+	   (let* ((Ã¶verlapp (mÃ¶ten-Ã¶verlapp clim-mÃ¶te mÃ¶te))
+		  (starttid (alma-tp-starttid Ã¶verlapp))
+		  (sluttid (alma-tp-sluttid Ã¶verlapp))
+		  (px-start (tid-till-position starttid px-dagshÃ¶jd))
+		  (px-slut (tid-till-position sluttid px-dagshÃ¶jd))) 
 	     (with-drawing-options
-	       (ström :ink överlapp-färg)
+	       (strÃ¶m :ink Ã¶verlapp-fÃ¤rg)
 	       (draw-rectangle*
-		 ström
-		 (- px-möteskol-bredd px-överlapp-ruta-bredd) 
+		 strÃ¶m
+		 (- px-mÃ¶teskol-bredd px-Ã¶verlapp-ruta-bredd) 
 		 px-start
-		 px-möteskol-bredd
+		 px-mÃ¶teskol-bredd
 		 px-slut)))))
 	(t (with-drawing-options
-	     (ström :ink överlapp-färg)
+	     (strÃ¶m :ink Ã¶verlapp-fÃ¤rg)
 	     (draw-rectangle*
-	       ström
+	       strÃ¶m
 	       0 
 	       px-start-y
-	       px-överlapp-ruta-bredd
-	       (+ px-start-y px-överlapp-ruta-höjd))))) 
-      (byt-cursor-position ström :y px-start-y) 
-      (skriv-rader ström
-		   px-möteskol-bredd
+	       px-Ã¶verlapp-ruta-bredd
+	       (+ px-start-y px-Ã¶verlapp-ruta-hÃ¶jd))))) 
+      (byt-cursor-position strÃ¶m :y px-start-y) 
+      (skriv-rader strÃ¶m
+		   px-mÃ¶teskol-bredd
 		   (- px-slut-y px-start-y)
-		   (list mötesinfo
+		   (list mÃ¶tesinfo
 			 (format nil "~A - ~A  ~A"
 				 (skapa-tidstext start-kl)
 				 (skapa-tidstext slut-kl)
-				 (möteslängd-sträng clim-möte))
+				 (mÃ¶teslÃ¤ngd-strÃ¤ng clim-mÃ¶te))
 			 (format nil "~A" almanacksnamn))))))
 
-(defun rita-ledigheter (ström clim-ledigheter)
+(defun rita-ledigheter (strÃ¶m clim-ledigheter)
   (mapc
     #'(lambda
 	(clim-ledighet)
@@ -179,12 +179,12 @@
 	  ((tidsperiod (slot-value clim-ledighet 'tidsperiod))
 	   (starttid (alma-tp-starttid tidsperiod))
 	   (sluttid (alma-tp-sluttid tidsperiod))
-	   (px-start-y (tid-till-position starttid px-dagshöjd))
-	   (px-slut-y (tid-till-position sluttid px-dagshöjd))) 
+	   (px-start-y (tid-till-position starttid px-dagshÃ¶jd))
+	   (px-slut-y (tid-till-position sluttid px-dagshÃ¶jd))) 
 	  (with-drawing-options
-	    (ström :ink ledig-färg)
+	    (strÃ¶m :ink ledig-fÃ¤rg)
 	    (draw-rectangle*
-	      ström
+	      strÃ¶m
 	      0
 	      px-start-y
 	      (* 2 px-tidslinje-padding) 
